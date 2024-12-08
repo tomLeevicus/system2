@@ -6,11 +6,13 @@ import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.repository.ProcessDefinitionQuery;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,9 +94,10 @@ public class ActProcessDefinitionServiceImpl implements IActProcessDefinitionSer
         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
                 .processDefinitionId(processDefinitionId)
                 .singleResult();
-        try {
-            return repositoryService.getResourceAsStream(processDefinition.getDeploymentId(),
-                    processDefinition.getDiagramResourceName()).readAllBytes();
+        try (InputStream inputStream = repositoryService.getResourceAsStream(
+                processDefinition.getDeploymentId(),
+                processDefinition.getDiagramResourceName())) {
+            return IOUtils.toByteArray(inputStream);
         } catch (IOException e) {
             throw new RuntimeException("获取流程定义图像失败", e);
         }
@@ -105,11 +108,42 @@ public class ActProcessDefinitionServiceImpl implements IActProcessDefinitionSer
         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
                 .processDefinitionId(processDefinitionId)
                 .singleResult();
-        try {
-            return new String(repositoryService.getResourceAsStream(processDefinition.getDeploymentId(),
-                    processDefinition.getResourceName()).readAllBytes());
+        try (InputStream inputStream = repositoryService.getResourceAsStream(
+                processDefinition.getDeploymentId(),
+                processDefinition.getResourceName())) {
+            return IOUtils.toString(inputStream, "UTF-8");
         } catch (IOException e) {
             throw new RuntimeException("获取流程定义XML失败", e);
         }
+    }
+
+    @Override
+    public ActProcessDefinition selectProcessDefinitionById(String processDefinitionId) {
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                .processDefinitionId(processDefinitionId)
+                .singleResult();
+                
+        return convertToActProcessDefinition(processDefinition);
+    }
+
+    private ActProcessDefinition convertToActProcessDefinition(ProcessDefinition definition) {
+        if (definition == null) {
+            return null;
+        }
+        
+        ActProcessDefinition actDefinition = new ActProcessDefinition();
+        actDefinition.setId(definition.getId());
+        actDefinition.setKey(definition.getKey());
+        actDefinition.setName(definition.getName());
+        actDefinition.setCategory(definition.getCategory());
+        actDefinition.setVersion(definition.getVersion());
+        actDefinition.setDescription(definition.getDescription());
+        actDefinition.setDeploymentId(definition.getDeploymentId());
+        actDefinition.setResourceName(definition.getResourceName());
+        actDefinition.setDiagramResourceName(definition.getDiagramResourceName());
+        actDefinition.setSuspended(definition.isSuspended());
+        actDefinition.setTenantId(definition.getTenantId());
+        
+        return actDefinition;
     }
 } 

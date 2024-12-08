@@ -4,11 +4,12 @@ server:
     context-path: /api
 
 spring:
+  # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/system2?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+    url: jdbc:mysql://192.168.80.128:3306/system2?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
     username: root
-    password: password
+    password: root
     druid:
       initial-size: 5
       min-idle: 10
@@ -22,6 +23,7 @@ spring:
       test-on-borrow: false
       test-on-return: false
 
+  # Jackson配置
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
@@ -32,32 +34,22 @@ spring:
     deserialization:
       fail_on_unknown_properties: false
 
-mybatis-plus:
-  mapper-locations: classpath*:mapper/**/*Mapper.xml
-  type-aliases-package: com.project.system2.domain.entity
-  configuration:
-    map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  type-handlers-package: com.project.system2.config.typehandler
-  global-config:
-    db-config:
-      logic-delete-field: delFlag
-      logic-delete-value: 1
-      logic-not-delete-value: 0
-      id-type: auto
+  # Redis配置
+  data:
+    redis:
+      host: 192.168.80.128
+      port: 6379
+      database: 0
+      password:
+      timeout: 10s
+      lettuce:
+        pool:
+          min-idle: 0
+          max-idle: 8
+          max-active: 8
+          max-wait: -1ms
 
-token:
-  header: Authorization
-  secret: your-secret-key
-  expiration: 86400
-
-logging:
-  level:
-    com.project.system2: debug
-    org.springframework: warn
-
-# Activiti 配置
-spring:
+  # Activiti配置
   activiti:
     database-schema-update: true
     history-level: full
@@ -83,26 +75,29 @@ spring:
     security:
       enabled: false
 
-# Redis配置
-spring:
-  redis:
-    # 地址
-    host: localhost
-    # 端口，默认为6379
-    port: 6379
-    # 数据库索引
-    database: 0
-    # 密码
-    password: 
-    # 连接超时时间
-    timeout: 10s
-    lettuce:
-      pool:
-        # 连接池中的最小空闲连接
-        min-idle: 0
-        # 连接池中的最大空闲连接
-        max-idle: 8
-        # 连接池的最大数据库连接数
-        max-active: 8
-        # 连接池最大阻塞等待时间（使用负值表示没有限制）
-        max-wait: -1ms
+# MyBatis-Plus配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  type-aliases-package: com.project.system2.domain.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  type-handlers-package: com.project.system2.config.typehandler
+  global-config:
+    db-config:
+      logic-delete-field: delFlag
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      id-type: auto
+
+# Token配置
+token:
+  header: Authorization
+  secret: your-secret-key
+  expiration: 86400
+
+# 日志配置
+logging:
+  level:
+    com.project.system2: debug
+    org.springframework: warn

@@ -1,6 +1,7 @@
 package com.project.system2.service.impl;
 
 import com.project.system2.service.IActProcessInstanceService;
+import jakarta.annotation.Resource;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;

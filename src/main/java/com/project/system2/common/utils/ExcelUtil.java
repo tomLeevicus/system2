@@ -8,6 +8,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -20,7 +21,9 @@ public class ExcelUtil<T> {
 
     public void exportExcel(HttpServletResponse response, List<T> list, String sheetName) {
         try {
-            String fileName = URLEncoder.encode(sheetName, StandardCharsets.UTF_8);
+            Charset charset = StandardCharsets.UTF_8;
+            String encodingName = charset.name();
+            String fileName = URLEncoder.encode(sheetName, encodingName);
             response.setContentType("application/vnd.ms-excel");
             response.setCharacterEncoding("utf-8");
             response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");

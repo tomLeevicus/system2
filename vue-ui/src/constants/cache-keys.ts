@@ -1,1 +1,6 @@
- 
+export const TOKEN_KEY = 'token'
+export const USER_INFO_KEY = 'user_info'
+export const ROLES_KEY = 'roles'
+export const PERMISSIONS_KEY = 'permissions'
+export const TAGS_VIEW_KEY = 'tags_view'
+export const LAYOUT_SETTINGS_KEY = 'layout_settings' 

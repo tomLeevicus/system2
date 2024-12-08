@@ -1,15 +1,14 @@
-import Cookies from 'js-cookie'
-
-const TokenKey = 'Admin-Token'
+import { cache } from './cache'
+import { TOKEN_KEY } from '@/constants/cache-keys'
 
 export function getToken() {
-  return Cookies.get(TokenKey)
+  return cache.get(TOKEN_KEY)
 }
 
 export function setToken(token: string) {
-  return Cookies.set(TokenKey, token)
+  return cache.set(TOKEN_KEY, token)
 }
 
 export function removeToken() {
-  return Cookies.remove(TokenKey)
+  return cache.remove(TOKEN_KEY)
 } 

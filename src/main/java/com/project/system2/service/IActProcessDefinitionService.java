@@ -36,4 +36,6 @@ public interface IActProcessDefinitionService {
      * 获取流程定义XML
      */
     String getProcessDefinitionXML(String processDefinitionId);
+    
+    ActProcessDefinition selectProcessDefinitionById(String processDefinitionId);
 } 
