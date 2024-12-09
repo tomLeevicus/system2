@@ -1,14 +1,40 @@
-import { cache } from './cache'
-import { TOKEN_KEY } from '@/constants/cache-keys'
+import { CACHE_KEY } from '@/constants/cache-keys'
 
-export function getToken() {
-  return cache.get(TOKEN_KEY)
+const TokenKey = CACHE_KEY.TOKEN
+
+// 获取 token
+export function getToken(): string | null {
+  return localStorage.getItem(TokenKey)
 }
 
-export function setToken(token: string) {
-  return cache.set(TOKEN_KEY, token)
+// 设置 token
+export function setToken(token: string): void {
+  localStorage.setItem(TokenKey, token)
 }
 
-export function removeToken() {
-  return cache.remove(TOKEN_KEY)
+// 移除 token
+export function removeToken(): void {
+  localStorage.removeItem(TokenKey)
+}
+
+// 获取用户信息
+export function getUserInfo(): any {
+  const userInfo = localStorage.getItem(CACHE_KEY.USER_INFO)
+  return userInfo ? JSON.parse(userInfo) : null
+}
+
+// 设置用户信息
+export function setUserInfo(userInfo: any): void {
+  localStorage.setItem(CACHE_KEY.USER_INFO, JSON.stringify(userInfo))
+}
+
+// 移除用户信息
+export function removeUserInfo(): void {
+  localStorage.removeItem(CACHE_KEY.USER_INFO)
+}
+
+// 清除所有认证信息
+export function clearAuth(): void {
+  removeToken()
+  removeUserInfo()
 } 

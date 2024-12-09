@@ -1,36 +1,28 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import 'element-plus/dist/index.css'
-import '@/styles/index.scss'
+
 import App from './App.vue'
 import router from './router'
-import { createPinia } from 'pinia'
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import { hasRole, hasPermi } from './directives/permission/hasRole'
 
-// 导入全局组件
-import GlobalComponents from './components'
-// 导入自定义指令
-import Directives from './directives'
-// 导入权限控制
-import './permission'
+import './styles/index.scss'
 
 const app = createApp(App)
 
-// 注册 Element Plus 图标
+// 注册所有图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 
-// 注册全局组件
-app.use(GlobalComponents)
 // 注册自定义指令
-app.use(Directives)
-
-// 全局错误处理
-import { errorHandler } from './utils/error-handler'
-app.config.errorHandler = errorHandler
+app.directive('hasRole', hasRole)
+app.directive('hasPermi', hasPermi)
 
 app.use(createPinia())
-   .use(router)
-   .use(ElementPlus)
-   .mount('#app') 
+app.use(router)
+app.use(ElementPlus)
+
+app.mount('#app') 

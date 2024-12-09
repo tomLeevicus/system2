@@ -22,7 +22,7 @@
 		<mysql.version>8.0.33</mysql.version>
 		<jjwt.version>0.11.5</jjwt.version>
 		<lombok.version>1.18.30</lombok.version>
-		<activiti.version>6.0.0</activiti.version>
+		<activiti.version>7.1.0.M6</activiti.version>
 		<poi.version>5.2.3</poi.version>
 	</properties>
 	
@@ -37,6 +37,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		
+		<!-- OAuth2 Resource Server -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
 		
 		<!-- MyBatis Plus -->
@@ -122,38 +128,38 @@
 		<!-- Activiti -->
 		<dependency>
 			<groupId>org.activiti</groupId>
-			<artifactId>activiti-spring-boot-starter-basic</artifactId>
-			<version>${activiti.version}</version>
+			<artifactId>activiti-spring-boot-starter</artifactId>
+			<version>7.1.0.M6</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.activiti</groupId>
 			<artifactId>activiti-engine</artifactId>
-			<version>${activiti.version}</version>
+			<version>7.1.0.M6</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.activiti</groupId>
 			<artifactId>activiti-spring</artifactId>
-			<version>${activiti.version}</version>
+			<version>7.1.0.M6</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.activiti</groupId>
 			<artifactId>activiti-bpmn-model</artifactId>
-			<version>${activiti.version}</version>
+			<version>7.1.0.M6</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.activiti</groupId>
 			<artifactId>activiti-bpmn-converter</artifactId>
-			<version>${activiti.version}</version>
+			<version>7.1.0.M6</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.activiti</groupId>
 			<artifactId>activiti-json-converter</artifactId>
-			<version>${activiti.version}</version>
+			<version>7.1.0.M6</version>
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
@@ -253,6 +259,19 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		
+		<!-- Base64编码依赖 -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
+		
+		<!-- 添加到 dependencies 节点下 -->
+		<dependency>
+			<groupId>com.alibaba.fastjson2</groupId>
+			<artifactId>fastjson2-extension-spring6</artifactId>
+			<version>2.0.40</version>
 		</dependency>
 	</dependencies>
 

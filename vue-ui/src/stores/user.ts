@@ -1,52 +1,65 @@
 import { defineStore } from 'pinia'
-import { login, logout, getInfo } from '@/api/auth'
-import { cache } from '@/utils/cache'
-import { TOKEN_KEY, USER_INFO_KEY, ROLES_KEY, PERMISSIONS_KEY } from '@/constants/cache-keys'
+import { ref } from 'vue'
+import { login, getInfo, logout } from '@/api/auth'
+import type { LoginForm, LoginResponse, UserInfo } from '@/types/auth'
+import { getToken, setToken, removeToken } from '@/utils/auth'
+import router from '@/router'
 
-export const useUserStore = defineStore('user', {
-  state: () => ({
-    token: cache.get(TOKEN_KEY) || '',
-    userInfo: cache.get(USER_INFO_KEY) || {},
-    roles: cache.get(ROLES_KEY) || [],
-    permissions: cache.get(PERMISSIONS_KEY) || []
-  }),
+export const useUserStore = defineStore('user', () => {
+  const token = ref(getToken() || '')
+  const name = ref('')
+  const avatar = ref('')
+  const roles = ref<string[]>([])
+  const permissions = ref<string[]>([])
 
-  actions: {
-    // 登录
-    async login(userInfo: { username: string; password: string }) {
-      const { username, password } = userInfo
-      const response = await login({ username: username.trim(), password })
-      const { token } = response.data
-      cache.set(TOKEN_KEY, token)
-      this.token = token
-    },
-
-    // 获取用户信息
-    async getInfo() {
-      const response = await getInfo()
-      const { roles, permissions, ...userInfo } = response.data
-      
-      cache.set(USER_INFO_KEY, userInfo)
-      cache.set(ROLES_KEY, roles)
-      cache.set(PERMISSIONS_KEY, permissions)
-
-      this.userInfo = userInfo
-      this.roles = roles
-      this.permissions = permissions
-    },
-
-    // 退出登录
-    async logout() {
-      await logout()
-      this.token = ''
-      this.roles = []
-      this.permissions = []
-      this.userInfo = {}
-      
-      cache.remove(TOKEN_KEY)
-      cache.remove(USER_INFO_KEY)
-      cache.remove(ROLES_KEY)
-      cache.remove(PERMISSIONS_KEY)
+  // 登录
+  async function loginAction(loginForm: LoginForm) {
+    try {
+      const { data } = await login(loginForm)
+      setToken(data.token)
+      token.value = data.token
+    } catch (error) {
+      removeToken()
+      throw error
     }
+  }
+
+  // 获取用户信息
+  async function getInfoAction() {
+    try {
+      const { data } = await getInfo()
+      name.value = data.name
+      avatar.value = data.avatar
+      roles.value = data.roles
+      permissions.value = data.permissions
+      return data
+    } catch (error) {
+      throw error
+    }
+  }
+
+  // 登出
+  async function logoutAction() {
+    try {
+      await logout()
+      token.value = ''
+      roles.value = []
+      permissions.value = []
+      removeToken()
+      router.push('/login')
+    } catch (error) {
+      console.error('登出失败:', error)
+    }
+  }
+
+  return {
+    token,
+    name,
+    avatar,
+    roles,
+    permissions,
+    login: loginAction,
+    getInfo: getInfoAction,
+    logout: logoutAction
   }
 }) 

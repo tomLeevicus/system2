@@ -8,8 +8,7 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@ui': fileURLToPath(new URL('./src/ui', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
   server: {
@@ -19,7 +18,8 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        ws: true,
+        rewrite: (path) => path
       }
     }
   }

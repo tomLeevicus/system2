@@ -1,67 +1,54 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { useUserStore } from '@/stores/user'
+import axios, { AxiosResponse } from 'axios'
+import { ElMessage } from 'element-plus'
+import { getToken } from '@/utils/auth'
+import router from '@/router'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: import.meta.env.VITE_APP_BASE_API,
+  baseURL: import.meta.env.VITE_API_URL,
   timeout: 10000
 })
 
 // 请求拦截器
 service.interceptors.request.use(
-  (config) => {
-    const userStore = useUserStore()
-    if (userStore.token) {
-      config.headers['Authorization'] = `Bearer ${userStore.token}`
+  config => {
+    console.log('Request URL:', config.url)  // 添加请求URL日志
+    console.log('Request Method:', config.method)  // 添加请求方法日志
+    console.log('Request Headers:', config.headers)  // 添加请求头日志
+    
+    const token = getToken()
+    if (token) {
+      config.headers['Authorization'] = 'Bearer ' + token
     }
     return config
   },
-  (error) => {
-    console.log(error)
+  error => {
+    console.error('请求错误:', error)
     return Promise.reject(error)
   }
 )
 
 // 响应拦截器
 service.interceptors.response.use(
-  (response) => {
+  (response: AxiosResponse) => {
     const res = response.data
     if (res.code !== 200) {
-      ElMessage({
-        message: res.msg || 'Error',
-        type: 'error',
-        duration: 5 * 1000
-      })
-
+      ElMessage.error(res.msg || '请求失败')
+      
+      // 401: 未登录或token过期
       if (res.code === 401) {
-        ElMessageBox.confirm(
-          '登录状态已过期，您可以继续留在该页面，或者重新登录',
-          '系统提示',
-          {
-            confirmButtonText: '重新登录',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        ).then(() => {
-          const userStore = useUserStore()
-          userStore.logout().then(() => {
-            location.reload()
-          })
-        })
+        router.push('/login')
       }
-      return Promise.reject(new Error(res.msg || 'Error'))
-    } else {
-      return res
+      return Promise.reject(new Error(res.msg || '请求失败'))
     }
+    return res
   },
-  (error) => {
-    console.log('err' + error)
-    ElMessage({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
+  error => {
+    console.error('响应错误:', error)
+    ElMessage.error(error.message || '请求失败')
+    if (error.response?.status === 401) {
+      router.push('/login')
+    }
     return Promise.reject(error)
   }
 )

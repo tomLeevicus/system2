@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath } from 'url'
 
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
   resolve: {
@@ -9,14 +10,23 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  optimizeDeps: {
+    include: [
+      'fuse.js',
+      'path-browserify',
+      'screenfull'
+    ]
+  },
   server: {
     port: 3000,
     host: true,
     proxy: {
-      '/api': {
+      '^/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        secure: false,
+        ws: true,
+        rewrite: (path) => path
       }
     }
   }

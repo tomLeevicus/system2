@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import Layout from '@/layout/index.vue'
+import Layout from '../layout/index.vue'
 
 export const constantRoutes: RouteRecordRaw[] = [
   {
     path: '/login',
-    component: () => import('@/views/login/index.vue'),
-    meta: { hidden: true }
+    component: () => import('../views/login/index.vue'),
+    meta: { title: '登录' }
   },
   {
     path: '/',
@@ -14,77 +14,41 @@ export const constantRoutes: RouteRecordRaw[] = [
     children: [
       {
         path: 'dashboard',
+        component: () => import('../views/dashboard/index.vue'),
         name: 'Dashboard',
-        component: () => import('@/views/dashboard/index.vue'),
-        meta: { title: '首页', icon: 'House' }
+        meta: { title: '首页', icon: 'House', affix: true }
       }
     ]
   },
   {
     path: '/system',
     component: Layout,
+    redirect: '/system/user',
     meta: { title: '系统管理', icon: 'Setting' },
     children: [
       {
         path: 'user',
+        component: () => import('../views/system/user/index.vue'),
         name: 'User',
-        component: () => import('@/views/system/user/index.vue'),
-        meta: { title: '用户管理' }
+        meta: { title: '用户管理', icon: 'User' }
       },
       {
         path: 'role',
+        component: () => import('../views/system/role/index.vue'),
         name: 'Role',
-        component: () => import('@/views/system/role/index.vue'),
-        meta: { title: '角色管理' }
+        meta: { title: '角色管理', icon: 'UserFilled' }
       },
       {
         path: 'menu',
+        component: () => import('../views/system/menu/index.vue'),
         name: 'Menu',
-        component: () => import('@/views/system/menu/index.vue'),
-        meta: { title: '菜单管理' }
+        meta: { title: '菜单管理', icon: 'Menu' }
       },
       {
         path: 'dict',
+        component: () => import('../views/system/dict/index.vue'),
         name: 'Dict',
-        component: () => import('@/views/system/dict/type/index.vue'),
-        meta: { title: '字典管理' }
-      }
-    ]
-  },
-  {
-    path: '/workflow',
-    component: Layout,
-    meta: { title: '工作流程', icon: 'Connection' },
-    children: [
-      {
-        path: 'process',
-        name: 'Process',
-        component: () => import('@/views/workflow/process/index.vue'),
-        meta: { title: '流程管理' }
-      },
-      {
-        path: 'instance',
-        name: 'Instance',
-        component: () => import('@/views/workflow/instance/index.vue'),
-        meta: { title: '流程实例' }
-      },
-      {
-        path: 'task/todo',
-        name: 'TodoTask',
-        component: () => import('@/views/workflow/task/todo.vue'),
-        meta: { title: '待办任务' }
-      },
-      {
-        path: 'task/done',
-        name: 'DoneTask',
-        component: () => import('@/views/workflow/task/done.vue'),
-        meta: { title: '已办任务' }
-      },
-      {
-        path: 'history',
-        name: 'History',
-        component: () => import('@/views/workflow/history/index.vue'),
-        meta: { title: '流程历史' }
+        meta: { title: '字典管理', icon: 'Collection' }
       }
     ]
   }
@@ -92,8 +56,25 @@ export const constantRoutes: RouteRecordRaw[] = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: constantRoutes,
-  scrollBehavior: () => ({ left: 0, top: 0 })
+  routes: constantRoutes
+})
+
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+  if (to.path === '/login') {
+    if (token) {
+      next('/')
+    } else {
+      next()
+    }
+  } else {
+    if (token) {
+      next()
+    } else {
+      next('/login')
+    }
+  }
 })
 
 export default router 

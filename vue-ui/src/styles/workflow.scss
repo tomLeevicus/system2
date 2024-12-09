@@ -1,0 +1,101 @@
+// 流程图样式
+.process-diagram {
+  &-container {
+    background-color: var(--el-bg-color-page);
+    padding: 20px;
+    border-radius: 4px;
+    min-height: 300px;
+    
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+  
+  &-empty {
+    text-align: center;
+    color: var(--el-text-color-secondary);
+    padding: 40px 0;
+  }
+}
+
+// 表单样式
+.workflow-form {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  
+  .form-header {
+    margin-bottom: 30px;
+    text-align: center;
+    
+    .title {
+      font-size: 24px;
+      color: var(--el-text-color-primary);
+    }
+    
+    .subtitle {
+      font-size: 14px;
+      color: var(--el-text-color-secondary);
+      margin-top: 10px;
+    }
+  }
+  
+  .form-footer {
+    margin-top: 40px;
+    text-align: center;
+    
+    .el-button {
+      min-width: 120px;
+    }
+  }
+}
+
+// 任务列表样式
+.task-list {
+  .task-item {
+    padding: 15px;
+    border-bottom: 1px solid var(--el-border-color-lighter);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .task-title {
+      font-size: 16px;
+      color: var(--el-text-color-primary);
+      margin-bottom: 10px;
+    }
+    
+    .task-info {
+      color: var(--el-text-color-secondary);
+      font-size: 13px;
+      
+      span {
+        margin-right: 20px;
+      }
+    }
+    
+    .task-actions {
+      margin-top: 10px;
+    }
+  }
+}
+
+// 审批历史样式
+.approval-history {
+  .el-timeline-item {
+    .el-timeline-item__content {
+      h4 {
+        color: var(--el-text-color-primary);
+        margin-bottom: 8px;
+      }
+      
+      p {
+        color: var(--el-text-color-secondary);
+        margin: 5px 0;
+        font-size: 13px;
+      }
+    }
+  }
+} 

@@ -1,6 +1,6 @@
 package com.project.system2.security.filter;
 
-import com.project.system2.security.service.TokenService;
+import com.project.system2.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
