@@ -43,6 +43,86 @@ interface Settings {
    * 主题色
    */
   theme: string
+
+  /**
+   * 工作流配置
+   */
+  workflow: {
+    /**
+     * 是否启用工作流
+     */
+    enabled: boolean
+
+    /**
+     * 流程图配置
+     */
+    diagram: {
+      /**
+       * 流程图主题色
+       */
+      theme: string
+      
+      /**
+       * 流程图字体
+       */
+      font: string
+      
+      /**
+       * 流程图背景色
+       */
+      backgroundColor: string
+    }
+
+    /**
+     * 表单配置
+     */
+    form: {
+      /**
+       * 表单最大宽度
+       */
+      maxWidth: number
+      
+      /**
+       * 表单内边距
+       */
+      padding: number
+    }
+  }
+
+  /**
+   * 菜单配置
+   */
+  menu: {
+    /**
+     * 是否显示父级菜单
+     */
+    showParent: boolean
+
+    /**
+     * 是否只显示一级菜单
+     */
+    onlyFirstLevel: boolean
+
+    /**
+     * 是否显示图标
+     */
+    showIcon: boolean
+
+    /**
+     * 菜单主题 light | dark
+     */
+    theme: 'light' | 'dark'
+
+    /**
+     * 菜单宽度
+     */
+    width: number
+
+    /**
+     * 折叠时的宽度
+     */
+    collapsedWidth: number
+  }
 }
 
 const settings: Settings = {
@@ -54,7 +134,27 @@ const settings: Settings = {
   fixedHeader: false,
   sidebarLogo: true,
   dynamicTitle: false,
-  theme: '#409EFF'
+  theme: '#409EFF',
+  workflow: {
+    enabled: true,
+    diagram: {
+      theme: '#409EFF',
+      font: 'Arial',
+      backgroundColor: '#ffffff'
+    },
+    form: {
+      maxWidth: 800,
+      padding: 20
+    }
+  },
+  menu: {
+    showParent: true,
+    onlyFirstLevel: false,
+    showIcon: true,
+    theme: 'dark',
+    width: 210,
+    collapsedWidth: 64
+  }
 }
 
 export default settings

@@ -23,11 +23,9 @@ export const useTagsViewStore = defineStore('tagsView', () => {
   }
 
   function delVisitedView(view: RouteLocationNormalized) {
-    for (const [i, v] of visitedViews.value.entries()) {
-      if (v.path === view.path) {
-        visitedViews.value.splice(i, 1)
-        break
-      }
+    const i = visitedViews.value.findIndex(v => v.path === view.path)
+    if (i > -1) {
+      visitedViews.value.splice(i, 1)
     }
   }
 
@@ -40,12 +38,11 @@ export const useTagsViewStore = defineStore('tagsView', () => {
     visitedViews.value = visitedViews.value.filter(v => {
       return v.meta?.affix || v.path === view.path
     })
-    cachedViews.value = cachedViews.value.filter(name => {
-      return name === view.name
-    })
+    cachedViews.value = cachedViews.value.filter(name => name === view.name)
   }
 
   function delAllViews() {
+    // 保留固定的标签页
     visitedViews.value = visitedViews.value.filter(tag => tag.meta?.affix)
     cachedViews.value = []
   }

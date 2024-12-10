@@ -7,8 +7,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.project.system2.domain.SysUser;
+import com.project.system2.domain.entity.SysUser;
+import lombok.Data;
 
+@Data
 public class LoginUser implements UserDetails {
     private static final long serialVersionUID = 1L;
 
@@ -174,7 +176,7 @@ public class LoginUser implements UserDetails {
     @Override
     @JsonIgnore
     public String getUsername() {
-        return user.getUserName();
+        return user.getUsername();
     }
 
     /**

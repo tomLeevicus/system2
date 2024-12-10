@@ -1,66 +1,76 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import defaultSettings from '@/settings'
-import type { Settings } from '@/settings'
 
 export const useSettingsStore = defineStore('settings', () => {
-  // 侧边栏 Logo
-  const sidebarLogo = ref(defaultSettings.sidebarLogo)
-  // 固定 Header
-  const fixedHeader = ref(defaultSettings.fixedHeader)
-  // 显示 Tags View
-  const tagsView = ref(defaultSettings.tagsView)
-  // 显示设置面板
-  const showSettings = ref(defaultSettings.showSettings)
-  // 主题色
+  // 基础配置
+  const title = ref(defaultSettings.title)
   const theme = ref(defaultSettings.theme)
+  const sideTheme = ref(defaultSettings.sideTheme)
+  const showSettings = ref(defaultSettings.showSettings)
+  const topNav = ref(defaultSettings.topNav)
+  const tagsView = ref(defaultSettings.tagsView)
+  const fixedHeader = ref(defaultSettings.fixedHeader)
+  const sidebarLogo = ref(defaultSettings.sidebarLogo)
+  const dynamicTitle = ref(defaultSettings.dynamicTitle)
 
-  // 修改设置
-  function changeSetting({ key, value }: { key: keyof Settings, value: any }) {
-    const k = key as keyof typeof defaultSettings
-    if (defaultSettings.hasOwnProperty(k)) {
-      switch(key) {
-        case 'sidebarLogo':
-          sidebarLogo.value = value
-          break
-        case 'fixedHeader':
-          fixedHeader.value = value
-          break
-        case 'tagsView':
-          tagsView.value = value
-          break
-        case 'showSettings':
-          showSettings.value = value
-          break
-        case 'theme':
-          theme.value = value
-          break
-      }
+  // 菜单配置
+  const menu = ref(defaultSettings.menu)
+
+  // 工作流配置
+  const workflow = ref(defaultSettings.workflow)
+
+  // 修改配置
+  function changeSetting(key: keyof typeof defaultSettings, value: any) {
+    switch (key) {
+      case 'title':
+        title.value = value
+        break
+      case 'theme':
+        theme.value = value
+        break
+      case 'sideTheme':
+        sideTheme.value = value
+        break
+      case 'showSettings':
+        showSettings.value = value
+        break
+      case 'topNav':
+        topNav.value = value
+        break
+      case 'tagsView':
+        tagsView.value = value
+        break
+      case 'fixedHeader':
+        fixedHeader.value = value
+        break
+      case 'sidebarLogo':
+        sidebarLogo.value = value
+        break
+      case 'dynamicTitle':
+        dynamicTitle.value = value
+        break
+      case 'menu':
+        menu.value = { ...menu.value, ...value }
+        break
+      case 'workflow':
+        workflow.value = { ...workflow.value, ...value }
+        break
     }
   }
 
-  // 重置主题
-  function resetTheme() {
-    theme.value = defaultSettings.theme
-  }
-
   return {
-    sidebarLogo,
-    fixedHeader,
-    tagsView,
-    showSettings,
+    title,
     theme,
-    changeSetting,
-    resetTheme
+    sideTheme,
+    showSettings,
+    topNav,
+    tagsView,
+    fixedHeader,
+    sidebarLogo,
+    dynamicTitle,
+    menu,
+    workflow,
+    changeSetting
   }
-})
-
-// 导出类型
-export interface SettingsState {
-  sidebarLogo: boolean
-  fixedHeader: boolean
-  showTagsView: boolean
-  showSidebarSearch: boolean
-  showSettings: boolean
-  theme: string
-} 
+}) 

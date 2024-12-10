@@ -1,12 +1,11 @@
 import request from '@/utils/request'
-import type { Task, TaskQuery } from '@/types/workflow'
 
-// 查询任务列表
-export function listTask(params: TaskQuery) {
+// 任务列表
+export function listTask(query: any) {
   return request({
     url: '/workflow/task/list',
     method: 'get',
-    params
+    params: query
   })
 }
 
@@ -18,51 +17,35 @@ export function getTask(taskId: string) {
   })
 }
 
-// 完成任务
-export function completeTask(data: {
-  taskId: string
-  variables?: Record<string, any>
-  comment?: string
-}) {
+// 获取任务流程图
+export function getTaskDiagram(taskId: string) {
   return request({
-    url: '/workflow/task/complete',
+    url: `/workflow/task/${taskId}/diagram`,
+    method: 'get'
+  })
+}
+
+// 完成任务
+export function completeTask(taskId: string, data: any) {
+  return request({
+    url: `/workflow/task/${taskId}/complete`,
     method: 'post',
     data
   })
 }
 
 // 委派任务
-export function delegateTask(data: {
-  taskId: string
-  userId: string
-}) {
+export function delegateTask(taskId: string, userId: string) {
   return request({
-    url: '/workflow/task/delegate',
-    method: 'post',
-    data
+    url: `/workflow/task/${taskId}/delegate/${userId}`,
+    method: 'put'
   })
 }
 
 // 转办任务
-export function transferTask(data: {
-  taskId: string
-  userId: string
-}) {
+export function transferTask(taskId: string, userId: string) {
   return request({
-    url: '/workflow/task/transfer',
-    method: 'post',
-    data
+    url: `/workflow/task/${taskId}/transfer/${userId}`,
+    method: 'put'
   })
-}
-
-// 导出类型定义
-export interface TaskVO extends Task {
-  processName: string
-  businessKey: string
-  startUser: string
-  createTime: string
-  dueTime: string
-  priority: number
-  formType: string
-  formUrl: string
 } 

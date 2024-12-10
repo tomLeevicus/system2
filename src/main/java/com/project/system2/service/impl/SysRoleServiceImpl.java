@@ -140,4 +140,19 @@ public class SysRoleServiceImpl implements SysRoleService {
         }
         return roleMapper.selectPage(page, wrapper);
     }
+
+    @Override
+    public List<SysRole> selectRoleAll() {
+        return roleMapper.selectList(null);
+    }
+
+    @Override
+    public List<Long> selectRoleListByUserId(Long userId) {
+        return userRoleMapper.selectList(
+            new LambdaQueryWrapper<SysUserRole>()
+                .eq(SysUserRole::getUserId, userId)
+        ).stream()
+        .map(SysUserRole::getRoleId)
+        .collect(Collectors.toList());
+    }
 } 

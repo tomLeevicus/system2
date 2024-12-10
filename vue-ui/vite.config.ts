@@ -10,11 +10,22 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `
+          @use '@/styles/_variables' as *;
+          @use '@/styles/_mixins' as *;
+        `
+      }
+    }
+  },
   optimizeDeps: {
     include: [
+      'element-plus',
       'fuse.js',
-      'path-browserify',
-      'screenfull'
+      'screenfull',
+      'path-browserify'
     ]
   },
   server: {

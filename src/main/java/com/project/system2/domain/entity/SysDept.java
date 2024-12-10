@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -16,6 +19,8 @@ public class SysDept extends BaseEntity {
 
     private Long parentId;
 
+    @NotBlank(message = "部门名称不能为空")
+    @Size(min = 0, max = 30, message = "部门名称长度不能超过30个字符")
     private String deptName;
 
     private Integer orderNum;
@@ -28,9 +33,12 @@ public class SysDept extends BaseEntity {
 
     private String status;
 
-    @TableField(fill = FieldFill.INSERT)
     private String delFlag;
 
     @TableField(exist = false)
-    private List<SysDept> children;
+    private List<SysDept> children = new ArrayList<>();
+
+    public boolean isTop() {
+        return parentId == null || parentId == 0L;
+    }
 } 

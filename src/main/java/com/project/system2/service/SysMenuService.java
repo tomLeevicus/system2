@@ -1,10 +1,15 @@
 package com.project.system2.service;
 
-import com.project.system2.domain.entity.SysMenu;
 import java.util.List;
 import java.util.Set;
+import com.project.system2.domain.entity.SysMenu;
 
 public interface SysMenuService {
+    
+    /**
+     * 根据用户ID查询权限
+     */
+    Set<String> selectMenuPermsByUserId(Long userId);
     
     /**
      * 根据用户ID查询菜单树信息
@@ -12,17 +17,7 @@ public interface SysMenuService {
     List<SysMenu> selectMenuTreeByUserId(Long userId);
     
     /**
-     * 根据用户ID查询权限标识
-     */
-    Set<String> selectMenuPermsByUserId(Long userId);
-    
-    /**
-     * 根据角色ID查询菜单树信息
-     */
-    List<Long> selectMenuListByRoleId(Long roleId);
-    
-    /**
-     * 构建前端所需要的菜单树
+     * 构建前端所需要的菜单
      */
     List<SysMenu> buildMenuTree(List<SysMenu> menus);
     
@@ -37,27 +32,37 @@ public interface SysMenuService {
     boolean hasChildByMenuId(Long menuId);
     
     /**
-     * 新增菜单
+     * 查询菜单是否存在角色
+     */
+    boolean checkMenuExistRole(Long menuId);
+    
+    /**
+     * 新增保存菜单信息
      */
     boolean insertMenu(SysMenu menu);
     
     /**
-     * 修改菜单
+     * 修改保存菜单信息
      */
     boolean updateMenu(SysMenu menu);
     
     /**
-     * 删除菜单
+     * 删除菜单管理信息
      */
     boolean deleteMenuById(Long menuId);
     
     /**
+     * 校验菜单名称是否唯一
+     */
+    boolean checkMenuNameUnique(SysMenu menu);
+
+    /**
      * 查询菜单列表
      */
     List<SysMenu> selectMenuList(SysMenu menu);
-    
+
     /**
-     * 检查菜单是否存在角色
+     * 根据角色ID查询菜单列表
      */
-    boolean checkMenuExistRole(Long menuId);
+    List<Long> selectMenuListByRoleId(Long roleId);
 } 

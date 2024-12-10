@@ -2,15 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { CACHE_KEY } from '@/constants/cache-keys'
 
-export type DeviceType = 'desktop' | 'mobile'
-
-export interface AppState {
-  device: DeviceType
-  sidebar: {
-    opened: boolean
-    withoutAnimation: boolean
-  }
-}
+export type DeviceType = 'desktop' | 'mobile' | 'tablet'
 
 export const useAppStore = defineStore('app', () => {
   // 侧边栏状态
@@ -21,6 +13,9 @@ export const useAppStore = defineStore('app', () => {
 
   // 设备类型
   const device = ref<DeviceType>('desktop')
+
+  // 屏幕大小
+  const size = ref<'default' | 'small' | 'large'>('default')
 
   // 切换侧边栏
   function toggleSideBar() {
@@ -35,9 +30,9 @@ export const useAppStore = defineStore('app', () => {
 
   // 关闭侧边栏
   function closeSideBar(withoutAnimation: boolean) {
-    localStorage.setItem(CACHE_KEY.SIDEBAR_STATUS, '0')
     sidebar.value.opened = false
     sidebar.value.withoutAnimation = withoutAnimation
+    localStorage.setItem(CACHE_KEY.SIDEBAR_STATUS, '0')
   }
 
   // 切换设备类型
@@ -45,11 +40,18 @@ export const useAppStore = defineStore('app', () => {
     device.value = val
   }
 
+  // 设置屏幕大小
+  function setSize(val: 'default' | 'small' | 'large') {
+    size.value = val
+  }
+
   return {
     device,
     sidebar,
+    size,
     toggleDevice,
     closeSideBar,
-    toggleSideBar
+    toggleSideBar,
+    setSize
   }
 }) 

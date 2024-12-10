@@ -2,13 +2,16 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+
+// 导入样式
+import 'normalize.css'
 import 'element-plus/dist/index.css'
+import '@/styles/index.scss'
+import '@/styles/element-dark.css'
 
 import App from './App.vue'
 import router from './router'
 import { hasRole, hasPermi } from './directives/permission/hasRole'
-
-import './styles/index.scss'
 
 const app = createApp(App)
 

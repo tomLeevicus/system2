@@ -1,5 +1,6 @@
 package com.project.system2.service.impl;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -18,7 +19,13 @@ import com.project.system2.common.constant.CacheConstants;
 import com.project.system2.common.core.domain.model.LoginUser;
 import com.project.system2.common.core.utils.JwtUtils;
 import com.project.system2.common.core.utils.StringUtils;
+import com.project.system2.config.JwtConfig;
 import com.project.system2.service.TokenService;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+
+import java.security.Key;
 
 @Service
 public class TokenServiceImpl implements TokenService {
@@ -38,6 +45,12 @@ public class TokenServiceImpl implements TokenService {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Autowired
+    private JwtConfig jwtConfig;
+
+    @Autowired
+    private Key key;
+
     /**
      * 创建令牌
      */
@@ -47,10 +60,16 @@ public class TokenServiceImpl implements TokenService {
         loginUser.setToken(token);
         refreshToken(loginUser);
 
-        // 保存或更新用户token
         Map<String, Object> claims = new HashMap<>();
         claims.put(CacheConstants.LOGIN_USER_KEY, token);
-        return JwtUtils.createToken(claims, secret);
+        
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(loginUser.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getExpireTime() * 60 * 1000))
+                .signWith(key)
+                .compact();
     }
 
     /**
@@ -73,8 +92,8 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public String getToken(HttpServletRequest request) {
         String token = request.getHeader(header);
-        if (StringUtils.isNotEmpty(token) && token.startsWith("Bearer ")) {
-            token = token.replace("Bearer ", "");
+        if (StringUtils.isNotEmpty(token) && token.startsWith(TokenConstants.TOKEN_PREFIX)) {
+            token = token.substring(TokenConstants.TOKEN_PREFIX.length());
         }
         return token;
     }
@@ -103,7 +122,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     /**
-     * 刷新��牌有效期
+     * 刷新令牌有效期
      */
     @Override
     public void refreshToken(LoginUser loginUser) {
@@ -123,13 +142,13 @@ public class TokenServiceImpl implements TokenService {
             return false;
         }
         try {
-            // 解析JWT令牌
             Map<String, Object> claims = JwtUtils.parseToken(token, secret);
-            String userKey = (String) claims.get(CacheConstants.LOGIN_USER_KEY);
-            // 获取用户信息
-            LoginUser user = (LoginUser) redisTemplate.opsForValue().get(getTokenKey(userKey));
+            String uuid = (String) claims.get(Constants.LOGIN_USER_KEY);
+            String userKey = getTokenKey(uuid);
+            LoginUser user = redisCache.getCacheObject(userKey);
             return user != null;
         } catch (Exception e) {
+            logger.error("Token validation failed: {}", e.getMessage());
             return false;
         }
     }

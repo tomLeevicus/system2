@@ -2,89 +2,105 @@ import request from '@/utils/request'
 import type { ProcessDefinition, ProcessInstance, ProcessInstanceQuery } from '@/types/workflow'
 
 // 查询流程定义列表
-export function listProcessDefinition(params?: any) {
-  return request({
-    url: '/workflow/process/definition/list',
+export function listProcess(query?: any) {
+  return request<ProcessDefinition[]>({
+    url: '/workflow/process/list',
     method: 'get',
-    params
+    params: query
   })
 }
 
-// 获取流程定义XML
-export function getProcessXml(processDefinitionId: string) {
-  return request({
-    url: `/workflow/process/definition/${processDefinitionId}/xml`,
+// 部署流程
+export function deployProcess(data: FormData) {
+  return request<void>({
+    url: '/workflow/process/deploy',
+    method: 'post',
+    data,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
+// 删除流程
+export function deleteProcess(deploymentId: string) {
+  return request<void>({
+    url: `/workflow/process/${deploymentId}`,
+    method: 'delete'
+  })
+}
+
+// 更新流程状态
+export function updateProcessState(processDefinitionId: string, action: 'suspend' | 'activate') {
+  return request<void>({
+    url: `/workflow/process/${processDefinitionId}/${action}`,
+    method: 'put'
+  })
+}
+
+// 获取流程图片
+export function getProcessImage(processDefinitionId: string) {
+  return request<Blob>({
+    url: `/workflow/process/${processDefinitionId}/image`,
+    method: 'get',
+    responseType: 'blob'
+  })
+}
+
+// 获取流程定义
+export function getProcessDefinition(processDefinitionId: string) {
+  return request<ProcessDefinition>({
+    url: `/workflow/process/definition/${processDefinitionId}`,
     method: 'get'
   })
 }
 
-// 启动流程实例
-export function startProcess(data: {
-  processDefinitionId: string
-  businessKey?: string
-  variables?: Record<string, any>
-}) {
-  return request({
-    url: '/workflow/process/instance/start',
+// 获取流程图
+export function getProcessDiagram(processDefinitionId: string) {
+  return request<string>({
+    url: `/workflow/process/${processDefinitionId}/diagram`,
+    method: 'get'
+  })
+}
+
+// 获取流程XML
+export function getProcessXml(processDefinitionId: string) {
+  return request<string>({
+    url: `/workflow/process/${processDefinitionId}/xml`,
+    method: 'get'
+  })
+}
+
+// 启动流程
+export function startProcess(processDefinitionId: string, data: any) {
+  return request<string>({
+    url: `/workflow/process/${processDefinitionId}/start`,
     method: 'post',
     data
   })
 }
 
-// 查询流程实例列表
-export function listProcessInstance(params: ProcessInstanceQuery) {
-  return request({
-    url: '/workflow/process/instance/list',
-    method: 'get',
-    params
-  })
-}
-
-// 获取流程实例详情
+// 获取流程实例
 export function getProcessInstance(processInstanceId: string) {
-  return request({
+  return request<ProcessInstance>({
     url: `/workflow/process/instance/${processInstanceId}`,
     method: 'get'
   })
 }
 
-// 删除流程实例
-export function deleteProcess(processInstanceId: string) {
-  return request({
-    url: `/workflow/process/instance/${processInstanceId}`,
-    method: 'delete'
+// 获取实例流程图
+export function getInstanceDiagram(processInstanceId: string) {
+  return request<string>({
+    url: `/workflow/process/instance/${processInstanceId}/diagram`,
+    method: 'get'
   })
 }
 
-// 更新流程实例状态
-export function updateProcessState(processInstanceId: string, action: 'suspend' | 'activate') {
-  return request({
-    url: `/workflow/process/instance/${processInstanceId}/${action}`,
-    method: 'put'
+// 取消流程实例
+export function cancelProcess(processInstanceId: string, reason: string) {
+  return request<void>({
+    url: `/workflow/process/instance/${processInstanceId}/cancel`,
+    method: 'put',
+    params: { reason }
   })
-}
-
-// 导出类型定义
-export interface ProcessDefinitionQuery {
-  name?: string
-  key?: string
-  category?: string
-  suspended?: boolean
-  pageNum?: number
-  pageSize?: number
-}
-
-export interface ProcessDefinitionVO extends ProcessDefinition {
-  deploymentTime: string
-  suspended: boolean
-}
-
-export interface ProcessInstanceVO extends ProcessInstance {
-  processName: string
-  businessKey: string
-  startUser: string
-  startTime: string
-  endTime: string
-  duration: number
-  status: string
 } 

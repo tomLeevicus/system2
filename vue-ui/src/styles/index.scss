@@ -1,13 +1,8 @@
 @use 'sass:math';
+@use '@/styles/_variables' as *;
+@use '@/styles/_mixins' as *;
 
-// 导入所有模块
-@use './_variables' as v;
-@use './_mixins' as m;
-@use './_transitions';
-@use './_element-ui';
-@use './_workflow';
-
-// 基础样式
+// 全局基础样式
 html {
   height: 100%;
   box-sizing: border-box;
@@ -32,11 +27,6 @@ body {
   box-sizing: inherit;
 }
 
-a:focus,
-a:active {
-  outline: none;
-}
-
 a,
 a:focus,
 a:hover {
@@ -50,7 +40,7 @@ div:focus {
 }
 
 .clearfix {
-  @include m.clearfix;
+  @include clearfix;
 }
 
 .app-container {

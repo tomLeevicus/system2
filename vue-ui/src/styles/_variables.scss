@@ -1,5 +1,3 @@
-@use 'sass:math';
-
 // 主题色
 $color-primary: #409EFF !default;
 $color-success: #67C23A !default;
@@ -22,13 +20,13 @@ $border-color-extra-light: #F2F6FC !default;
 // 背景颜色
 $background-color-base: #F5F7FA !default;
 
-// 布局
+// 布局尺寸
 $header-height: 50px !default;
-$sidebar-width: 200px !default;
-$sidebar-hide-width: 54px !default;
+$sidebar-width: 210px !default;
+$sidebar-hide-width: 64px !default;
 $tagsview-height: 34px !default;
 
-// 字体
+// 字体大小
 $font-size-extra-large: 20px !default;
 $font-size-large: 18px !default;
 $font-size-medium: 16px !default;
@@ -46,9 +44,64 @@ $box-shadow-base: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04) !defa
 $box-shadow-dark: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .12) !default;
 $box-shadow-light: 0 2px 12px 0 rgba(0, 0, 0, 0.1) !default;
 
+// 菜单相关
+$menu-bg-color: #304156 !default;
+$menu-hover-bg-color: #263445 !default;
+$menu-active-bg-color: #1890ff !default;
+$menu-text-color: #bfcbd9 !default;
+$menu-active-text-color: #ffffff !default;
+$menu-item-height: 56px !default;
+$menu-sub-item-height: 50px !default;
+$menu-horizontal-height: 60px !default;
+$menu-item-vertical-padding: 4px !default;
+$menu-item-horizontal-padding: 20px !default;
+
+// 工作流相关
+$workflow-form-max-width: 800px !default;
+$workflow-form-padding: 20px !default;
+$workflow-form-title-size: 24px !default;
+$workflow-form-subtitle-size: 14px !default;
+
+$workflow-timeline-item-title-size: 16px !default;
+$workflow-timeline-item-content-size: 13px !default;
+
+$workflow-chart-height: 300px !default;
+$workflow-chart-padding: 20px !default;
+$workflow-chart-border-radius: $border-radius-base !default;
+$workflow-chart-background: $background-color-base !default;
+
+$workflow-card-margin: 16px !default;
+$workflow-card-padding: 20px !default;
+$workflow-card-border-radius: $border-radius-base !default;
+$workflow-card-border-color: $border-color-light !default;
+$workflow-card-background: #ffffff !default;
+$workflow-card-shadow: $box-shadow-light !default;
+
+$workflow-button-min-width: 80px !default;
+$workflow-button-height: 32px !default;
+$workflow-button-padding: 0 15px !default;
+$workflow-button-font-size: $font-size-base !default;
+$workflow-button-border-radius: $border-radius-base !default;
+
 // 导出变量供 JavaScript 使用
 :export {
-  menuBg: $background-color-base;
-  menuText: $color-text-primary;
-  menuActiveText: $color-primary;
-} 
+  // 布局相关
+  sidebarWidth: $sidebar-width;
+  sidebarHideWidth: $sidebar-hide-width;
+  headerHeight: $header-height;
+  tagsViewHeight: $tagsview-height;
+
+  // 菜单相关
+  menuBg: $menu-bg-color;
+  menuHoverBg: $menu-hover-bg-color;
+  menuActiveBg: $menu-active-bg-color;
+  menuText: $menu-text-color;
+  menuActiveText: $menu-active-text-color;
+
+  // 主题色
+  primary: $color-primary;
+  success: $color-success;
+  warning: $color-warning;
+  danger: $color-danger;
+  info: $color-info;
+}

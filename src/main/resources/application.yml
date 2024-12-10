@@ -83,27 +83,55 @@ spring:
       context-path: /modeler
     security:
       enabled: false
+      # 不需要认证的路径
+      ignored:
+        urls:
+          - /auth/login
+          - /auth/register
+          - /auth/captcha
+          - /profile/**
+          - /common/download**
+          - /common/download/resource**
+          - /swagger-ui.html
+          - /swagger-resources/**
+          - /webjars/**
+          - /*/api-docs
+          - /druid/**
+          - /actuator/**
+          - /
+          - /*.html
+          - /**/*.html
+          - /**/*.css
+          - /**/*.js
+          - /profile/**
+          - /avatar/**
+          - /file/**
 
 # MyBatis-Plus配置
 mybatis-plus:
-  mapper-locations: classpath*:mapper/**/*Mapper.xml
-  type-aliases-package: com.project.system2.domain.entity
-  configuration:
-    map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  type-handlers-package: com.project.system2.config.typehandler
-  global-config:
-    db-config:
-      logic-delete-field: delFlag
-      logic-delete-value: 1
-      logic-not-delete-value: 0
-      id-type: auto
+  # 搜索指定包别名
+  typeAliasesPackage: com.project.system2.domain.entity
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapperLocations: classpath*:mapper/**/*Mapper.xml
+  # 加载全局的配置文件
+  configLocation: classpath:mybatis-config.xml
 
 # Token配置
 token:
   header: Authorization
   secret: abcdefghijklmnopqrstuvwxyz
   expireTime: 30
+
+# JWT配置
+jwt:
+  # 令牌密钥
+  secret: jdsadsajoincxznsajdsajoincxznsajdsajoincxzns
+  # 令牌有效期（默认30分钟）
+  expireTime: 30
+  # 令牌前缀
+  tokenPrefix: "Bearer "
+  # 令牌头部
+  header: Authorization
 
 # 日志配置
 logging:

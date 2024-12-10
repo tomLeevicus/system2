@@ -1,5 +1,6 @@
 // 流程状态
 export const PROCESS_STATUS = {
+  DRAFT: 'draft',
   RUNNING: 'running',
   SUSPENDED: 'suspended',
   FINISHED: 'finished',
@@ -12,8 +13,22 @@ export const PROCESS_STATUS = {
 export const PROCESS_CATEGORY = {
   OA: 'oa',
   FINANCE: 'finance',
-  HR: 'hr',
+  HR: 'hr'
+} as const
+
+// 流程表单类型
+export const FORM_TYPE = {
+  LEAVE: 'leave',
+  EXPENSE: 'expense',
   PURCHASE: 'purchase'
+} as const
+
+// 流程表单状态
+export const FORM_STATUS = {
+  DRAFT: 'draft',
+  SUBMITTED: 'submitted',
+  APPROVED: 'approved',
+  REJECTED: 'rejected'
 } as const
 
 // 任务类型
@@ -33,38 +48,25 @@ export const LEAVE_TYPE = {
   BEREAVEMENT: 'bereavement'
 } as const
 
-// 报销类型
-export const EXPENSE_TYPE = {
-  TRAVEL: 'travel',
-  OFFICE: 'office',
-  ENTERTAINMENT: 'entertainment',
-  OTHER: 'other'
-} as const
-
-// 流程节点类型
-export const NODE_TYPE = {
-  START_EVENT: 'startEvent',
-  END_EVENT: 'endEvent',
-  USER_TASK: 'userTask',
-  EXCLUSIVE_GATEWAY: 'exclusiveGateway',
-  PARALLEL_GATEWAY: 'parallelGateway'
+// 任务操作类型
+export const TASK_ACTION = {
+  APPROVE: 'approve',
+  REJECT: 'reject',
+  DELEGATE: 'delegate',
+  TRANSFER: 'transfer'
 } as const
 
 // 流程权限
 export const PROCESS_PERMISSION = {
-  LIST: 'workflow:process:list',
-  QUERY: 'workflow:process:query',
-  CREATE: 'workflow:process:create',
-  UPDATE: 'workflow:process:update',
+  START: 'workflow:process:start',
+  CANCEL: 'workflow:process:cancel',
   DELETE: 'workflow:process:delete',
-  DEPLOY: 'workflow:process:deploy',
-  START: 'workflow:process:start'
+  SUSPEND: 'workflow:process:suspend',
+  ACTIVATE: 'workflow:process:activate'
 } as const
 
 // 任务权限
 export const TASK_PERMISSION = {
-  LIST: 'workflow:task:list',
-  QUERY: 'workflow:task:query',
   COMPLETE: 'workflow:task:complete',
   DELEGATE: 'workflow:task:delegate',
   TRANSFER: 'workflow:task:transfer'

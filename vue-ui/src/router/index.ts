@@ -51,6 +51,44 @@ export const constantRoutes: RouteRecordRaw[] = [
         meta: { title: '字典管理', icon: 'Collection' }
       }
     ]
+  },
+  {
+    path: '/workflow',
+    component: Layout,
+    redirect: '/workflow/process',
+    meta: { title: '工作流程', icon: 'Tickets' },
+    children: [
+      {
+        path: 'process',
+        component: () => import('@/views/workflow/process/index.vue'),
+        name: 'Process',
+        meta: { title: '流程管理', icon: 'List' }
+      },
+      {
+        path: 'process/start',
+        component: () => import('@/views/workflow/process/start.vue'),
+        name: 'StartProcess',
+        meta: { title: '发起流程', icon: 'Plus', hidden: true }
+      },
+      {
+        path: 'process/detail',
+        component: () => import('@/views/workflow/process/detail.vue'),
+        name: 'ProcessDetail',
+        meta: { title: '流程详情', icon: 'Document', hidden: true }
+      },
+      {
+        path: 'instance',
+        component: () => import('@/views/workflow/instance/index.vue'),
+        name: 'Instance',
+        meta: { title: '流程实例', icon: 'Connection' }
+      },
+      {
+        path: 'task',
+        component: () => import('@/views/workflow/task/index.vue'),
+        name: 'Task',
+        meta: { title: '任务管理', icon: 'Checked' }
+      }
+    ]
   }
 ]
 

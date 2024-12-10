@@ -20,6 +20,16 @@ public interface SysRoleService {
     /**
      * 查询所有角色
      */
+    List<SysRole> selectRoleAll();
+    
+    /**
+     * 根据用户ID获取角色选择框列表
+     */
+    List<Long> selectRoleListByUserId(Long userId);
+    
+    /**
+     * 查询角色列表
+     */
     List<SysRole> selectRoleList(SysRole role);
     
     /**
@@ -48,12 +58,12 @@ public interface SysRoleService {
     boolean deleteRoleByIds(Long[] roleIds);
     
     /**
-     * 修改保存角色菜单关联关系
+     * 修改角色菜单
      */
     boolean updateRoleMenu(Long roleId, Long[] menuIds);
     
     /**
-     * 修改保存角色数据权限
+     * 修改角色数据权限
      */
     boolean updateRoleDataScope(SysRole role);
     

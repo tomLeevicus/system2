@@ -8,7 +8,7 @@
         <tags-view v-if="tagsView" />
       </div>
       <app-main />
-      <right-panel v-if="showSettings">
+      <right-panel v-model="showSettings" v-if="showSettingsBtn">
         <settings />
       </right-panel>
     </div>
@@ -16,21 +16,26 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useSettingsStore } from '@/stores/settings'
-import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
-import RightPanel from '@/components/RightPanel/index.vue'
 import useResize from './hooks/useResize'
+import Navbar from './components/Navbar/index.vue'
+import Sidebar from './components/Sidebar/index.vue'
+import AppMain from './components/AppMain.vue'
+import TagsView from './components/TagsView/index.vue'
+import RightPanel from './components/RightPanel/index.vue'
+import Settings from './components/Settings/index.vue'
 
 const appStore = useAppStore()
 const settingsStore = useSettingsStore()
 
+const showSettings = ref(false)
+const showSettingsBtn = computed(() => settingsStore.showSettings)
 const sidebar = computed(() => appStore.sidebar)
 const device = computed(() => appStore.device)
 const fixedHeader = computed(() => settingsStore.fixedHeader)
 const tagsView = computed(() => settingsStore.tagsView)
-const showSettings = computed(() => settingsStore.showSettings)
 
 const classObj = computed(() => ({
   hideSidebar: !sidebar.value.opened,
@@ -47,17 +52,18 @@ useResize()
 </script>
 
 <style lang="scss" scoped>
-@use '@/styles/_variables' as v;
+@use '@/styles/_variables' as *;
+@use '@/styles/_mixins' as *;
 
 .app-wrapper {
+  @include clearfix;
   position: relative;
   height: 100%;
   width: 100%;
 
-  &::after {
-    content: '';
-    display: table;
-    clear: both;
+  &.mobile.openSidebar {
+    position: fixed;
+    top: 0;
   }
 }
 
@@ -74,16 +80,16 @@ useResize()
 .main-container {
   min-height: 100%;
   transition: margin-left .28s;
-  margin-left: v.$sidebar-width;
+  margin-left: $sidebar-width;
   position: relative;
 }
 
 .sidebar-container {
   transition: width 0.28s;
-  width: v.$sidebar-width !important;
+  width: $sidebar-width !important;
   height: 100%;
   position: fixed;
-  font-size: 0px;
+  font-size: 0;
   top: 0;
   bottom: 0;
   left: 0;
@@ -96,52 +102,15 @@ useResize()
   top: 0;
   right: 0;
   z-index: 9;
-  width: calc(100% - #{v.$sidebar-width});
+  width: calc(100% - #{$sidebar-width});
   transition: width 0.28s;
 }
 
-.hideSidebar {
-  .main-container {
-    margin-left: v.$sidebar-hide-width;
-  }
-  
-  .sidebar-container {
-    width: v.$sidebar-hide-width !important;
-  }
-
-  .fixed-header {
-    width: calc(100% - #{v.$sidebar-hide-width});
-  }
+.hideSidebar .fixed-header {
+  width: calc(100% - #{$sidebar-hide-width});
 }
 
-.mobile {
-  .main-container {
-    margin-left: 0;
-  }
-
-  .sidebar-container {
-    transition: transform .28s;
-    width: v.$sidebar-width !important;
-  }
-
-  &.openSidebar {
-    position: fixed;
-    top: 0;
-  }
-
-  &.hideSidebar {
-    .sidebar-container {
-      pointer-events: none;
-      transition-duration: 0.3s;
-      transform: translate3d(-#{v.$sidebar-width}, 0, 0);
-    }
-  }
-}
-
-.withoutAnimation {
-  .main-container,
-  .sidebar-container {
-    transition: none;
-  }
+.mobile .fixed-header {
+  width: 100%;
 }
 </style> 

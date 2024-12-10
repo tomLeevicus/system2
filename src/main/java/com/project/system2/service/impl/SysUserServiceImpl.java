@@ -2,6 +2,7 @@ package com.project.system2.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.mapper.SysUserMapper;
 import com.project.system2.service.SysUserRoleService;
@@ -14,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class SysUserServiceImpl implements SysUserService {
+public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
 
     @Autowired
     private SysUserMapper userMapper;
