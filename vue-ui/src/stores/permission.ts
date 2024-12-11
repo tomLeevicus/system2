@@ -1,216 +1,171 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import type { RouteRecordRaw } from 'vue-router'
-import { constantRoutes } from '@/router'
-import { useUserStore } from './user'
+import { RouteRecordRaw } from 'vue-router'
+import { getRouters } from '@/api/menu'
 import Layout from '@/layout/index.vue'
+import ParentView from '@/components/ParentView/index.vue'
+import InnerLink from '@/layout/components/InnerLink/index.vue'
+import { useUserStore } from '@/stores/user'
 
-/**
- * 使用meta.role来确定当前用户是否有权限
- */
-function hasPermission(roles: string[], route: RouteRecordRaw) {
-  if (route.meta && route.meta.roles) {
-    return roles.some(role => (route.meta?.roles as string[]).includes(role))
+// 匹配views里面所有的.vue文件
+const modules = import.meta.glob('../views/**/*.vue')
+
+// 扩展路由类型
+interface CustomRoute extends Omit<RouteRecordRaw, 'children'> {
+  hidden?: boolean
+  permissions?: string[]
+  roles?: string[]
+  children?: CustomRoute[]
+  component?: any
+  meta?: {
+    title?: string
+    icon?: string
+    noCache?: boolean
+    link?: string | null
   }
-  return true
 }
 
-/**
- * 使用meta.permissions来确定当前用户是否有权限
- */
-function hasPermissions(permissions: string[], route: RouteRecordRaw) {
-  if (route.meta && route.meta.permissions) {
-    return permissions.some(permission => (route.meta?.permissions as string[]).includes(permission))
+export const usePermissionStore = defineStore('permission', {
+  state: () => ({
+    routes: [] as CustomRoute[],
+    addRoutes: [] as CustomRoute[],
+    defaultRoutes: [] as CustomRoute[],
+    topbarRouters: [] as CustomRoute[],
+    sidebarRouters: [] as CustomRoute[]
+  }),
+
+  actions: {
+    setRoutes(routes: CustomRoute[]) {
+      this.addRoutes = routes
+      this.routes = routes
+    },
+    setSidebarRouters(routes: CustomRoute[]) {
+      this.sidebarRouters = routes
+    },
+    generateRoutes() {
+      return new Promise<CustomRoute[]>((resolve) => {
+        // 向后端请求路由数据
+        getRouters().then(res => {
+          const sdata = JSON.parse(JSON.stringify(res.data))
+          const rdata = JSON.parse(JSON.stringify(res.data))
+          const defaultData = JSON.parse(JSON.stringify(res.data))
+          const sidebarRoutes = filterAsyncRouter(sdata)
+          const rewriteRoutes = filterAsyncRouter(rdata, false, true)
+          const defaultRoutes = filterAsyncRouter(defaultData)
+          this.setRoutes(rewriteRoutes)
+          this.setSidebarRouters(constantRoutes.concat(sidebarRoutes))
+          resolve(rewriteRoutes)
+        })
+      })
+    }
   }
-  return true
-}
+})
 
-/**
- * 通过递归过滤异步路由表
- */
-function filterAsyncRoutes(routes: RouteRecordRaw[], roles: string[], permissions: string[]) {
-  const res: RouteRecordRaw[] = []
-
-  routes.forEach(route => {
-    const tmp = { ...route }
-    if (hasPermission(roles, tmp) && hasPermissions(permissions, tmp)) {
-      if (tmp.children) {
-        tmp.children = filterAsyncRoutes(tmp.children, roles, permissions)
+// 遍历后台传来的路由字符串，转换为组件对象
+function filterAsyncRouter(asyncRouterMap: any[], lastRouter = false, type = false): CustomRoute[] {
+  return asyncRouterMap.filter(route => {
+    if (type && route.children) {
+      route.children = filterChildren(route.children)
+    }
+    if (route.component) {
+      // Layout ParentView 组件特殊处理
+      if (route.component === 'Layout') {
+        route.component = Layout
+      } else if (route.component === 'ParentView') {
+        route.component = ParentView
+      } else if (route.component === 'InnerLink') {
+        route.component = InnerLink
+      } else {
+        route.component = loadView(route.component)
       }
-      res.push(tmp)
+    }
+    if (route.children != null && route.children && route.children.length) {
+      route.children = filterAsyncRouter(route.children, route, type)
+    } else {
+      delete route['children']
+      delete route['redirect']
+    }
+    return true
+  })
+}
+
+function filterChildren(childrenMap: any[], lastRouter: any = false): CustomRoute[] {
+  const children: CustomRoute[] = []
+  childrenMap.forEach((el) => {
+    if (el.children && el.children.length) {
+      if (el.component === 'ParentView' && !lastRouter) {
+        el.children.forEach((c: any) => {
+          c.path = el.path + '/' + c.path
+          if (c.children && c.children.length) {
+            children.push(...filterChildren(c.children, c))
+            return
+          }
+          children.push(c)
+        })
+        return
+      }
+    }
+    if (lastRouter) {
+      el.path = lastRouter.path + '/' + el.path
+    }
+    children.push(el)
+  })
+  return children
+}
+
+// 动态路由遍历，验证是否具备权限
+export function filterDynamicRoutes(routes: CustomRoute[]) {
+  const res: CustomRoute[] = []
+  const userStore = useUserStore()
+  routes.forEach(route => {
+    if (route.permissions) {
+      if (userStore.permissions.some(permission => route.permissions?.includes(permission))) {
+        res.push(route)
+      }
+    } else if (route.roles) {
+      if (userStore.roles.some(role => route.roles?.includes(role))) {
+        res.push(route)
+      }
     }
   })
-
   return res
 }
 
-// 工作流权限
-export const workflowPermissions = {
-  process: {
-    list: 'workflow:process:list',
-    create: 'workflow:process:create',
-    update: 'workflow:process:update',
-    delete: 'workflow:process:delete',
-    deploy: 'workflow:process:deploy',
-    start: 'workflow:process:start'
-  },
-  instance: {
-    list: 'workflow:instance:list',
-    view: 'workflow:instance:view',
-    cancel: 'workflow:instance:cancel',
-    delete: 'workflow:instance:delete'
-  },
-  task: {
-    list: 'workflow:task:list',
-    view: 'workflow:task:view',
-    complete: 'workflow:task:complete',
-    delegate: 'workflow:task:delegate',
-    transfer: 'workflow:task:transfer'
-  }
-} as const
-
-// 工作流角色
-export const workflowRoles = {
-  admin: 'workflow:admin',
-  manager: 'workflow:manager',
-  user: 'workflow:user'
-} as const
-
-// 异步路由配置
-export const asyncRoutes: RouteRecordRaw[] = [
-  {
-    path: '/system',
-    component: Layout,
-    meta: { title: '系统管理', icon: 'Setting', roles: ['admin'] },
-    children: [
-      {
-        path: 'user',
-        component: () => import('@/views/system/user/index.vue'),
-        name: 'User',
-        meta: { title: '用户管理', icon: 'User' }
-      },
-      {
-        path: 'role',
-        component: () => import('@/views/system/role/index.vue'),
-        name: 'Role',
-        meta: { title: '角色管理', icon: 'UserFilled' }
-      },
-      {
-        path: 'menu',
-        component: () => import('@/views/system/menu/index.vue'),
-        name: 'Menu',
-        meta: { 
-          title: '菜单管理', 
-          icon: 'Menu',
-          permissions: ['system:menu:list']
-        }
-      }
-    ]
-  },
-  {
-    path: '/workflow',
-    component: Layout,
-    redirect: '/workflow/process',
-    meta: { 
-      title: '工作流程',
-      icon: 'Tickets',
-      roles: [workflowRoles.admin, workflowRoles.manager, workflowRoles.user]
-    },
-    children: [
-      {
-        path: 'process',
-        component: () => import('@/views/workflow/process/index.vue'),
-        name: 'Process',
-        meta: {
-          title: '流程管理',
-          icon: 'List',
-          roles: [workflowRoles.admin, workflowRoles.manager],
-          permissions: [workflowPermissions.process.list]
-        }
-      },
-      {
-        path: 'process/start',
-        component: () => import('@/views/workflow/process/start.vue'),
-        name: 'StartProcess',
-        meta: {
-          title: '发起流程',
-          icon: 'Plus',
-          hidden: true,
-          roles: [workflowRoles.admin, workflowRoles.manager, workflowRoles.user],
-          permissions: [workflowPermissions.process.start]
-        }
-      },
-      {
-        path: 'process/detail',
-        component: () => import('@/views/workflow/process/detail.vue'),
-        name: 'ProcessDetail',
-        meta: {
-          title: '流程详情',
-          icon: 'Document',
-          hidden: true,
-          roles: [workflowRoles.admin, workflowRoles.manager, workflowRoles.user],
-          permissions: [workflowPermissions.process.list]
-        }
-      },
-      {
-        path: 'instance',
-        component: () => import('@/views/workflow/instance/index.vue'),
-        name: 'Instance',
-        meta: {
-          title: '流程实例',
-          icon: 'Connection',
-          roles: [workflowRoles.admin, workflowRoles.manager],
-          permissions: [workflowPermissions.instance.list]
-        }
-      },
-      {
-        path: 'task',
-        component: () => import('@/views/workflow/task/index.vue'),
-        name: 'Task',
-        meta: {
-          title: '任务管理',
-          icon: 'Checked',
-          roles: [workflowRoles.admin, workflowRoles.manager, workflowRoles.user],
-          permissions: [workflowPermissions.task.list]
-        }
-      }
-    ]
-  }
-]
-
-// 权限 store
-export const usePermissionStore = defineStore('permission', () => {
-  const routes = ref<RouteRecordRaw[]>([])
-  const dynamicRoutes = ref<RouteRecordRaw[]>([])
-
-  async function generateRoutes() {
-    const userStore = useUserStore()
-    const { roles, permissions } = userStore
-
-    try {
-      let accessedRoutes
-      if (roles.includes('admin')) {
-        accessedRoutes = asyncRoutes
-      } else {
-        accessedRoutes = filterAsyncRoutes(asyncRoutes, roles, permissions)
-      }
-      routes.value = constantRoutes.concat(accessedRoutes)
-      dynamicRoutes.value = accessedRoutes
-      return accessedRoutes
-    } catch (error) {
-      return []
+export const loadView = (view: string) => {
+  let res;
+  for (const path in modules) {
+    const dir = path.split('views/')[1]?.split('.vue')[0];
+    if (dir === view) {
+      res = () => modules[path]();
     }
   }
+  return res;
+}
 
-  function resetRoutes() {
-    routes.value = []
-    dynamicRoutes.value = []
+// 默认路由
+export const constantRoutes: CustomRoute[] = [
+  {
+    path: '/login',
+    component: () => import('@/views/login/index.vue'),
+    hidden: true,
+    meta: { title: '登录' }
+  },
+  {
+    path: '/404',
+    component: () => import('@/views/error/404.vue'),
+    hidden: true,
+    meta: { title: '404' }
+  },
+  {
+    path: '/',
+    component: Layout,
+    redirect: 'index',
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/index.vue'),
+        name: 'Index',
+        meta: { title: '首页', icon: 'dashboard', affix: true }
+      }
+    ]
   }
-
-  return {
-    routes,
-    dynamicRoutes,
-    generateRoutes,
-    resetRoutes
-  }
-}) 
+] 

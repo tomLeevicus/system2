@@ -1,57 +1,45 @@
 package com.project.system2.common.core.utils;
 
-import java.util.Map;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.commons.codec.binary.Base64;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
+import java.security.Key;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * JWT工具类
  */
 public class JwtUtils {
+    private static final SignatureAlgorithm ALGORITHM = SignatureAlgorithm.HS256;
+
     /**
-     * 从数据声明生成令牌
-     *
-     * @param claims 数据声明
-     * @param secret 密钥
-     * @return 令牌
+     * 生成jwt token
      */
-    public static String createToken(Map<String, Object> claims, String secret) {
+    public static String generateToken(Map<String, Object> claims, String secret) {
+        // 使用Keys工具类生成安全的密钥
+        Key key = Keys.hmacShaKeyFor(secret.getBytes());
+        
         return Jwts.builder()
                 .setClaims(claims)
-                .signWith(generalKey(secret), SignatureAlgorithm.HS256)
+                .setIssuedAt(new Date())
+                .signWith(key, ALGORITHM)
                 .compact();
     }
 
     /**
-     * 从令牌中获取数据声明
-     *
-     * @param token 令牌
-     * @param secret 密钥
-     * @return 数据声明
+     * 解析token
      */
-    public static Map<String, Object> parseToken(String token, String secret) {
+    public static Claims parseToken(String token, String secret) {
+        // 使用相同的方式生成密钥
+        Key key = Keys.hmacShaKeyFor(secret.getBytes());
+        
         return Jwts.parserBuilder()
-                .setSigningKey(generalKey(secret))
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
-
-    /**
-     * 生成加密后的秘钥
-     *
-     * @param secret 密钥
-     * @return 加密后的密钥
-     */
-    private static SecretKey generalKey(String secret) {
-        byte[] encodedKey = Base64.decodeBase64(secret);
-        return new SecretKeySpec(encodedKey, 0, encodedKey.length, SignatureAlgorithm.HS256.getJcaName());
     }
 } 

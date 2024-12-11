@@ -41,7 +41,7 @@ spring:
       database: 0
       # Redis服务器地址
       host: 192.168.80.128
-      # Redis服务器连接端口
+      # Redis服��器连接端口
       port: 6379
       # Redis服务器连接密码（默认为空）
       password: 
@@ -118,9 +118,14 @@ mybatis-plus:
 
 # Token配置
 token:
-  header: Authorization
-  secret: abcdefghijklmnopqrstuvwxyz
+  # 令牌密钥 (至少32字节/256位)
+  secret: 6L6T5LqG5L2/55So5aSp55qE5a6d5a6d5oiR5Lus5Y+R5aSp5LiL6Z2i5YWI5p2l5LiA6LW35p2l5Y+R6YCB6K+d
+  # 令牌有效期（默认30分钟）
   expireTime: 30
+  # 令牌前缀
+  tokenPrefix: "Bearer "
+  # 令牌头部
+  header: Authorization
 
 # JWT配置
 jwt:

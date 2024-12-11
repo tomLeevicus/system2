@@ -77,13 +77,15 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import type { FormInstance } from 'element-plus'
 import { User, Lock, View, Hide, Picture } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
+import { usePermissionStore } from '@/stores/permission'
 import { login, getCaptcha } from '@/api/auth'
-import type { FormInstance } from 'element-plus'
 
 const router = useRouter()
 const userStore = useUserStore()
+const permissionStore = usePermissionStore()
 
 const loginFormRef = ref<FormInstance>()
 const loading = ref(false)
@@ -117,12 +119,23 @@ async function handleLogin() {
     await loginFormRef.value.validate()
     loading.value = true
     
+    // 登录
     await userStore.login(loginForm.value)
+    // 获取用户信息
     await userStore.getInfo()
-    router.push('/')
+    // 生成路由
+    const accessRoutes = await permissionStore.generateRoutes()
+    // 动态添加路由
+    accessRoutes.forEach(route => {
+      router.addRoute(route as any)
+    })
+    // 跳转到首页或重定向页面
+    const redirect = router.currentRoute.value.query.redirect?.toString()
+    router.push(redirect || '/index')
     
     ElMessage.success('登录成功')
   } catch (error: any) {
+    console.error('Login error:', error)
     ElMessage.error(error.message || '登录失败')
     getCode()
   } finally {

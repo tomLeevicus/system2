@@ -24,68 +24,42 @@ import com.project.system2.security.handle.LogoutSuccessHandlerImpl;
 public class SecurityConfig {
 
     @Autowired
-    private AuthenticationEntryPointImpl unauthorizedHandler;
+    private JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
+    @Autowired
+    private AuthenticationEntryPointImpl unauthorizedHandler;
+    
     @Autowired
     private LogoutSuccessHandlerImpl logoutSuccessHandler;
 
-    @Autowired
-    private JwtAuthenticationTokenFilter authenticationTokenFilter;
-
     /**
-     * 允许匿名访问的地址
+     * 安全过滤器链配置
      */
-    private static final String[] ANONYMOUS_URLS = {
-        "/auth/login",
-        "/auth/register",
-        "/auth/captcha",
-        "/profile/*",
-        "/common/download",
-        "/common/download/resource",
-        "/swagger-ui.html",
-        "/swagger-resources",
-        "/swagger-resources/*",
-        "/v2/api-docs",
-        "/v3/api-docs",
-        "/druid",
-        "/druid/*",
-        "/actuator",
-        "/actuator/*"
-    };
-
-    /**
-     * 静态资源
-     */
-    private static final String[] STATIC_URLS = {
-        "/",
-        "/*.html",
-        "/static/*",
-        "/static/css/*",
-        "/static/js/*",
-        "/static/img/*",
-        "/profile/*",
-        "/avatar/*",
-        "/file/*"
-    };
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // CSRF禁用
             .csrf(csrf -> csrf.disable())
+            // 认证失败处理类
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+            // 基于token，所以不需要session
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // 过滤请求
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/login", "/auth/captcha").permitAll()
-                .requestMatchers("/profile/**").permitAll()
-                .requestMatchers("/common/download/**").permitAll()
-                .requestMatchers("/swagger-ui.html", "/swagger-resources/**", "/webjars/**", "/*/api-docs").permitAll()
-                .requestMatchers("/druid/**").permitAll()
-                .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/", "/*.html", "/**/*.html", "/**/*.css", "/**/*.js").permitAll()
+                // 对于登录login 注册register 验证码captcha 允许匿名访问
+                .requestMatchers("/auth/login", "/auth/register", "/auth/captcha").permitAll()
+                // 静态资源，可匿名访问
+                .requestMatchers("/", "/favicon.ico", "/*.html", "/*/*.html", "/*/*.css", "/*/*.js", "/profile/*").anonymous()
+                // 除上面外的所有请求全部需要鉴权认证
                 .anyRequest().authenticated()
-            );
-
-        http.addFilterBefore(authenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
+            )
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+            // 添加JWT filter
+            .addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
+            // 添加Logout filter
+            .logout(logout -> logout
+                .logoutUrl("/auth/logout")
+                .logoutSuccessHandler(logoutSuccessHandler));
 
         return http.build();
     }

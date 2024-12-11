@@ -3,6 +3,7 @@ package com.project.system2.controller;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.SysMenu;
 import com.project.system2.service.SysMenuService;
+import com.project.system2.common.core.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -93,5 +94,15 @@ public class SysMenuController {
             return Result.error("菜单已分配,不允许删除");
         }
         return menuService.deleteMenuById(menuId) ? Result.success() : Result.error();
+    }
+
+    /**
+     * 获取路由信息
+     */
+    @GetMapping("/getRouters")
+    public Result<List<SysMenu>> getRouters() {
+        Long userId = SecurityUtils.getUserId();
+        List<SysMenu> menus = menuService.selectMenuTreeByUserId(userId);
+        return Result.success(menus);
     }
 } 

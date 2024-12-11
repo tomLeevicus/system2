@@ -37,7 +37,13 @@ public class SysMenuServiceImpl implements SysMenuService {
 
     @Override
     public List<SysMenu> selectMenuTreeByUserId(Long userId) {
-        List<SysMenu> menus = menuMapper.selectMenuTreeByUserId(userId);
+        List<SysMenu> menus = null;
+        if (userId != null && userId == 1L) {
+            // 管理员显示所有菜单信息
+            menus = menuMapper.selectMenuTreeAll();
+        } else {
+            menus = menuMapper.selectMenuTreeByUserId(userId);
+        }
         return buildMenuTree(menus);
     }
 

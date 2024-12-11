@@ -41,7 +41,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String login(String username, String password) {
         // 1. 验证用户名密码
-        SysUser user = userMapper.selectUserByUsername(username);
+        SysUser user = userMapper.selectUserByUserName(username);
         
         if (user == null) {
             throw new ServiceException("用户不存在");

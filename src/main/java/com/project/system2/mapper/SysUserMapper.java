@@ -11,7 +11,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
     /**
      * 根据用户名查询用户
      */
-    SysUser selectUserByUsername(@Param("username") String userName);
+    SysUser selectUserByUserName(@Param("username") String username);
 
     /**
      * 校验用户名称是否唯一
