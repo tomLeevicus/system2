@@ -5,6 +5,8 @@ import com.project.system2.common.core.domain.Result;
 import com.project.system2.common.core.domain.PageQuery;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.service.SysUserService;
+import com.project.system2.security.SecurityService;
+import com.project.system2.common.core.domain.model.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -16,6 +18,9 @@ public class SysUserController {
     
     @Autowired
     private SysUserService userService;
+    
+    @Autowired
+    private SecurityService ss;
 
     /**
      * 获取用户列表

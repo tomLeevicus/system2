@@ -1,0 +1,194 @@
+[
+    {
+        "path": "/login",
+        "hidden": true,
+        "meta": {
+            "title": "登录"
+        }
+    },
+    {
+        "path": "/404",
+        "hidden": true,
+        "meta": {
+            "title": "404"
+        }
+    },
+    {
+        "path": "/",
+        "component": {
+            "__name": "index",
+            "__hmrId": "051739fd",
+            "__scopeId": "data-v-051739fd",
+            "__file": "D:/Code/system2/vue-ui/src/layout/index.vue"
+        },
+        "redirect": "index",
+        "children": [
+            {
+                "path": "index",
+                "name": "Index",
+                "meta": {
+                    "title": "首页",
+                    "icon": "dashboard",
+                    "affix": true
+                }
+            }
+        ]
+    },
+    {
+        "createTime": "2024-12-12 02:27:49",
+        "menuId": 1,
+        "menuName": "系统管理",
+        "parentId": 0,
+        "orderNum": 1,
+        "path": "/system",
+        "isFrame": "0",
+        "isCache": "0",
+        "menuType": "M",
+        "visible": "0",
+        "status": "0",
+        "perms": "",
+        "icon": "system",
+        "children": [
+            {
+                "createTime": "2024-12-12 02:27:49",
+                "menuId": 100,
+                "menuName": "用户管理",
+                "parentId": 1,
+                "orderNum": 1,
+                "path": "/system/user",
+                "isFrame": "0",
+                "isCache": "0",
+                "menuType": "C",
+                "visible": "0",
+                "status": "0",
+                "perms": "system:user:list",
+                "icon": "user",
+                "menu": true,
+                "button": false
+            },
+            {
+                "createTime": "2024-12-12 02:27:49",
+                "menuId": 101,
+                "menuName": "角色管理",
+                "parentId": 1,
+                "orderNum": 2,
+                "path": "/system/role",
+                "isFrame": "0",
+                "isCache": "0",
+                "menuType": "C",
+                "visible": "0",
+                "status": "0",
+                "perms": "system:role:list",
+                "icon": "peoples",
+                "menu": true,
+                "button": false
+            },
+            {
+                "createTime": "2024-12-12 02:27:49",
+                "menuId": 102,
+                "menuName": "菜单管理",
+                "parentId": 1,
+                "orderNum": 3,
+                "path": "/system/menu",
+                "isFrame": "0",
+                "isCache": "0",
+                "menuType": "C",
+                "visible": "0",
+                "status": "0",
+                "perms": "system:menu:list",
+                "icon": "tree-table",
+                "menu": true,
+                "button": false
+            },
+            {
+                "createTime": "2024-12-12 02:27:49",
+                "menuId": 103,
+                "menuName": "部门管理",
+                "parentId": 1,
+                "orderNum": 4,
+                "path": "/system/dept",
+                "isFrame": "0",
+                "isCache": "0",
+                "menuType": "C",
+                "visible": "0",
+                "status": "0",
+                "perms": "system:dept:list",
+                "icon": "tree",
+                "menu": true,
+                "button": false
+            }
+        ],
+        "menu": true,
+        "button": false
+    },
+    {
+        "createTime": "2024-12-12 02:27:49",
+        "menuId": 2,
+        "menuName": "工作流程",
+        "parentId": 0,
+        "orderNum": 2,
+        "path": "/workflow",
+        "isFrame": "0",
+        "isCache": "0",
+        "menuType": "M",
+        "visible": "0",
+        "status": "0",
+        "perms": "",
+        "icon": "guide",
+        "children": [
+            {
+                "createTime": "2024-12-12 02:27:49",
+                "menuId": 200,
+                "menuName": "流程管理",
+                "parentId": 2,
+                "orderNum": 1,
+                "path": "/workflow/process",
+                "isFrame": "0",
+                "isCache": "0",
+                "menuType": "C",
+                "visible": "0",
+                "status": "0",
+                "perms": "workflow:process:list",
+                "icon": "list",
+                "menu": true,
+                "button": false
+            },
+            {
+                "createTime": "2024-12-12 02:27:49",
+                "menuId": 201,
+                "menuName": "流程实例",
+                "parentId": 2,
+                "orderNum": 2,
+                "path": "/workflow/instance",
+                "isFrame": "0",
+                "isCache": "0",
+                "menuType": "C",
+                "visible": "0",
+                "status": "0",
+                "perms": "workflow:instance:list",
+                "icon": "job",
+                "menu": true,
+                "button": false
+            },
+            {
+                "createTime": "2024-12-12 02:27:49",
+                "menuId": 202,
+                "menuName": "任务管理",
+                "parentId": 2,
+                "orderNum": 3,
+                "path": "/workflow/task",
+                "isFrame": "0",
+                "isCache": "0",
+                "menuType": "C",
+                "visible": "0",
+                "status": "0",
+                "perms": "workflow:task:list",
+                "icon": "checkbox",
+                "menu": true,
+                "button": false
+            }
+        ],
+        "menu": true,
+        "button": false
+    }
+]

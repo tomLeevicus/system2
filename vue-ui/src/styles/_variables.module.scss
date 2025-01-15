@@ -1,6 +1,0 @@
-@use './_variables' as v;
-@use './_forward' as f;
-
-// 导出所有变量
-@forward './_variables';
-@forward './_forward'; 

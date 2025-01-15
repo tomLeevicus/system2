@@ -14,8 +14,14 @@ public interface IActProcessDefinitionService {
     
     /**
      * 部署流程定义
+     * 
+     * @param name 流程名称
+     * @param category 流程分类
+     * @param file 流程文件
+     * @param reviewers 审核员列表
+     * @return 部署ID
      */
-    String deployProcessDefinition(String name, String category, MultipartFile file);
+    String deployProcessDefinition(String name, String category, MultipartFile file, List<String> reviewers);
     
     /**
      * 删除流程定义
@@ -38,4 +44,12 @@ public interface IActProcessDefinitionService {
     String getProcessDefinitionXML(String processDefinitionId);
     
     ActProcessDefinition selectProcessDefinitionById(String processDefinitionId);
+    
+    /**
+     * 根据审核员获取流程定义列表
+     * 
+     * @param reviewerId 审核员ID
+     * @return 流程定义列表
+     */
+    List<ActProcessDefinition> getProcessDefinitionsByReviewer(String reviewerId);
 } 

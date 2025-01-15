@@ -72,9 +72,9 @@ public class LoginUser implements UserDetails {
     public LoginUser() {
     }
 
-    public LoginUser(SysUser user, Set<String> permissions) {
+    public LoginUser(SysUser user) {
         this.user = user;
-        this.permissions = permissions;
+//        this.permissions = permissions;
         this.userId = user.getUserId();
         this.deptId = user.getDeptId();
     }

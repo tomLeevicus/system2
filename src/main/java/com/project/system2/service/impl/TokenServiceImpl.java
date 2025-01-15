@@ -28,7 +28,7 @@ import io.jsonwebtoken.Claims;
 @Service
 public class TokenServiceImpl implements TokenService {
     private static final Logger logger = LoggerFactory.getLogger(TokenServiceImpl.class);
-
+    
     @Autowired
     private RedisCache redisCache;
 
@@ -38,13 +38,13 @@ public class TokenServiceImpl implements TokenService {
     @Autowired
     private TokenConfig tokenConfig;
 
+    @Autowired
+    private HttpServletRequest request;
+
     protected static final long MILLIS_SECOND = 1000;
-    protected static final long MILLIS_MINUTE = 60 * MILLIS_SECOND;
+    protected static final long MILLIS_MINUTE = 30*60 * MILLIS_SECOND; //30分钟
     private static final Long MILLIS_MINUTE_TEN = 20 * 60 * 1000L;
 
-    /**
-     * 创建令牌
-     */
     @Override
     public String createToken(LoginUser loginUser) {
         String token = UUID.randomUUID().toString();
@@ -57,12 +57,8 @@ public class TokenServiceImpl implements TokenService {
         return JwtUtils.generateToken(claims, tokenConfig.getSecret());
     }
 
-    /**
-     * 获取用户身份信息
-     */
     @Override
     public LoginUser getLoginUser(HttpServletRequest request) {
-        // 获取请求携带的令牌
         String token = getToken(request);
         if (StringUtils.isNotEmpty(token)) {
             try {
@@ -77,9 +73,6 @@ public class TokenServiceImpl implements TokenService {
         return null;
     }
 
-    /**
-     * 获取请求token
-     */
     @Override
     public String getToken(HttpServletRequest request) {
         String token = request.getHeader(tokenConfig.getHeader());
@@ -89,9 +82,6 @@ public class TokenServiceImpl implements TokenService {
         return token;
     }
 
-    /**
-     * 删除用户身份信息
-     */
     @Override
     public void deleteToken(String token) {
         if (StringUtils.isNotEmpty(token)) {
@@ -100,9 +90,6 @@ public class TokenServiceImpl implements TokenService {
         }
     }
 
-    /**
-     * 验证令牌有效期,相差不足20分钟,自动刷新缓存
-     */
     @Override
     public void verifyToken(LoginUser loginUser) {
         long expireTime = loginUser.getExpireTime();
@@ -112,21 +99,14 @@ public class TokenServiceImpl implements TokenService {
         }
     }
 
-    /**
-     * 刷新令牌有效期
-     */
     @Override
     public void refreshToken(LoginUser loginUser) {
         loginUser.setLoginTime(System.currentTimeMillis());
         loginUser.setExpireTime(loginUser.getLoginTime() + tokenConfig.getExpireTime() * MILLIS_MINUTE);
-        // 根据uuid将loginUser缓存
         String userKey = getTokenKey(loginUser.getToken());
         redisCache.setCacheObject(userKey, loginUser, tokenConfig.getExpireTime(), TimeUnit.MINUTES);
     }
 
-    /**
-     * 验证令牌有效性
-     */
     @Override
     public boolean validateToken(String token) {
         try {
@@ -140,9 +120,6 @@ public class TokenServiceImpl implements TokenService {
         }
     }
 
-    /**
-     * 获取认证信息
-     */
     @Override
     public UsernamePasswordAuthenticationToken getAuthentication(String token) {
         Claims claims = JwtUtils.parseToken(token, tokenConfig.getSecret());
@@ -153,6 +130,11 @@ public class TokenServiceImpl implements TokenService {
             return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
         }
         return null;
+    }
+
+    @Override
+    public LoginUser getLoginUser() {
+        return getLoginUser(request);
     }
 
     private String getTokenKey(String uuid) {

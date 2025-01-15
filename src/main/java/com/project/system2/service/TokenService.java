@@ -16,6 +16,11 @@ public interface TokenService {
     LoginUser getLoginUser(HttpServletRequest request);
 
     /**
+     * 获取当前用户身份信息
+     */
+    LoginUser getLoginUser();
+
+    /**
      * 获取请求token
      */
     String getToken(HttpServletRequest request);

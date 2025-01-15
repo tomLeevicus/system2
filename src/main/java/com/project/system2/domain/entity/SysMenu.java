@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -20,16 +21,13 @@ public class SysMenu extends BaseEntity {
     @TableId(value = "menu_id", type = IdType.AUTO)
     private Long menuId;
 
+    /** 父菜单ID */
+    private Long parentId;
+
     /** 菜单名称 */
     @NotBlank(message = "菜单名称不能为空")
     @Size(min = 0, max = 50, message = "菜单名称长度不能超过50个字符")
     private String menuName;
-
-    /** 父菜单ID */
-    private Long parentId;
-
-    /** 显示顺序 */
-    private Integer orderNum;
 
     /** 路由地址 */
     private String path;
@@ -40,15 +38,6 @@ public class SysMenu extends BaseEntity {
     /** 路由参数 */
     private String query;
 
-    /** 是否为外链（0否 1是） */
-    private String isFrame;
-
-    /** 是否缓存（0不缓存 1缓存） */
-    private String isCache;
-
-    /** 菜单类型（M目录 C菜单 F按钮） */
-    private String menuType;
-
     /** 菜单状态（0显示 1隐藏） */
     private String visible;
 
@@ -58,8 +47,23 @@ public class SysMenu extends BaseEntity {
     /** 权限标识 */
     private String perms;
 
+    /** 是否为外链（0否 1是） */
+    private Integer isFrame;
+
+    /** 是否缓存（0不缓存 1缓存） */
+    private Integer isCache;
+
+    /** 菜单类型（M目录 C菜单 F按钮） */
+    private String menuType;  
+
     /** 菜单图标 */
     private String icon;
+
+    /** 显示顺序 */
+    private Integer orderNum;
+
+    /** 创建时间 */
+    private Date createTime;
 
     /** 子菜单 */
     @TableField(exist = false)

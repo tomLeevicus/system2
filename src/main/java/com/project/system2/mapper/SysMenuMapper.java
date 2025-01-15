@@ -63,4 +63,12 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
      * @return 结果 true 存在 false 不存在
      */
     int checkMenuExistRole(Long menuId);
+
+    /**
+     * 根据角色ID查询权限
+     * 
+     * @param roleId 角色ID
+     * @return 权限列表
+     */
+    List<String> selectMenuPermsByRoleId(Long roleId);
 } 

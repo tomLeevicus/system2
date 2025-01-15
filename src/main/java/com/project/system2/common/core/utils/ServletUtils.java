@@ -1,5 +1,6 @@
 package com.project.system2.common.core.utils;
 
+import com.project.system2.common.core.text.Convert;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;

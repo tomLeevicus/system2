@@ -54,11 +54,14 @@ public class SysUser extends BaseEntity {
     @TableField(exist = false)
     private SysDept dept;
 
+    @TableField(exist = false)
+    private List<String> roleKeys;
+
     public boolean isAdmin() {
-        return isAdmin(this.userId);
+        if (roleKeys == null || roleKeys.isEmpty()) {
+            return false;
+        }
+        return roleKeys.contains("admin");
     }
 
-    public static boolean isAdmin(Long userId) {
-        return userId != null && 1L == userId;
-    }
 } 

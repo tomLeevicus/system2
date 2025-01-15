@@ -1,18 +1,24 @@
 package com.project.system2.domain.entity;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.Set;
+
 @Data
-@EqualsAndHashCode(callSuper = true)
 @TableName("sys_role")
 public class SysRole extends BaseEntity {
-
+    
+    /** 超级管理员角色权限标识 */
+    public static final String ADMIN_ROLE_KEY = "admin";
+    
     @TableId(type = IdType.AUTO)
     private Long roleId;
 
@@ -31,14 +37,29 @@ public class SysRole extends BaseEntity {
 
     private String delFlag;
 
+    /** 菜单组 */
     @TableField(exist = false)
     private Long[] menuIds;
 
+    /** 部门组（数据权限） */
+    @TableField(exist = false)
+    private Long[] deptIds;
+
+    /** 角色菜单权限 */
+    private Set<String> permissions;
+
     public boolean isAdmin() {
-        return isAdmin(this.roleId);
+        return isAdmin(this.roleId) || ADMIN_ROLE_KEY.equals(this.roleKey);
     }
 
     public static boolean isAdmin(Long roleId) {
         return roleId != null && 1L == roleId;
+    }
+
+    /**
+     * 判断是否为超级管理员角色
+     */
+    public static boolean isAdminRole(String roleKey) {
+        return ADMIN_ROLE_KEY.equals(roleKey);
     }
 } 

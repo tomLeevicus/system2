@@ -98,6 +98,7 @@ public class SysMenuController {
 
     /**
      * 获取路由信息
+     * @return 路由信息
      */
     @GetMapping("/getRouters")
     public Result<List<SysMenu>> getRouters() {

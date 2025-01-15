@@ -1,6 +1,7 @@
 package com.project.system2.controller;
 
 import com.project.system2.common.core.domain.Result;
+import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.domain.entity.ActProcessDefinition;
 import com.project.system2.service.IActProcessDefinitionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +44,9 @@ public class ActProcessDefinitionController {
     @PostMapping("/deploy")
     public Result<String> deployProcess(@RequestParam("name") String name,
                                       @RequestParam("category") String category,
-                                      @RequestParam("file") MultipartFile file) {
-        String deploymentId = processDefinitionService.deployProcessDefinition(name, category, file);
+                                      @RequestParam("file") MultipartFile file,
+                                      @RequestParam(value = "reviewers", required = false) List<String> reviewers) {
+        String deploymentId = processDefinitionService.deployProcessDefinition(name, category, file, reviewers);
         return Result.success(deploymentId);
     }
 
@@ -84,5 +86,16 @@ public class ActProcessDefinitionController {
     public Result<String> getProcessXml(@PathVariable String processDefinitionId) {
         String xml = processDefinitionService.getProcessDefinitionXML(processDefinitionId);
         return Result.success(xml);
+    }
+
+    /**
+     * 获取当前用户待审核的流程列表
+     */
+    @GetMapping("/my-review-tasks")
+    public Result<List<ActProcessDefinition>> getMyReviewTasks() {
+        // 获取当前登录用户
+        String currentUserId = SecurityUtils.getUserId().toString();
+        List<ActProcessDefinition> tasks = processDefinitionService.getProcessDefinitionsByReviewer(currentUserId);
+        return Result.success(tasks);
     }
 } 
