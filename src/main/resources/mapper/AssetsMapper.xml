@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.project.system2.mapper.AssetsMapper">
-
     <resultMap type="Assets" id="AssetsResult">
         <id property="id" column="id"/>
         <result property="assetNumber" column="asset_number"/>
         <result property="assetName" column="asset_name"/>
         <result property="assetClassificationId" column="asset_classification_id"/>
-        <result property="assetNum" column="asset_num"/>
         <result property="assetModel" column="asset_model"/>
         <result property="assetPurchaseTime" column="asset_purchase_time"/>
         <result property="assetUseTime" column="asset_use_time"/>
         <result property="assetUserId" column="asset_user_id"/>
-        <result property="assetStorageLocationId" column="asset_storage_location_id"/>
+        <result property="assetStorageLocation" column="asset_storage_location"/>
         <result property="assetUseDepartmentId" column="asset_use_department_id"/>
         <result property="assetPriceNum" column="asset_price_num"/>
         <result property="assetPriceUnit" column="asset_price_unit"/>
+        <result property="assetUseStatus" column="asset_use_status"/>
         <result property="assetStatus" column="asset_status"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
@@ -24,7 +23,8 @@
     </resultMap>
 
     <select id="selectAssetsList" resultType="com.project.system2.domain.entity.Assets">
-        SELECT * FROM assets
+        SELECT *
+        FROM assets
         <where>
             <if test="query.assetNumber != null and query.assetNumber != ''">
                 AND asset_number = #{query.assetNumber}
@@ -52,53 +52,82 @@
     </select>
 
     <select id="selectAssetsById" parameterType="Long" resultMap="AssetsResult">
-        select * from assets where id = #{id}
+        select *
+        from assets
+        where id = #{id}
     </select>
 
     <insert id="insertAssets" parameterType="Assets">
-        insert into assets (
-        id, asset_number, asset_name, asset_classification_id, asset_num,
-        asset_model, asset_purchase_time, asset_use_time, asset_user_id,
-        asset_storage_location_id, asset_use_department_id, asset_price_num,
-        asset_price_unit, asset_status, create_by, create_time, update_by,
-        update_time
-        ) values (
-        #{id}, #{assetNumber}, #{assetName}, #{assetClassificationId}, #{assetNum},
-        #{assetModel}, #{assetPurchaseTime}, #{assetUseTime}, #{assetUserId},
-        #{assetStorageLocationId}, #{assetUseDepartmentId}, #{assetPriceNum},
-        #{assetPriceUnit}, #{assetStatus}, #{createBy}, #{createTime}, #{updateBy},
-        #{updateTime}
-        )
+        insert into assets (id, asset_number, asset_name, asset_classification_id,
+                            asset_model, asset_purchase_time, asset_use_time, asset_user_id,
+                            asset_storage_location, asset_use_department_id, asset_price_num,
+                            asset_price_unit, asset_status, create_by, create_time, update_by,
+                            update_time)
+        values (#{id}, #{assetNumber}, #{assetName}, #{assetClassificationId},
+                #{assetModel}, #{assetPurchaseTime}, #{assetUseTime}, #{assetUserId},
+                #{assetStorageLocationId}, #{assetUseDepartmentId}, #{assetPriceNum},
+                #{assetPriceUnit}, #{assetStatus}, #{createBy}, #{createTime}, #{updateBy},
+                #{updateTime})
     </insert>
 
     <update id="updateAssets" parameterType="Assets">
         update assets
         <set>
-            <if test="assetNumber != null">asset_number = #{assetNumber},</if>
-            <if test="assetName != null">asset_name = #{assetName},</if>
-            <if test="assetClassificationId != null">asset_classification_id = #{assetClassificationId},</if>
-            <if test="assetNum != null">asset_num = #{assetNum},</if>
-            <if test="assetModel != null">asset_model = #{assetModel},</if>
-            <if test="assetPurchaseTime != null">asset_purchase_time = #{assetPurchaseTime},</if>
-            <if test="assetUseTime != null">asset_use_time = #{assetUseTime},</if>
-            <if test="assetUserId != null">asset_user_id = #{assetUserId},</if>
-            <if test="assetStorageLocationId != null">asset_storage_location_id = #{assetStorageLocationId},</if>
-            <if test="assetUseDepartmentId != null">asset_use_department_id = #{assetUseDepartmentId},</if>
-            <if test="assetPriceNum != null">asset_price_num = #{assetPriceNum},</if>
-            <if test="assetPriceUnit != null">asset_price_unit = #{assetPriceUnit},</if>
-            <if test="assetStatus != null">asset_status = #{assetStatus},</if>
-            <if test="updateBy != null">update_by = #{updateBy},</if>
-            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="assetNumber != null">
+                asset_number = #{assetNumber},
+            </if>
+            <if test="assetName != null">
+                asset_name = #{assetName},
+            </if>
+            <if test="assetClassificationId != null">
+                asset_classification_id = #{assetClassificationId},
+            </if>
+            <if test="assetModel != null">
+                asset_model = #{assetModel},
+            </if>
+            <if test="assetPurchaseTime != null">
+                asset_purchase_time = #{assetPurchaseTime},
+            </if>
+            <if test="assetUseTime != null">
+                asset_use_time = #{assetUseTime},
+            </if>
+            <if test="assetUserId != null">
+                asset_user_id = #{assetUserId},
+            </if>
+            <if test="assetStorageLocationId != null">
+                asset_storage_location = #{assetStorageLocationId},
+            </if>
+            <if test="assetUseDepartmentId != null">
+                asset_use_department_id = #{assetUseDepartmentId},
+            </if>
+            <if test="assetPriceNum != null">
+                asset_price_num = #{assetPriceNum},
+            </if>
+            <if test="assetPriceUnit != null">
+                asset_price_unit = #{assetPriceUnit},
+            </if>
+            <if test="assetStatus != null">
+                asset_status = #{assetStatus},
+            </if>
+            <if test="updateBy != null">
+                update_by = #{updateBy},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
         </set>
         where id = #{id}
     </update>
 
     <delete id="deleteAssetsById" parameterType="Long">
-        delete from assets where id = #{id}
+        delete
+        from assets
+        where id = #{id}
     </delete>
 
     <delete id="deleteAssetsByIds" parameterType="Long[]">
-        delete from assets where id in
+        delete
+        from assets where id in
         <foreach collection="array" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>

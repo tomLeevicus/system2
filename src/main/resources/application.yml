@@ -7,7 +7,7 @@ spring:
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.80.128:3306/system2?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+    url: jdbc:mysql://192.168.80.128:3306/system2?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
     username: root
     password: root
     druid:
@@ -41,7 +41,7 @@ spring:
       database: 0
       # Redis服务器地址
       host: 192.168.80.128
-      # Redis服��器连接端口
+      # Redis服务器连接端口
       port: 6379
       # Redis服务器连接密码（默认为空）
       password: 
@@ -58,61 +58,12 @@ spring:
           # 连接池中的最小空闲连接
           min-idle: 0
 
-  # Activiti配置
-  activiti:
-    database-schema-update: true
-    history-level: full
-    db-history-used: true
-    check-process-definitions: false
-    deployment-mode: never-fail
-    process-definition-location-prefix: classpath:/processes/
-    async-executor-activate: false
-    mail-server-use-ssl: true
-    font:
-      activity-font-name: 宋体
-      label-font-name: 宋体
-      annotation-font-name: 宋体
-    deployment-resources-pattern:
-      - classpath*:/processes/*.*
-      - classpath*:/processes/*/*.*
-    rest-api-enabled: true
-    rest-api-mapping: /activiti-rest/*
-    rest-api-servlet-name: activiti-rest
-    modeler:
-      enabled: true
-      context-path: /modeler
-    security:
-      enabled: false
-      # 不需要认证的路径
-      ignored:
-        urls:
-          - /auth/login
-          - /auth/register
-          - /auth/captcha
-          - /profile/**
-          - /common/download**
-          - /common/download/resource**
-          - /swagger-ui.html
-          - /swagger-resources/**
-          - /webjars/**
-          - /*/api-docs
-          - /druid/**
-          - /actuator/**
-          - /
-          - /*.html
-          - /**/*.html
-          - /**/*.css
-          - /**/*.js
-          - /profile/**
-          - /avatar/**
-          - /file/**
-
 # MyBatis-Plus配置
 mybatis-plus:
   # 搜索指定包别名
   typeAliasesPackage: com.project.system2.domain.entity
   # 配置mapper的扫描，找到所有的mapper.xml映射文件
-  mapperLocations: classpath*:mapper/**/*Mapper.xml
+  mapperLocations: classpath*:mapper/**/*.xml
   # 加载全局的配置文件
   configLocation: classpath:mybatis-config.xml
 
@@ -141,5 +92,86 @@ jwt:
 # 日志配置
 logging:
   level:
-    com.project.system2: debug
-    org.springframework: warn
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    com.project.system2: TRACE
+
+# Flowable配置
+flowable:
+  # 基础配置
+  database-schema-update: true
+  async-executor-activate: false
+  check-process-definitions: true
+  history-level: full
+  
+  # Flowable UI 配置
+  modeler:
+    app:
+      rest-enabled: true
+      deployment-api-url: http://localhost:${server.port}/api
+      context-root: flowable-modeler
+      rest-root: flowable-modeler
+      security:
+        basic:
+          enabled: false
+      authentication-mode: verify-privilege
+      cors:
+        enabled: true
+        allowed-origins: "*"
+        allowed-methods: "*"
+        allowed-headers: "*"
+        exposed-headers: "*"
+        allow-credentials: true
+  
+  # IDM 配置
+  idm:
+    app:
+      admin:
+        user-id: admin
+        password: test
+        first-name: Admin
+        last-name: User
+      security:
+        basic:
+          enabled: false
+      authentication-mode: verify-privilege
+      cors:
+        enabled: true
+        allowed-origins: "*"
+        allowed-methods: "*"
+        allowed-headers: "*"
+        exposed-headers: "*"
+        allow-credentials: true
+    ldap:
+      enabled: false
+
+  # 禁用不需要的引擎
+  dmn:
+    enabled: false
+  cmmn:
+    enabled: false
+  content:
+    enabled: false
+  form:
+    enabled: false
+  event-registry:
+    enabled: false
+
+  auto-complete-task-keys: userApply,otherTaskKey # 配置需要自动完成的节点key
+
+  process-def-location: D:\\Code\\processes\\  # 修改为指定路径
+  # process-def-location: /var/process-definitions/  # 生产环境路径
+
+# 在已有权限配置中添加
+permission:
+  workflow:
+    process:
+      deploy: workflow:process:deploy
+
+springfox:
+  documentation:
+    swagger-ui:
+      enabled: true
+      base-url: /api  # 如果项目有统一前缀
+    api-docs:
+      path: /v2/api-docs

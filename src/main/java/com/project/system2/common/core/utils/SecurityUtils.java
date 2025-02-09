@@ -27,7 +27,8 @@ public class SecurityUtils {
      * 获取Authentication
      */
     public static Authentication getAuthentication() {
-        return SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication;
     }
 
     /**
@@ -90,13 +91,5 @@ public class SecurityUtils {
         } catch (Exception e) {
             return new HashSet<>();
         }
-    }
-
-    /**
-     * 判断是否为管理员
-     */
-    public static boolean isAdmin() {
-        Long userId = getUserId();
-        return userId != null && userId == 1L;
     }
 } 

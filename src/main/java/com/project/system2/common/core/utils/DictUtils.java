@@ -1,7 +1,7 @@
 package com.project.system2.common.core.utils;
 
 import com.project.system2.domain.entity.SysDictData;
-import com.project.system2.service.SysDictDataService;
+import com.project.system2.service.ISysDictDataService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -9,9 +9,9 @@ import java.util.List;
 @Component
 public class DictUtils {
     
-    private static SysDictDataService dictDataService;
+    private static ISysDictDataService dictDataService;
 
-    public DictUtils(SysDictDataService dictDataService) {
+    public DictUtils(ISysDictDataService dictDataService) {
         DictUtils.dictDataService = dictDataService;
     }
 

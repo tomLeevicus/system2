@@ -18,6 +18,4 @@ public class SysDictType extends BaseEntity {
 
     private String status;
 
-    @TableField(fill = FieldFill.INSERT)
-    private String delFlag;
 } 

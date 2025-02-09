@@ -10,11 +10,7 @@ import java.util.List;
 /**
  * 资产管理 服务层
  */
-public interface IAssetsService extends IService<Assets> {
-    /**
-     * 查询资产列表
-     */
-    Result<List<Assets>> listAssets();
+public interface IAssetsService {
 
     /**
      * 根据ID查询资产

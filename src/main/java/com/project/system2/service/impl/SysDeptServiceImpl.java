@@ -5,7 +5,7 @@ import com.project.system2.domain.entity.SysDept;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.mapper.SysDeptMapper;
 import com.project.system2.mapper.SysUserMapper;
-import com.project.system2.service.SysDeptService;
+import com.project.system2.service.ISysDeptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class SysDeptServiceImpl implements SysDeptService {
+public class SysDeptServiceImpl implements ISysDeptService {
 
     @Autowired
     private SysDeptMapper deptMapper;

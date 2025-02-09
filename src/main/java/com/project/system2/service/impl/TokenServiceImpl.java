@@ -122,12 +122,21 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public UsernamePasswordAuthenticationToken getAuthentication(String token) {
-        Claims claims = JwtUtils.parseToken(token, tokenConfig.getSecret());
-        String uuid = (String) claims.get(CacheConstants.LOGIN_USER_KEY);
-        String userKey = getTokenKey(uuid);
-        LoginUser user = redisCache.getCacheObject(userKey);
-        if (user != null) {
-            return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        try {
+            Claims claims = JwtUtils.parseToken(token, tokenConfig.getSecret());
+            String uuid = (String) claims.get(CacheConstants.LOGIN_USER_KEY);
+            String userKey = getTokenKey(uuid);
+            LoginUser loginUser = redisCache.getCacheObject(userKey);
+            
+            if (loginUser != null) {
+                return new UsernamePasswordAuthenticationToken(
+                    loginUser,
+                    null,
+                    loginUser.getAuthorities()
+                );
+            }
+        } catch (Exception e) {
+            logger.error("Cannot get authentication: {}", e.getMessage());
         }
         return null;
     }

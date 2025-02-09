@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.system2.mapper.AssetRepairMapper">
+  <resultMap id="BaseResultMap" type="com.project.system2.domain.entity.AssetRepair">
+    <!--@mbg.generated-->
+    <!--@Table asset_repair-->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="asset_id" jdbcType="BIGINT" property="assetId" />
+    <result column="asset_name" jdbcType="VARCHAR" property="assetName" />
+    <result column="reason_for_repair" jdbcType="VARCHAR" property="reasonForRepair" />
+    <result column="repair_date" jdbcType="TIMESTAMP" property="repairDate" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="create_by" jdbcType="BIGINT" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_by" jdbcType="BIGINT" property="updateBy" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="del_flag" jdbcType="INTEGER" property="delFlag" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, asset_id, asset_name, reason_for_repair, repair_date, `status`, create_by, create_time, 
+    update_by, update_time, del_flag
+  </sql>
+
+  <select id="selectRepairPage" resultType="com.project.system2.domain.entity.AssetRepair">
+    SELECT 
+      ar.*
+    FROM 
+      asset_repair ar
+    <where>
+      ar.del_flag = 0
+      <if test="query != null">
+        <if test="query.assetName != null and query.assetName != ''">
+          AND ar.asset_name LIKE CONCAT('%', #{query.assetName}, '%')
+        </if>
+        <if test="query.status != null">
+          AND ar.status = #{query.status}
+        </if>
+        <if test="query.repairDateStart != null">
+          AND ar.repair_date &gt;= #{query.repairDateStart}
+        </if>
+        <if test="query.repairDateEnd != null">
+          AND ar.repair_date &lt;= #{query.repairDateEnd}
+        </if>
+      </if>
+    </where>
+    ORDER BY 
+      ar.create_time DESC
+  </select>
+
+</mapper>

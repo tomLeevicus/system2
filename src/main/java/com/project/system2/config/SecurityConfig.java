@@ -46,10 +46,28 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // 过滤请求
             .authorizeHttpRequests(auth -> auth
+                // 开放接口
+                .requestMatchers(
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/swagger-resources/**",
+                    "/webjars/**",
+                    "/process/definition/**",
+                    "/process/instance/**"
+                ).permitAll()
                 // 对于登录login 注册register 验证码captcha 允许匿名访问
                 .requestMatchers("/auth/login", "/auth/register", "/auth/captcha").permitAll()
                 // 静态资源，可匿名访问
-                .requestMatchers("/", "/favicon.ico", "/*.html", "/*/*.html", "/*/*.css", "/*/*.js", "/profile/*").anonymous()
+                .requestMatchers(
+                    "/",
+                    "/favicon.ico",
+                    "/*.html",
+                    "/*/*.html",
+                    "/*/*.css",
+                    "/*/*.js",
+                    "/profile/*"
+                ).anonymous()
                 // 除上面外的所有请求全部需要鉴权认证
                 .anyRequest().authenticated()
             )

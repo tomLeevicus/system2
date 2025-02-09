@@ -1,8 +1,6 @@
 package com.project.system2.service.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,23 +13,17 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.entity.SysMenu;
 import com.project.system2.mapper.SysMenuMapper;
-import com.project.system2.service.SysMenuService;
+import com.project.system2.service.ISysMenuService;
 
 @Service
-public class SysMenuServiceImpl implements SysMenuService {
+public class SysMenuServiceImpl implements ISysMenuService {
 
     @Autowired
     private SysMenuMapper menuMapper;
 
     @Override
     public Set<String> selectMenuPermsByUserId(Long userId) {
-        List<String> perms = menuMapper.selectMenuPermsByUserId(userId);
-        Set<String> permsSet = new HashSet<>();
-        for (String perm : perms) {
-            if (StringUtils.isNotEmpty(perm)) {
-                permsSet.addAll(Arrays.asList(perm.trim().split(",")));
-            }
-        }
+        Set<String> permsSet = menuMapper.selectMenuPermsByUserId(userId);
         return permsSet;
     }
 

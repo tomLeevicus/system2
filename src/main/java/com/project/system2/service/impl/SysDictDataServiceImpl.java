@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.domain.entity.SysDictData;
 import com.project.system2.mapper.SysDictDataMapper;
-import com.project.system2.service.SysDictDataService;
+import com.project.system2.service.ISysDictDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class SysDictDataServiceImpl implements SysDictDataService {
+public class SysDictDataServiceImpl implements ISysDictDataService {
 
     @Autowired
     private SysDictDataMapper dictDataMapper;

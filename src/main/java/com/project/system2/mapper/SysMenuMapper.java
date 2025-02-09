@@ -1,6 +1,8 @@
 package com.project.system2.mapper;
 
 import java.util.List;
+import java.util.Set;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.project.system2.domain.entity.SysMenu;
 import org.apache.ibatis.annotations.Mapper;
@@ -30,7 +32,7 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
      * @param userId 用户ID
      * @return 权限列表
      */
-    List<String> selectMenuPermsByUserId(Long userId);
+    Set<String> selectMenuPermsByUserId(Long userId);
 
     /**
      * 根据角色ID查询菜单树信息

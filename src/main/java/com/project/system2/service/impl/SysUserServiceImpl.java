@@ -5,8 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.mapper.SysUserMapper;
-import com.project.system2.service.SysUserRoleService;
-import com.project.system2.service.SysUserService;
+import com.project.system2.service.ISysUserRoleService;
+import com.project.system2.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +15,13 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
+public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements ISysUserService {
 
     @Autowired
     private SysUserMapper userMapper;
 
     @Autowired
-    private SysUserRoleService userRoleService;
+    private ISysUserRoleService userRoleService;
 
     @Override
     public SysUser getUserByUsername(String username) {

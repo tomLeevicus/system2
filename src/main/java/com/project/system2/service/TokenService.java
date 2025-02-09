@@ -3,6 +3,7 @@ package com.project.system2.service;
 import com.project.system2.common.core.domain.model.LoginUser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 
 public interface TokenService {
     /**

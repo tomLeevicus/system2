@@ -3,7 +3,8 @@ package com.project.system2.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.project.system2.domain.entity.SysUserRole;
 import com.project.system2.mapper.SysUserRoleMapper;
-import com.project.system2.service.SysUserRoleService;
+import com.project.system2.mapper.SysUserDeptMapper;
+import com.project.system2.service.ISysUserRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,10 +14,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class SysUserRoleServiceImpl implements SysUserRoleService {
+public class SysUserRoleServiceImpl implements ISysUserRoleService {
 
     @Autowired
     private SysUserRoleMapper userRoleMapper;
+
+    @Autowired
+    private SysUserDeptMapper userDeptMapper;
 
     @Override
     @Transactional
@@ -90,5 +94,15 @@ public class SysUserRoleServiceImpl implements SysUserRoleService {
         LambdaQueryWrapper<SysUserRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysUserRole::getRoleId, roleId);
         return userRoleMapper.selectCount(wrapper) > 0;
+    }
+
+    @Override
+    public boolean checkUserIsValidLeader(String starterId, String leaderId) {
+        // 检查是否是同一人
+        if (starterId.equals(leaderId)) return false;
+        // 检查是否有领导角色
+        if (!userRoleMapper.hasLeaderRole(leaderId)) return false;
+        // 检查是否是上级
+        return userDeptMapper.isSuperior(Long.parseLong(starterId), Long.parseLong(leaderId));
     }
 } 

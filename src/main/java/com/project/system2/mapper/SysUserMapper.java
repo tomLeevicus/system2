@@ -5,6 +5,9 @@ import com.project.system2.domain.entity.SysUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+import java.util.Map;
+
 @Mapper
 public interface SysUserMapper extends BaseMapper<SysUser> {
     
@@ -27,4 +30,13 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * 校验email是否唯一
      */
     int checkEmailUnique(@Param("email") String email);
+
+    /**
+     * 根据角色标识查询用户列表
+     * @param roleKey 角色标识
+     * @param currentUserId 当前用户ID(用于排除)
+     * @return 用户列表
+     */
+    List<Map<String, Object>> selectUsersByRoleKey(@Param("roleKey") String roleKey,
+                                                  @Param("currentUserId") Long currentUserId);
 } 

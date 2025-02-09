@@ -32,4 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 #禁用前端项目提交
-/vue-ui/
+#/vue-ui/

@@ -28,6 +28,14 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        String requestURI = request.getRequestURI();
+        
+        // 排除Swagger相关路径
+        if (requestURI.contains("swagger") || requestURI.contains("api-docs")) {
+            chain.doFilter(request, response);
+            return;
+        }
+        
         String token = tokenService.getToken(request);
         if (StringUtils.isNotEmpty(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
@@ -42,5 +50,11 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             }
         }
         chain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.startsWith("/auth/");
     }
 } 

@@ -1,6 +1,5 @@
 package com.project.system2.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.project.system2.common.core.domain.model.LoginUser;
 import com.project.system2.common.core.exception.ServiceException;
 import com.project.system2.common.core.utils.SecurityUtils;
@@ -9,12 +8,10 @@ import com.project.system2.domain.entity.SysRole;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.mapper.SysUserMapper;
 import com.project.system2.service.AuthService;
-import com.project.system2.service.SysPermissionService;
+import com.project.system2.service.ISysPermissionService;
 import com.project.system2.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -35,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
     private PasswordEncoder passwordEncoder;
     
     @Autowired
-    private SysPermissionService permissionService;
+    private ISysPermissionService permissionService;
     
     @Autowired
     private TokenService tokenService;
@@ -60,8 +57,12 @@ public class AuthServiceImpl implements AuthService {
             throw new ServiceException("用户已停用");
         }
         
-        // 3. 创建LoginUser
+        // 2. 获取用户权限
+        Set<String> permissions = getMenuPermission(user);
+        
+        // 3. 创建LoginUser并设置权限
         LoginUser loginUser = new LoginUser(user);
+        loginUser.setPermissions(permissions);
         
         // 4. 生成token
         return tokenService.createToken(loginUser);
@@ -107,7 +108,7 @@ public class AuthServiceImpl implements AuthService {
         }
         else
         {
-            roles.addAll(permissionService.selectRolePermissionByUserId(user.getUserId()));
+            roles.addAll(permissionService.selectRolePermissionByUserId(user.getId()));
         }
         return roles;
     }
@@ -144,7 +145,7 @@ public class AuthServiceImpl implements AuthService {
             }
             else
             {
-                perms.addAll(permissionService.selectMenuPermsByUserId(user.getUserId()));
+                perms.addAll(permissionService.selectMenuPermsByUserId(user.getId()));
             }
         }
         return perms;

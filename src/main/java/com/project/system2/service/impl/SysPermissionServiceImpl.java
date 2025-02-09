@@ -8,18 +8,16 @@ import java.util.Arrays;
 import com.project.system2.common.core.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.project.system2.domain.entity.SysUser;
-import com.project.system2.service.SysPermissionService;
-import com.project.system2.service.SysRoleService;
-import com.project.system2.service.SysMenuService;
+import com.project.system2.service.ISysPermissionService;
 import com.project.system2.domain.entity.SysRole;
-import com.project.system2.domain.entity.SysMenu;
 import com.project.system2.mapper.SysRoleMapper;
 import com.project.system2.mapper.SysMenuMapper;
 
 @Service
-public class SysPermissionServiceImpl implements SysPermissionService {
+public class SysPermissionServiceImpl implements ISysPermissionService {
 
     @Autowired
     private SysRoleMapper roleMapper;
@@ -27,6 +25,42 @@ public class SysPermissionServiceImpl implements SysPermissionService {
     @Autowired
     private SysMenuMapper menuMapper;
 
+    /**
+     * 获取角色数据权限
+     */
+    @Override
+    public Set<String> getRolePermission(SysUser user) {
+        Set<String> roles = new HashSet<>();
+        // 管理员拥有所有权限
+        if (user.isAdmin()) {
+            roles.add("admin");
+        } else {
+            roles.addAll(user.getRoleKeys());
+        }
+        return roles;
+    }
+
+    /**
+     * 获取菜单数据权限
+     */
+    @Override
+    public Set<String> getMenuPermission(SysUser user) {
+        Set<String> perms = new HashSet<>();
+        // 管理员拥有所有权限
+        if (user.isAdmin()) {
+            perms.add("*:*:*");
+        } else {
+            // 查询用户具有的权限
+            Set<String> menuPerms = menuMapper.selectMenuPermsByUserId(user.getId());
+            if (!CollectionUtils.isEmpty(menuPerms)) {
+                perms.addAll(menuPerms);
+            } else {
+                // 如果没有任何权限，添加一个基础权限
+                perms.add("common:view");
+            }
+        }
+        return perms;
+    }
 
     @Override
     public Set<String> selectRolePermissionByUserId(Long userId) {
@@ -56,14 +90,8 @@ public class SysPermissionServiceImpl implements SysPermissionService {
 
     @Override
     public Set<String> selectMenuPermsByUserId(Long userId) {
-        Set<String> perms = new HashSet<>();
         // 通过用户ID查询权限
-        List<String> permList = menuMapper.selectMenuPermsByUserId(userId);
-        for (String perm : permList) {
-            if (StringUtils.isNotEmpty(perm)) {
-                perms.add(perm);
-            }
-        }
+        Set<String> perms = menuMapper.selectMenuPermsByUserId(userId);
         return perms;
     }
 } 

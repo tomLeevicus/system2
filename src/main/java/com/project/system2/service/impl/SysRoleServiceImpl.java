@@ -6,8 +6,8 @@ import com.project.system2.domain.entity.SysRole;
 import com.project.system2.domain.entity.SysUserRole;
 import com.project.system2.mapper.SysRoleMapper;
 import com.project.system2.mapper.SysUserRoleMapper;
-import com.project.system2.service.SysRoleService;
-import com.project.system2.service.SysRoleMenuService;
+import com.project.system2.service.ISysRoleService;
+import com.project.system2.service.ISysRoleMenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class SysRoleServiceImpl implements SysRoleService {
+public class SysRoleServiceImpl implements ISysRoleService {
 
     @Autowired
     private SysRoleMapper roleMapper;
@@ -25,7 +25,7 @@ public class SysRoleServiceImpl implements SysRoleService {
     private SysUserRoleMapper userRoleMapper;
 
     @Autowired
-    private SysRoleMenuService roleMenuService;
+    private ISysRoleMenuService roleMenuService;
 
     @Override
     public List<SysRole> selectRolesByUserId(Long userId) {

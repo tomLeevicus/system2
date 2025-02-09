@@ -3,7 +3,7 @@ package com.project.system2.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.project.system2.domain.entity.SysRoleMenu;
 import com.project.system2.mapper.SysRoleMenuMapper;
-import com.project.system2.service.SysRoleMenuService;
+import com.project.system2.service.ISysRoleMenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class SysRoleMenuServiceImpl implements SysRoleMenuService {
+public class SysRoleMenuServiceImpl implements ISysRoleMenuService {
 
     @Autowired
     private SysRoleMenuMapper roleMenuMapper;
