@@ -40,7 +40,7 @@ public class SysMenuController {
      * 根据菜单编号获取详细信息
      */
     @PreAuthorize("@ss.hasPermi('system:menu:query')")
-    @GetMapping(value = "/{menuId}")
+    @GetMapping(value = "/getInfo/{menuId}")
     @Operation(summary = "获取菜单详情", description = "根据菜单ID获取详细信息")
     @Parameter(name = "menuId", description = "菜单ID", example = "100", required = true)
     public Result<SysMenu> getInfo(@PathVariable Long menuId) {
@@ -72,7 +72,7 @@ public class SysMenuController {
      * 新增菜单
      */
     @PreAuthorize("@ss.hasPermi('system:menu:add')")
-    @PostMapping
+    @PostMapping("/add")
     @Operation(summary = "新增菜单", description = "创建新的系统菜单")
     @Parameter(name = "menu", description = "菜单对象", required = true)
     public Result<Void> add(@Validated @RequestBody SysMenu menu) {
@@ -83,7 +83,7 @@ public class SysMenuController {
      * 修改菜单
      */
     @PreAuthorize("@ss.hasPermi('system:menu:edit')")
-    @PutMapping
+    @PutMapping("/edit")
     @Operation(summary = "修改菜单", description = "更新现有菜单信息")
     @Parameter(name = "menu", description = "菜单对象", required = true)
     public Result<Void> edit(@Validated @RequestBody SysMenu menu) {
@@ -97,7 +97,7 @@ public class SysMenuController {
      * 删除菜单
      */
     @PreAuthorize("@ss.hasPermi('system:menu:remove')")
-    @DeleteMapping("/{menuId}")
+    @DeleteMapping("/remove/{menuId}")
     @Operation(summary = "删除菜单", description = "根据ID删除菜单项")
     @Parameter(name = "menuId", description = "菜单ID", example = "100", required = true)
     public Result<Void> remove(@PathVariable Long menuId) {

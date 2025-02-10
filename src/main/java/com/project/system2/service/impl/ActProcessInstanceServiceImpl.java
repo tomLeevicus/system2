@@ -7,6 +7,9 @@ import com.project.system2.domain.entity.ActProcessInstance;
 import com.project.system2.mapper.ActProcessInstanceMapper;
 import com.project.system2.service.IActProcessInstanceService;
 import lombok.extern.slf4j.Slf4j;
+import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.bpmn.model.ExclusiveGateway;
+import org.flowable.bpmn.model.FlowElement;
 import org.flowable.common.engine.api.FlowableException;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
@@ -15,6 +18,7 @@ import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.flowable.engine.RepositoryService;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -34,6 +38,9 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private RepositoryService repositoryService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -173,29 +180,38 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
     @Override
     public void completeTask(String taskId, Map<String, Object> variables) {
         try {
-            // 先获取当前任务信息
-            Task currentTask = taskService.createTaskQuery()
-                .taskId(taskId)
-                .singleResult();
-
+            Task currentTask = taskService.createTaskQuery().taskId(taskId).singleResult();
+            
+            // 动态判断网关任务
+            BpmnModel bpmnModel = repositoryService.getBpmnModel(currentTask.getProcessDefinitionId());
+            FlowElement flowElement = bpmnModel.getFlowElement(currentTask.getTaskDefinitionKey());
+            
+            if (flowElement instanceof ExclusiveGateway) {
+                if (variables.containsKey("leaderId")) {
+                    log.warn("网关任务不需要leaderId参数，已自动过滤");
+                    variables.remove("leaderId");
+                }
+            }
+            
             if (currentTask == null) {
                 throw new FlowableException("任务不存在，任务ID: " + taskId);
             }
             
-            String processInstanceId = currentTask.getProcessInstanceId();
+            // 添加调试日志
+            log.debug("完成任务前流程变量：{}", runtimeService.getVariables(currentTask.getProcessInstanceId()));
             
-            // 执行任务完成操作
             taskService.complete(taskId, variables, true);
+
             
             // 检查流程实例是否仍然存在
             ProcessInstance instance = runtimeService.createProcessInstanceQuery()
-                .processInstanceId(processInstanceId)
+                .processInstanceId(currentTask.getProcessInstanceId())
                 .singleResult();
 
             // 只有流程实例仍然运行时才更新后续任务
             if (instance != null && !instance.isEnded()) {
                 List<Task> nextTasks = taskService.createTaskQuery()
-                    .processInstanceId(processInstanceId)
+                    .processInstanceId(currentTask.getProcessInstanceId())
                     .list();
 
                 nextTasks.forEach(task -> {

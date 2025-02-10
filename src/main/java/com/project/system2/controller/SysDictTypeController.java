@@ -32,7 +32,7 @@ public class SysDictTypeController {
     }
 
     @PreAuthorize("@ss.hasPermi('system:dict:query')")
-    @GetMapping(value = "/{dictId}")
+    @GetMapping(value = "/getInfo/{dictId}")
     @Operation(summary = "获取字典类型详情", description = "根据字典类型ID获取详细信息")
     @Parameter(name = "dictId", description = "字典类型ID", example = "600", required = true)
     public Result<SysDictType> getInfo(@PathVariable Long dictId) {
@@ -40,7 +40,7 @@ public class SysDictTypeController {
     }
 
     @PreAuthorize("@ss.hasPermi('system:dict:add')")
-    @PostMapping
+    @PostMapping("/add")
     @Operation(summary = "新增字典类型", description = "创建新的字典类型")
     @Parameter(name = "dict", description = "字典类型对象", required = true)
     public Result<Void> add(@Validated @RequestBody SysDictType dict) {
@@ -51,7 +51,7 @@ public class SysDictTypeController {
     }
 
     @PreAuthorize("@ss.hasPermi('system:dict:edit')")
-    @PutMapping
+    @PutMapping("/edit")
     @Operation(summary = "修改字典类型", description = "更新现有字典类型信息")
     @Parameter(name = "dict", description = "字典类型对象", required = true)
     public Result<Void> edit(@Validated @RequestBody SysDictType dict) {
@@ -62,7 +62,7 @@ public class SysDictTypeController {
     }
 
     @PreAuthorize("@ss.hasPermi('system:dict:remove')")
-    @DeleteMapping("/{dictIds}")
+    @DeleteMapping("/remove/{dictIds}")
     @Operation(summary = "删除字典类型", description = "根据ID批量删除字典类型")
     @Parameter(name = "dictIds", description = "字典类型ID数组", example = "[2001,2002]", required = true)
     public Result<Void> remove(@PathVariable Long[] dictIds) {

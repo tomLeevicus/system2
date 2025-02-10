@@ -46,7 +46,7 @@ public class SysDeptController {
      * 根据部门编号获取详细信息
      */
     @PreAuthorize("@ss.hasPermi('system:dept:query')")
-    @GetMapping(value = "/{deptId}")
+    @GetMapping(value = "/getInfo/{deptId}")
     @Operation(summary = "获取部门详情", description = "根据部门ID获取详细信息")
     @Parameter(name = "deptId", description = "部门ID", example = "200", required = true)
     public Result<SysDept> getInfo(@PathVariable Long deptId) {
@@ -57,7 +57,7 @@ public class SysDeptController {
      * 新增部门
      */
     @PreAuthorize("@ss.hasPermi('system:dept:add')")
-    @PostMapping
+    @PostMapping("/add")
     @Operation(summary = "新增部门", description = "创建新的系统部门")
     @Parameter(name = "dept", description = "部门对象", required = true)
     public Result<Void> add(@Validated @RequestBody SysDept dept) {
@@ -71,7 +71,7 @@ public class SysDeptController {
      * 修改部门
      */
     @PreAuthorize("@ss.hasPermi('system:dept:edit')")
-    @PutMapping
+    @PutMapping("/edit")
     @Operation(summary = "修改部门", description = "更新现有部门信息")
     @Parameter(name = "dept", description = "部门对象", required = true)
     public Result<Void> edit(@Validated @RequestBody SysDept dept) {
@@ -88,7 +88,7 @@ public class SysDeptController {
      * 删除部门
      */
     @PreAuthorize("@ss.hasPermi('system:dept:remove')")
-    @DeleteMapping("/{deptId}")
+    @DeleteMapping("/remove/{deptId}")
     @Operation(summary = "删除部门", description = "根据ID删除部门")
     @Parameter(name = "deptId", description = "部门ID", example = "200", required = true)
     public Result<Void> remove(@PathVariable Long deptId) {

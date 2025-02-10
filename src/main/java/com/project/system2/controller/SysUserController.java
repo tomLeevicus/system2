@@ -38,7 +38,7 @@ public class SysUserController {
      * 根据用户编号获取详细信息
      */
     @PreAuthorize("@ss.hasPermi('system:user:query')")
-    @GetMapping(value = "/{userId}")
+    @GetMapping(value = "/getInfo/{userId}")
     @Operation(summary = "获取用户详情", description = "根据用户ID获取详细信息")
     @Parameter(name = "userId", description = "用户ID", example = "1", required = true)
     public Result<SysUser> getInfo(@PathVariable Long userId) {
@@ -49,7 +49,7 @@ public class SysUserController {
      * 新增用户
      */
     @PreAuthorize("@ss.hasPermi('system:user:add')")
-    @PostMapping
+    @PostMapping("/add")
     @Operation(summary = "新增用户", description = "创建新的系统用户")
     @Parameter(name = "user", description = "用户对象", required = true)
     public Result<Void> add(@Validated @RequestBody SysUser user) {
@@ -60,7 +60,7 @@ public class SysUserController {
      * 修改用户
      */
     @PreAuthorize("@ss.hasPermi('system:user:edit')")
-    @PutMapping
+    @PutMapping("/edit")
     @Operation(summary = "修改用户", description = "更新现有用户信息")
     @Parameter(name = "user", description = "用户对象", required = true)
     public Result<Void> edit(@Validated @RequestBody SysUser user) {
@@ -71,7 +71,7 @@ public class SysUserController {
      * 删除用户
      */
     @PreAuthorize("@ss.hasPermi('system:user:remove')")
-    @DeleteMapping("/{userIds}")
+    @DeleteMapping("/remove/{userIds}")
     @Operation(summary = "删除用户", description = "根据ID批量删除用户")
     @Parameter(name = "userIds", description = "用户ID数组", example = "[1001,1002]", required = true)
     public Result<Void> remove(@PathVariable Long[] userIds) {

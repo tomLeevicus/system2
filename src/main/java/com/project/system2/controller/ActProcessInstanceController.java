@@ -60,9 +60,6 @@ public class ActProcessInstanceController {
             Map<String, Object> variables = (Map<String, Object>) requestBody.get("variables");
             variables.put("userId", userId);
 
-            // 初始化leaderId变量
-            variables.putIfAbsent("leaderId", "default_leader_id");
-
             // 启动流程实例
             ProcessInstance instance = runtimeService.startProcessInstanceByKey(
                 processKey, 
@@ -103,38 +100,26 @@ public class ActProcessInstanceController {
     /**
      * 完成任务（迁移自ActProcessDefinitionController）
      */
-    @PostMapping("/task/complete")
-//    @PreAuthorize("@ss.hasPermi('workflow:instance:complete')")
+    @PostMapping("/completeTask")
     @Operation(summary = "完成任务", description = "处理流程任务并推进流程")
-    public Result<Void> completeTask(@RequestBody Map<String, Object> requestBody) {
+    public Result<String> completeTask(@RequestBody Map<String, Object> params) {
         try {
-            String taskId = (String) requestBody.get("taskId");
-            Map<String, Object> variables = (Map<String, Object>) requestBody.get("variables");
+            String taskId = (String) params.get("taskId");
+            Map<String, Object> variables = (Map<String, Object>) params.get("variables");
             
-            // 确保传递leaderId参数
-            if (variables == null) {
-                variables = new HashMap<>();
+            // 强制校验leaderId参数
+            if (!variables.containsKey("leaderId")) {
+                return Result.error("必须指定leaderId参数");
             }
             
-            // 校验领导ID是否合法
-            String leaderId = (String) variables.get("leaderId");
-            String currentUserId = SecurityUtils.getUserId().toString();
+            // 记录完整变量信息
+            log.info("完成任务请求参数 - taskId: {}, variables: {}", taskId, variables);
             
-            if (StringUtils.isEmpty(leaderId)) {
-                return Result.error("审核人不能为空");
-            }
-            if (leaderId.equals(currentUserId)) {
-                return Result.error("不能指定自己为审核人");
-            }
-
-            if (StringUtils.isEmpty(taskId)) {
-                return Result.error("任务ID不能为空");
-            }
             processInstanceService.completeTask(taskId, variables);
-            return Result.success();
-        } catch (Exception e) {
-            log.error("完成任务失败", e);
-            return Result.error("完成任务失败: " + e.getMessage());
+            return Result.success("任务处理成功");
+        } catch (FlowableException e) {
+            log.error("流程引擎错误: {}", e.getMessage());
+            return Result.error(e.getMessage());
         }
     }
 

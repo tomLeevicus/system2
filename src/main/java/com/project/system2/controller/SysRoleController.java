@@ -38,7 +38,7 @@ public class SysRoleController {
      * 根据角色编号获取详细信息
      */
     @PreAuthorize("@ss.hasPermi('system:role:query')")
-    @GetMapping(value = "/{roleId}")
+    @GetMapping(value = "/roleId/{roleId}")
     @Operation(summary = "获取角色详情", description = "根据角色ID获取详细信息")
     @Parameter(name = "roleId", description = "角色ID", example = "1", required = true)
     public Result<SysRole> getInfo(@PathVariable Long roleId) {
@@ -49,7 +49,7 @@ public class SysRoleController {
      * 新增角色
      */
     @PreAuthorize("@ss.hasPermi('system:role:add')")
-    @PostMapping
+    @PostMapping("/add")
     @Operation(summary = "新增角色", description = "创建新的系统角色")
     @Parameter(name = "role", description = "角色对象", required = true)
     public Result<Void> add(@Validated @RequestBody SysRole role) {
@@ -60,7 +60,7 @@ public class SysRoleController {
      * 修改角色
      */
     @PreAuthorize("@ss.hasPermi('system:role:edit')")
-    @PutMapping
+    @PutMapping("/edit")
     @Operation(summary = "修改角色", description = "更新现有角色信息")
     @Parameter(name = "role", description = "角色对象", required = true)
     public Result<Void> edit(@Validated @RequestBody SysRole role) {
@@ -71,7 +71,7 @@ public class SysRoleController {
      * 删除角色
      */
     @PreAuthorize("@ss.hasPermi('system:role:remove')")
-    @DeleteMapping("/{roleIds}")
+    @DeleteMapping("/remove/{roleIds}")
     @Operation(summary = "删除角色", description = "根据ID批量删除角色")
     @Parameter(name = "roleIds", description = "角色ID数组", example = "[1,2,3]", required = true)
     public Result<Void> remove(@PathVariable Long[] roleIds) {
