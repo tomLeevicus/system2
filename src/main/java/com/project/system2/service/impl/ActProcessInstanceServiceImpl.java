@@ -7,9 +7,7 @@ import com.project.system2.domain.entity.ActProcessInstance;
 import com.project.system2.mapper.ActProcessInstanceMapper;
 import com.project.system2.service.IActProcessInstanceService;
 import lombok.extern.slf4j.Slf4j;
-import org.flowable.bpmn.model.BpmnModel;
-import org.flowable.bpmn.model.ExclusiveGateway;
-import org.flowable.bpmn.model.FlowElement;
+import org.flowable.bpmn.model.*;
 import org.flowable.common.engine.api.FlowableException;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
@@ -25,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @Slf4j
 @Service
@@ -178,57 +177,116 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
     }
 
     @Override
-    public void completeTask(String taskId, Map<String, Object> variables) {
-        try {
-            Task currentTask = taskService.createTaskQuery().taskId(taskId).singleResult();
-            
-            // 动态判断网关任务
-            BpmnModel bpmnModel = repositoryService.getBpmnModel(currentTask.getProcessDefinitionId());
-            FlowElement flowElement = bpmnModel.getFlowElement(currentTask.getTaskDefinitionKey());
-            
-            if (flowElement instanceof ExclusiveGateway) {
-                if (variables.containsKey("leaderId")) {
-                    log.warn("网关任务不需要leaderId参数，已自动过滤");
-                    variables.remove("leaderId");
+    public void completeUserTask(String taskId, Map<String, Object> variables) {
+        Task currentTask = validateTask(taskId);
+        validateTaskType(currentTask, UserTask.class);
+        
+        List<FlowElement> nextElements = getNextFlowElements(currentTask);
+        boolean hasUserTask = nextElements.stream().anyMatch(e -> e instanceof UserTask);
+        
+        // 增强校验：当后续有用户任务时，必须存在leaderId
+        if (hasUserTask) {
+            if (!variables.containsKey("leaderId") 
+                && !runtimeService.hasVariable(currentTask.getProcessInstanceId(), "leaderId")) {
+                throw new FlowableException("后续存在用户任务，必须指定leaderId");
+            }
+        }
+        
+        taskService.complete(taskId, variables);
+        log.info("用户任务完成 - 任务ID: {}, 流程实例ID: {}", taskId, currentTask.getProcessInstanceId());
+        handleNextTasks(currentTask);
+    }
+
+    @Override
+    public void completeGatewayTask(String taskId, Map<String, Object> variables) {
+        Task currentTask = validateTask(taskId);
+        validateTaskType(currentTask, ExclusiveGateway.class);
+        
+        // 获取后续节点信息
+        List<FlowElement> nextElements = getNextFlowElements(currentTask);
+        
+        // 判断后续节点类型
+        boolean hasUserTask = nextElements.stream().anyMatch(e -> e instanceof UserTask);
+        boolean hasGateway = nextElements.stream().anyMatch(e -> e instanceof ExclusiveGateway);
+        
+        // 动态参数处理
+        if (hasUserTask) {
+            if (!variables.containsKey("leaderId") 
+                && !runtimeService.hasVariable(currentTask.getProcessInstanceId(), "leaderId")) {
+                throw new FlowableException("后续存在用户任务，必须指定leaderId");
+            }
+        }
+        
+        if (hasGateway) {
+            log.warn("连续网关任务检测 - 任务ID: {}", taskId);
+            variables.put("multiGateway", true);
+        }
+        
+        taskService.complete(taskId, variables);
+        log.info("网关任务完成 - 任务ID: {}, 流程实例ID: {}", taskId, currentTask.getProcessInstanceId());
+        handleNextTasks(currentTask);
+    }
+
+    private void handleNextTasks(Task currentTask) {
+        String processInstanceId = currentTask.getProcessInstanceId();
+        
+        // 检查流程实例是否仍然存在
+        ProcessInstance instance = runtimeService.createProcessInstanceQuery()
+            .processInstanceId(processInstanceId)
+            .singleResult();
+
+        if (instance != null && !instance.isEnded()) {
+            List<Task> nextTasks = taskService.createTaskQuery()
+                .processInstanceId(processInstanceId)
+                .list();
+
+            nextTasks.forEach(task -> {
+                // 更新任务信息到业务表
+                ActProcessInstance processInstance = new ActProcessInstance();
+                processInstance.setId(task.getProcessInstanceId());
+                processInstance.setTaskId(task.getId());
+                processInstance.setTaskName(task.getName());
+                processInstance.setAssignee(task.getAssignee());
+                processInstance.setTaskEndTime(task.getCreateTime());
+                processInstance.setTaskStatus(task.isSuspended() ? "suspended" : "active");
+                
+                // 同步业务数据
+                ActProcessInstance customInfo = processInstanceMapper.selectById(task.getProcessInstanceId());
+                if(customInfo != null){
+                    processInstance.setBusinessKey(customInfo.getBusinessKey());
+                    processInstance.setStartTime(customInfo.getStartTime());
+                    processInstance.setStatus(customInfo.getStatus());
                 }
-            }
-            
-            if (currentTask == null) {
-                throw new FlowableException("任务不存在，任务ID: " + taskId);
-            }
-            
-            // 添加调试日志
-            log.debug("完成任务前流程变量：{}", runtimeService.getVariables(currentTask.getProcessInstanceId()));
-            
-            taskService.complete(taskId, variables, true);
+                
+                processInstanceMapper.updateById(processInstance);
+                log.info("更新后续任务信息 - 任务ID: {}, 处理人: {}", task.getId(), task.getAssignee());
+            });
+        } else {
+            log.info("流程实例已结束，无需更新后续任务");
+            // 更新流程实例状态为已完成
+            ActProcessInstance endedInstance = new ActProcessInstance();
+            endedInstance.setId(processInstanceId);
+            endedInstance.setStatus("ended");
+            endedInstance.setEndTime(new Date());
+            processInstanceMapper.updateById(endedInstance);
+        }
+    }
 
-            
-            // 检查流程实例是否仍然存在
-            ProcessInstance instance = runtimeService.createProcessInstanceQuery()
-                .processInstanceId(currentTask.getProcessInstanceId())
-                .singleResult();
+    private Task validateTask(String taskId) {
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        if (task == null) {
+            throw new FlowableException("任务不存在，任务ID: " + taskId);
+        }
+        log.debug("任务验证通过 - 任务ID: {}, 名称: {}", taskId, task.getName());
+        return task;
+    }
 
-            // 只有流程实例仍然运行时才更新后续任务
-            if (instance != null && !instance.isEnded()) {
-                List<Task> nextTasks = taskService.createTaskQuery()
-                    .processInstanceId(currentTask.getProcessInstanceId())
-                    .list();
-
-                nextTasks.forEach(task -> {
-                    ActProcessInstance processInstance = new ActProcessInstance();
-                    processInstance.setId(task.getProcessInstanceId());
-                    processInstance.setTaskId(task.getId());
-                    processInstance.setTaskName(task.getName());
-                    processInstance.setAssignee(task.getAssignee());
-                    processInstanceMapper.updateById(processInstance);
-                });
-            }
-        } catch (FlowableException e) {
-            log.error("任务处理失败: {}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error("任务处理发生意外错误", e);
-            throw new FlowableException("任务处理失败: " + e.getMessage());
+    private void validateTaskType(Task task, Class<? extends FlowElement> expectedType) {
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(task.getProcessDefinitionId());
+        FlowElement flowElement = bpmnModel.getFlowElement(task.getTaskDefinitionKey());
+        
+        if (!expectedType.isInstance(flowElement)) {
+            throw new FlowableException("任务类型不匹配，预期类型: " + expectedType.getSimpleName());
         }
     }
 
@@ -254,5 +312,85 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
         instance.setStatus(status);
         instance.setUpdateTime(new Date());
         processInstanceMapper.updateById(instance);
+    }
+
+    /**
+     * @deprecated 请使用 {@link #completeUserTask(String, Map)} 或 {@link #completeGatewayTask(String, Map)} 替代
+     */
+    @Deprecated
+    @Override
+    public void completeTask(String taskId, Map<String, Object> variables) {
+        try {
+            log.warn("使用已弃用的completeTask方法，建议迁移到completeUserTask/completeGatewayTask");
+            
+            Task task = validateTask(taskId);
+            List<FlowElement> nextElements = getNextFlowElements(task);
+            
+            // 动态判断是否需要leaderId
+            boolean needLeaderId = nextElements.stream()
+                .anyMatch(e -> e instanceof UserTask);
+            
+            if (needLeaderId && !variables.containsKey("leaderId")) {
+                throw new FlowableException("必须指定leaderId参数");
+            }
+            if (!needLeaderId && variables.containsKey("leaderId")) {
+                log.warn("当前任务无需leaderId参数，已自动移除");
+                variables.remove("leaderId");
+            }
+            
+            BpmnModel bpmnModel = repositoryService.getBpmnModel(task.getProcessDefinitionId());
+            FlowElement flowElement = bpmnModel.getFlowElement(task.getTaskDefinitionKey());
+            
+            if (flowElement instanceof UserTask) {
+                completeUserTask(taskId, variables);
+            } else if (flowElement instanceof ExclusiveGateway) {
+                completeGatewayTask(taskId, variables);
+            } else {
+                throw new FlowableException("不支持的任务类型: " + flowElement.getClass().getSimpleName());
+            }
+        } catch (Exception e) {
+            throw new FlowableException("任务处理失败: " + e.getMessage(), e);
+        }
+    }
+
+    private List<FlowElement> getNextFlowElements(Task task) {
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(task.getProcessDefinitionId());
+        FlowElement currentElement = bpmnModel.getFlowElement(task.getTaskDefinitionKey());
+        
+        List<FlowElement> nextElements = new ArrayList<>();
+        // 实现获取后续节点的逻辑（需要根据实际流程结构遍历）
+        // 示例：获取当前任务的所有出口连线
+        if (currentElement instanceof Activity) {
+            Activity activity = (Activity) currentElement;
+            for (SequenceFlow flow : activity.getOutgoingFlows()) {
+                nextElements.add(flow.getTargetFlowElement());
+            }
+        }
+        return nextElements;
+    }
+
+    @Override
+    public boolean hasNextGateway(String taskId) {
+        Task task = validateTask(taskId);
+        List<FlowElement> nextElements = getNextFlowElements(task);
+        return nextElements.stream()
+            .anyMatch(e -> e instanceof ExclusiveGateway);
+    }
+
+    @Override
+    public List<FlowElement> getNextFlowElements(String taskId) {
+        try {
+            Task task = taskService.createTaskQuery()
+                .taskId(taskId)
+                .singleResult();
+            
+            if (task == null) {
+                throw new FlowableException("任务不存在: " + taskId);
+            }
+            return getNextFlowElements(task);
+        } catch (FlowableException e) {
+            log.error("获取后续节点失败: {}", e.getMessage());
+            throw e;
+        }
     }
 } 

@@ -2,6 +2,9 @@ package com.project.system2.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.domain.entity.ActProcessInstance;
+import org.flowable.bpmn.model.FlowElement;
+
+import java.util.List;
 import java.util.Map;
 
 public interface IActProcessInstanceService {
@@ -42,8 +45,19 @@ public interface IActProcessInstanceService {
     Page<ActProcessInstance> getTodoInstances(Page<ActProcessInstance> page, String userId);
     
     /**
-     * 完成任务
+     * 完成用户任务（需要指定处理人）
      */
+    void completeUserTask(String taskId, Map<String, Object> variables);
+    
+    /**
+     * 处理网关任务（无需指定处理人）
+     */
+    void completeGatewayTask(String taskId, Map<String, Object> variables);
+    
+    /**
+     * 完成任务（旧方法，建议弃用）
+     */
+    @Deprecated
     void completeTask(String taskId, Map<String, Object> variables);
     
     /**
@@ -52,4 +66,16 @@ public interface IActProcessInstanceService {
     void syncInstance(ActProcessInstance instance);
 
     void updateStatus(String processInstanceId, String completed);
+
+    /**
+     * 检查后续是否存在网关任务
+     */
+    boolean hasNextGateway(String taskId);
+
+    /**
+     * 获取任务后续流程节点
+     * @param taskId 任务ID
+     * @return 后续节点列表
+     */
+    List<FlowElement> getNextFlowElements(String taskId);
 }

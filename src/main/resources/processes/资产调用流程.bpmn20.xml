@@ -2,6 +2,10 @@
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:flowable="http://flowable.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.flowable.org/processdef" exporter="Flowable Open Source Modeler" exporterVersion="6.8.0">
   <process id="assetCall" name="资产调用流程" isExecutable="true">
     <documentation>资产调用流程</documentation>
+    <extensionElements>
+      <flowable:variable name="leaderId" type="string" />
+      <flowable:variable name="userId" type="string" />
+    </extensionElements>
     <startEvent id="startEvent1" flowable:formFieldValidation="true"/>
     <userTask id="sid-28F4649C-2790-4561-8A7F-9A81B0D74E8E" name="用户申请" flowable:assignee="${userId}" flowable:formFieldValidation="true">
       <extensionElements>
@@ -9,9 +13,10 @@
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-D79E8532-796F-45A3-992A-78ECF18727F0" sourceRef="startEvent1" targetRef="sid-28F4649C-2790-4561-8A7F-9A81B0D74E8E"/>
-    <userTask id="sid-E3F94567-6F1D-46DB-8B88-CC193B1E34C0" name="领导审核1" flowable:assignee="${leaderId}" flowable:formFieldValidation="true">
+    <userTask id="sid-E3F94567-6F1D-46DB-8B88-CC193B1E34C0" name="领导审核1" flowable:assignee="${execution.getVariable('leaderId')}" flowable:formFieldValidation="true">
       <extensionElements>
         <modeler:initiator-can-complete xmlns:modeler="http://flowable.org/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
+        <flowable:variable name="leaderId" source="${leaderId}" target="leaderId" />
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-5D644AEA-9B8E-4A54-B6A1-3F36CE995EEB" sourceRef="sid-28F4649C-2790-4561-8A7F-9A81B0D74E8E" targetRef="sid-E3F94567-6F1D-46DB-8B88-CC193B1E34C0"/>
@@ -19,7 +24,7 @@
     <sequenceFlow id="sid-C18B5D15-740C-4058-804E-2A89379D9EF5" sourceRef="sid-D76C049C-53A8-44F0-8A1C-930D9D685132" targetRef="sid-65BE3F99-8DED-483F-92F3-A3D34F51DAC3"/>
     <endEvent id="sid-C30768FC-431E-428B-8499-F5842D5D735A"/>
     <sequenceFlow id="sid-0AB9B4A2-C9F0-4D17-8ECF-8073B78EA26D" sourceRef="sid-65BE3F99-8DED-483F-92F3-A3D34F51DAC3" targetRef="sid-28F4649C-2790-4561-8A7F-9A81B0D74E8E">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveResult == false}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approveResult}]]></conditionExpression>
     </sequenceFlow>
     <userTask id="sid-D76C049C-53A8-44F0-8A1C-930D9D685132" name="领导审核2" flowable:assignee="${leaderId}" flowable:formFieldValidation="true">
       <extensionElements>
@@ -28,7 +33,7 @@
     </userTask>
     <sequenceFlow id="sid-F0401001-ED62-4B72-9487-C9D4713774BE" sourceRef="sid-E3F94567-6F1D-46DB-8B88-CC193B1E34C0" targetRef="sid-D76C049C-53A8-44F0-8A1C-930D9D685132"/>
     <sequenceFlow id="sid-CAAF0C9B-6690-4661-8414-41E21EC832A1" sourceRef="sid-65BE3F99-8DED-483F-92F3-A3D34F51DAC3" targetRef="sid-C30768FC-431E-428B-8499-F5842D5D735A">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveResult == true}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approveResult}]]></conditionExpression>
     </sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_assetCall">

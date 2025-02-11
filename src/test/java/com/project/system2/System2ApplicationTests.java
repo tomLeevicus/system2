@@ -57,4 +57,26 @@ class System2ApplicationTests {
 		int result = longestConsecutive(nums);
 		System.out.println(result);
 	}
+
+
+	public int[]  moveZeroes(int[] nums) {
+		int i0 = 0;
+		for (int i = 0; i < nums.length; i++) {
+			if (nums[i] != 0 ){
+				int num = nums[i];
+				nums[i] = nums[i0];
+				nums[i0] = num;
+				i0++;
+			}
+		}
+		return nums;
+	}
+
+	@Test
+	public void test1(){
+		int[] nums = {0,1,0,3,12};
+		int[] result = moveZeroes(nums);
+		System.out.println(1);
+	}
+
 }
