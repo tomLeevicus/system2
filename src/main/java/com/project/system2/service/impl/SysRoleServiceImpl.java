@@ -66,7 +66,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
         // 可以根据条件添加更多查询条件
         if (role != null) {
             wrapper.like(role.getRoleName() != null, SysRole::getRoleName, role.getRoleName())
-                    .eq(role.getStatus() != null, SysRole::getStatus, role.getStatus());
+                    .eq(role != null && role.getStatus() != 0, SysRole::getStatus, role != null ? role.getStatus() : 0);
         }
         return roleMapper.selectList(wrapper);
     }
@@ -139,7 +139,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
             new LambdaQueryWrapper<SysRole>()
                 .like(StringUtils.isNotBlank(role.getRoleName()), SysRole::getRoleName, role.getRoleName())
                 .like(StringUtils.isNotBlank(role.getRoleKey()), SysRole::getRoleKey, role.getRoleKey())
-                .eq(role.getStatus() != null, SysRole::getStatus, role.getStatus())
+                .eq(role != null, SysRole::getStatus, role != null ? role.getStatus() : 0)
                 .orderByAsc(SysRole::getRoleSort)
         );
         

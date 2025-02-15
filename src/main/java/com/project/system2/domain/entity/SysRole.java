@@ -39,8 +39,8 @@ public class SysRole extends BaseEntity {
     @NotNull(message = "显示顺序不能为空")
     private Integer roleSort;
 
-    @Schema(description = "角色状态（0-正常，1-停用）", example = "0")
-    private String status;
+    @Schema(description = "角色状态（0-正常，1-停用）", example = "0", defaultValue = "0")
+    private int status;
 
     private String remark;
 

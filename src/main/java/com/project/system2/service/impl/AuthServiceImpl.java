@@ -135,7 +135,7 @@ public class AuthServiceImpl implements AuthService {
                 // 多角色设置permissions属性，以便数据权限匹配权限
                 for (SysRole role : roles)
                 {
-                    if (StringUtils.equals(role.getStatus(), "0"))
+                    if (role.getStatus()==0)
                     {
                         Set<String> rolePerms = permissionService.selectMenuPermsByRoleId(role.getRoleId());
                         role.setPermissions(rolePerms);
