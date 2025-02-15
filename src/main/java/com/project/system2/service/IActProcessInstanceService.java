@@ -2,6 +2,7 @@ package com.project.system2.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.domain.entity.ActProcessInstance;
+import com.project.system2.domain.query.ProcessInstanceQuery;
 import org.flowable.bpmn.model.FlowElement;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface IActProcessInstanceService {
     /**
      * 分页查询流程实例
      */
-    Page<ActProcessInstance> listProcessInstances(Page<ActProcessInstance> page, ActProcessInstance processInstance);
+    Page<ActProcessInstance> listProcessInstances(ProcessInstanceQuery query);
     
     /**
      * 获取流程实例详情

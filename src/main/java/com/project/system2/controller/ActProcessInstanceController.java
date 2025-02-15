@@ -5,6 +5,7 @@ import com.project.system2.common.core.domain.Result;
 import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.domain.entity.ActProcessInstance;
 import com.project.system2.service.IActProcessInstanceService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.FlowElement;
 import org.flowable.common.engine.api.FlowableException;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.StringUtils;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.bpmn.model.UserTask;
+import com.project.system2.domain.query.ProcessInstanceQuery;
 
 import java.util.Map;
 import java.util.List;
@@ -49,7 +51,7 @@ public class ActProcessInstanceController {
      * 启动流程实例（迁移自ActProcessDefinitionController）
      */
     @PostMapping("/start/{processKey}")
-//    @PreAuthorize("@ss.hasPermi('workflow:instance:start')")
+    @PreAuthorize("@ss.hasPermi('workflow:instance:start')")
     @Operation(summary = "启动流程实例", description = "根据流程Key启动新的流程实例")
     public Result<Map<String, Object>> startProcess(
         @PathVariable String processKey,
@@ -77,11 +79,10 @@ public class ActProcessInstanceController {
             customInstance.setId(instance.getId());
             customInstance.setProcessDefinitionId(instance.getProcessDefinitionId());
             customInstance.setProcessDefinitionKey(processKey);
-            customInstance.setStartUserId(SecurityUtils.getUserId().toString());
+            customInstance.setStartUserId(SecurityUtils.getUserId());
             customInstance.setStatus("running");
             customInstance.setProcessDefinitionVersion(instance.getProcessDefinitionVersion());
             customInstance.setStartTime(instance.getStartTime());
-            customInstance.setStartUserId(SecurityUtils.getUserId().toString());
             processInstanceService.syncInstance(customInstance);
 
             Map<String, Object> result = new HashMap<>();
@@ -209,21 +210,11 @@ public class ActProcessInstanceController {
     /**
      * 分页查询流程实例
      */
-//    @PreAuthorize("@ss.hasPermi('workflow:instance:list')")
+    @PreAuthorize("@ss.hasPermi('workflow:instance:list')")
     @GetMapping("/list")
-    @Operation(summary = "分页查询流程实例", description = "查询运行中的流程实例")
-    @Parameter(name = "processName", description = "流程名称", example = "资产审批流程")
-    public Result<Page<ActProcessInstance>> list(ActProcessInstance processInstance,
-                                               @RequestParam(defaultValue = "1") Integer pageNum,
-                                               @RequestParam(defaultValue = "10") Integer pageSize) {
-        try {
-            Page<ActProcessInstance> page = new Page<>(pageNum, pageSize);
-            page = processInstanceService.listProcessInstances(page, processInstance);
-            return Result.success(page);
-        } catch (Exception e) {
-            log.error("查询流程实例列表失败", e);
-            return Result.error("查询流程实例列表失败：" + e.getMessage());
-        }
+    @Operation(summary = "分页查询流程实例")
+    public Result<Page<ActProcessInstance>> list(@Valid ProcessInstanceQuery query) {
+        return Result.success(processInstanceService.listProcessInstances(query));
     }
 
     /**
@@ -416,9 +407,4 @@ public class ActProcessInstanceController {
     public Result<Void> addAttachment(@RequestParam String processInstanceId, @RequestParam MultipartFile file) {
         // ...
     }*/
-    
-    private String getDefaultLeaderId() {
-        // TODO: implement default leader ID logic
-        return null;
-    }
 }

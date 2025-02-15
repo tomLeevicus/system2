@@ -1,9 +1,11 @@
 package com.project.system2.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.domain.entity.ActProcessInstance;
+import com.project.system2.domain.query.ProcessInstanceQuery;
 import com.project.system2.mapper.ActProcessInstanceMapper;
 import com.project.system2.service.IActProcessInstanceService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,14 +19,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.flowable.engine.RepositoryService;
-
+import org.springframework.util.StringUtils;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
-
 @Slf4j
 @Service
 public class ActProcessInstanceServiceImpl implements IActProcessInstanceService {
@@ -68,15 +69,72 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
     }
 
     @Override
-    public Page<ActProcessInstance> listProcessInstances(Page<ActProcessInstance> page, ActProcessInstance processInstance) {
-        return processInstanceMapper.selectPage(page, new LambdaQueryWrapper<ActProcessInstance>()
-            .eq(processInstance.getProcessDefinitionId() != null,
-                ActProcessInstance::getProcessDefinitionId, processInstance.getProcessDefinitionId())
-            .like(processInstance.getName() != null,
-                ActProcessInstance::getName, processInstance.getName())
-            .eq(processInstance.getSuspended() != null,
-                ActProcessInstance::getSuspended, processInstance.getSuspended())
-            .orderByDesc(ActProcessInstance::getStartTime));
+    public Page<ActProcessInstance> listProcessInstances(ProcessInstanceQuery query) {
+        // 构建分页对象
+        Page<ActProcessInstance> page = new Page<>(query.getPageNum(), query.getPageSize());
+        
+        // 构建查询条件
+        LambdaQueryWrapper<ActProcessInstance> wrapper = new LambdaQueryWrapper<ActProcessInstance>()
+            // 流程定义相关
+            .eq(StringUtils.hasText(query.getProcessDefinitionId()), 
+                ActProcessInstance::getProcessDefinitionId, query.getProcessDefinitionId())
+            .eq(StringUtils.hasText(query.getProcessDefinitionKey()), 
+                ActProcessInstance::getProcessDefinitionKey, query.getProcessDefinitionKey())
+            
+            // 实例基本信息
+            .like(StringUtils.hasText(query.getName()), 
+                ActProcessInstance::getName, query.getName())
+            .eq(StringUtils.hasText(query.getBusinessKey()), 
+                ActProcessInstance::getBusinessKey, query.getBusinessKey())
+            
+            // 状态查询
+            .eq(query.getSuspended() != null, 
+                ActProcessInstance::getSuspended, query.getSuspended())
+            .inSql(StringUtils.hasText(query.getStatus()),
+                ActProcessInstance::getStatus, 
+                "SELECT dict_value FROM sys_dict_data WHERE dict_type = 'flowable_instance_status' AND dict_label = '" + query.getStatus() + "'")
+            
+            // 发起人信息
+            .eq(query.getStartUserId() != null, 
+                ActProcessInstance::getStartUserId, query.getStartUserId())
+            .like(StringUtils.hasText(query.getStartUserName()), 
+                ActProcessInstance::getStartUserName, query.getStartUserName())
+            
+            // 时间范围查询
+            .ge(query.getStartTimeBegin() != null, 
+                ActProcessInstance::getStartTime, query.getStartTimeBegin())
+            .le(query.getStartTimeEnd() != null, 
+                ActProcessInstance::getStartTime, query.getStartTimeEnd())
+            .ge(query.getEndTimeBegin() != null, 
+                ActProcessInstance::getEndTime, query.getEndTimeBegin())
+            .le(query.getEndTimeEnd() != null, 
+                ActProcessInstance::getEndTime, query.getEndTimeEnd());
+        
+        // 处理排序
+        if (StringUtils.hasText(query.getOrderBy())) {
+            String[] orders = query.getOrderBy().split(",");
+            for (String order : orders) {
+                String[] parts = order.trim().split(" ");
+                if (parts.length == 2) {
+                    wrapper.orderBy(true, "asc".equalsIgnoreCase(parts[1]), 
+                        getColumn(parts[0]));
+                }
+            }
+        } else {
+            wrapper.orderByDesc(ActProcessInstance::getStartTime);
+        }
+        
+        return processInstanceMapper.selectPage(page, wrapper);
+    }
+
+    // 辅助方法：将字段名转换为Lambda表达式
+    private SFunction<ActProcessInstance, ?> getColumn(String fieldName) {
+        switch (fieldName) {
+            case "start_time": return ActProcessInstance::getStartTime;
+            case "end_time": return ActProcessInstance::getEndTime;
+            case "process_definition_key": return ActProcessInstance::getProcessDefinitionKey;
+            default: return ActProcessInstance::getStartTime;
+        }
     }
 
     @Override
@@ -248,7 +306,8 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
                 processInstance.setTaskName(task.getName());
                 processInstance.setAssignee(task.getAssignee());
                 processInstance.setTaskEndTime(task.getCreateTime());
-                processInstance.setTaskStatus(task.isSuspended() ? "suspended" : "active");
+//                字段调整
+                processInstance.setTaskStatus(task.isSuspended() ? "suspended" : "running");
                 
                 // 同步业务数据
                 ActProcessInstance customInfo = processInstanceMapper.selectById(task.getProcessInstanceId());
@@ -266,7 +325,8 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
             // 更新流程实例状态为已完成
             ActProcessInstance endedInstance = new ActProcessInstance();
             endedInstance.setId(processInstanceId);
-            endedInstance.setStatus("ended");
+//            字段调整
+            endedInstance.setStatus("completed");
             endedInstance.setEndTime(new Date());
             processInstanceMapper.updateById(endedInstance);
         }

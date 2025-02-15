@@ -41,10 +41,10 @@ public class ActProcessInstance extends BaseEntity {
     private Date endTime;
     
     @Schema(description = "发起人ID", example = "1001")
-    private String startUserId;
+    private Long startUserId;
     
-    @Schema(description = "开始节点ID")
-    private String startActivityId;
+    @Schema(description = "发起人姓名", example = "John Doe")
+    private String startUserName;
     
     @Schema(description = "流程实例名称", example = "资产调用流程实例")
     private String name;

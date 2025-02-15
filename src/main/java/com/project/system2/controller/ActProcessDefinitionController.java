@@ -372,4 +372,37 @@ public class ActProcessDefinitionController {
             return Result.error("获取文件列表失败：" + e.getMessage());
         }
     }
+
+    /**
+     * 获取已部署流程定义列表
+     */
+    @PreAuthorize("@ss.hasPermi('workflow:process:list')")
+    @GetMapping("/deployed-list")
+    @Operation(summary = "获取已部署流程列表", description = "获取所有已部署的流程定义列表")
+    public Result<List<Map<String, Object>>> getDeployedProcessList() {
+        try {
+            List<ProcessDefinition> processDefinitions = repositoryService.createProcessDefinitionQuery()
+                .latestVersion()
+                .orderByProcessDefinitionKey().asc()
+                .orderByProcessDefinitionVersion().desc()
+                .list();
+
+            List<Map<String, Object>> result = processDefinitions.stream().map(pd -> {
+                Map<String, Object> processInfo = new HashMap<>();
+                processInfo.put("id", pd.getId());
+                processInfo.put("name", pd.getName());
+                processInfo.put("key", pd.getKey());
+                processInfo.put("version", pd.getVersion());
+                processInfo.put("deploymentId", pd.getDeploymentId());
+                processInfo.put("resourceName", pd.getResourceName());
+                processInfo.put("suspended", pd.isSuspended());
+                return processInfo;
+            }).collect(Collectors.toList());
+
+            return Result.success(result);
+        } catch (FlowableException e) {
+            log.error("获取已部署流程列表失败", e);
+            return Result.error("获取流程列表失败: " + e.getMessage());
+        }
+    }
 } 

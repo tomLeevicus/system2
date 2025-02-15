@@ -1,13 +1,15 @@
 package com.project.system2.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.entity.SysRole;
 import com.project.system2.domain.entity.SysUserRole;
 import com.project.system2.mapper.SysRoleMapper;
 import com.project.system2.mapper.SysUserRoleMapper;
+import com.project.system2.mapper.SysRoleMenuMapper;
 import com.project.system2.service.ISysRoleService;
-import com.project.system2.service.ISysRoleMenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +27,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
     private SysUserRoleMapper userRoleMapper;
 
     @Autowired
-    private ISysRoleMenuService roleMenuService;
+    private SysRoleMenuMapper roleMenuMapper;
 
     @Override
     public List<SysRole> selectRolesByUserId(Long userId) {
@@ -115,7 +117,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
     @Override
     @Transactional
     public boolean updateRoleMenu(Long roleId, Long[] menuIds) {
-        return roleMenuService.saveRoleMenu(roleId, menuIds);
+        return roleMenuMapper.saveRoleMenu(roleId, menuIds);
     }
 
     @Override
@@ -131,14 +133,23 @@ public class SysRoleServiceImpl implements ISysRoleService {
     }
 
     @Override
-    public Page<SysRole> selectRolePage(Page<SysRole> page, SysRole role) {
-        LambdaQueryWrapper<SysRole> wrapper = new LambdaQueryWrapper<>();
-        if (role != null) {
-            wrapper.like(role.getRoleName() != null, SysRole::getRoleName, role.getRoleName())
-                    .eq(role.getStatus() != null, SysRole::getStatus, role.getStatus())
-                    .orderByAsc(SysRole::getRoleSort);
-        }
-        return roleMapper.selectPage(page, wrapper);
+    public IPage<SysRole> selectRolePage(IPage<SysRole> page, SysRole role) {
+        // 先查询角色基本信息
+        IPage<SysRole> rolePage = roleMapper.selectRolePage(page,
+            new LambdaQueryWrapper<SysRole>()
+                .like(StringUtils.isNotBlank(role.getRoleName()), SysRole::getRoleName, role.getRoleName())
+                .like(StringUtils.isNotBlank(role.getRoleKey()), SysRole::getRoleKey, role.getRoleKey())
+                .eq(role.getStatus() != null, SysRole::getStatus, role.getStatus())
+                .orderByAsc(SysRole::getRoleSort)
+        );
+        
+        // 为每个角色查询关联的菜单ID
+        rolePage.getRecords().forEach(r -> {
+            List<Long> menuIds = roleMenuMapper.selectMenuIdsByRoleId(r.getRoleId());
+            r.setMenuIds(menuIds);
+        });
+        
+        return rolePage;
     }
 
     @Override

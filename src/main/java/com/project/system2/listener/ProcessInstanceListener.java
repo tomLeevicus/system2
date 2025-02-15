@@ -59,10 +59,6 @@ public class ProcessInstanceListener implements ExecutionListener {
         instance.setProcessDefinitionKey(defParts[0]);
         instance.setProcessDefinitionVersion(Integer.parseInt(defParts[1]));
         
-        // 用户信息
-        instance.setStartUserId((String) execution.getVariable("userId"));
-        instance.setStartActivityId(execution.getCurrentActivityId());
-        
         // 获取流程实例名称
         Optional.ofNullable(
             runtimeService.createProcessInstanceQuery()

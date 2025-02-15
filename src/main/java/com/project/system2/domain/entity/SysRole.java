@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.Set;
+import java.util.List;
 
 @Data
 @TableName("sys_role")
@@ -45,7 +46,8 @@ public class SysRole extends BaseEntity {
 
     /** 菜单组 */
     @TableField(exist = false)
-    private Long[] menuIds;
+    @Schema(description = "菜单ID集合")
+    private List<Long> menuIds;
 
     /** 部门组（数据权限） */
     @TableField(exist = false)
@@ -67,5 +69,13 @@ public class SysRole extends BaseEntity {
      */
     public static boolean isAdminRole(String roleKey) {
         return ADMIN_ROLE_KEY.equals(roleKey);
+    }
+
+    public List<Long> getMenuIds() {
+        return menuIds;
+    }
+
+    public void setMenuIds(List<Long> menuIds) {
+        this.menuIds = menuIds;
     }
 } 

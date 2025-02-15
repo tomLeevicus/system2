@@ -1,5 +1,6 @@
 package com.project.system2.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.common.core.domain.PageQuery;
@@ -29,8 +30,8 @@ public class SysRoleController {
     @Operation(summary = "分页查询角色列表", description = "根据条件分页查询系统角色")
     @Parameter(name = "pageNum", description = "页码", example = "1")
     @Parameter(name = "pageSize", description = "每页数量", example = "10")
-    public Result<Page<SysRole>> list(SysRole role, PageQuery pageQuery) {
-        Page<SysRole> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
+    public Result<IPage<SysRole>> list(SysRole role, PageQuery pageQuery) {
+        IPage<SysRole> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
         return Result.success(roleService.selectRolePage(page, role));
     }
 

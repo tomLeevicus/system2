@@ -1,5 +1,6 @@
 package com.project.system2.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.domain.entity.SysRole;
 import java.util.List;
@@ -75,5 +76,5 @@ public interface ISysRoleService {
     /**
      * 分页查询角色列表
      */
-    Page<SysRole> selectRolePage(Page<SysRole> page, SysRole role);
+    IPage<SysRole> selectRolePage(IPage<SysRole> page, SysRole role);
 } 
