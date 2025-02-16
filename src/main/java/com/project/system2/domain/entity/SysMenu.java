@@ -1,6 +1,7 @@
 package com.project.system2.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -67,7 +68,8 @@ public class SysMenu extends BaseEntity {
 
     /** 子菜单 */
     @TableField(exist = false)
-    private List<SysMenu> children = new ArrayList<>();
+    @Schema(description = "子菜单列表")
+    private List<SysMenu> children;
 
     public boolean isMenu() {
         return menuType != null && ("M".equals(menuType) || "C".equals(menuType));
@@ -75,5 +77,13 @@ public class SysMenu extends BaseEntity {
 
     public boolean isButton() {
         return menuType != null && "F".equals(menuType);
+    }
+
+    public List<SysMenu> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<SysMenu> children) {
+        this.children = children;
     }
 } 

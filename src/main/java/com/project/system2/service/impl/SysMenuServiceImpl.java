@@ -103,12 +103,37 @@ public class SysMenuServiceImpl implements ISysMenuService {
 
     @Override
     public List<SysMenu> selectMenuList(SysMenu menu) {
+        // 1. 查询所有符合条件的菜单（包含子菜单）
         LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
         wrapper.like(StringUtils.isNotEmpty(menu.getMenuName()), SysMenu::getMenuName, menu.getMenuName())
                .eq(StringUtils.isNotEmpty(menu.getStatus()), SysMenu::getStatus, menu.getStatus())
                .orderByAsc(SysMenu::getParentId)
                .orderByAsc(SysMenu::getOrderNum);
-        return menuMapper.selectList(wrapper);
+        List<SysMenu> allMenus = menuMapper.selectList(wrapper);
+        
+        // 2. 构建树形结构
+        List<SysMenu> tree = buildMenuTree(allMenus, 0L);
+        if (tree.size() == 0){
+            return allMenus;
+        }
+
+        return tree;
+    }
+
+    // 递归构建菜单树
+    private List<SysMenu> buildMenuTree(List<SysMenu> menus, Long parentId) {
+        List<SysMenu> tree = new ArrayList<>();
+        for (SysMenu menu : menus) {
+            if (parentId.equals(menu.getParentId())) {
+                // 查找子菜单
+                List<SysMenu> children = buildMenuTree(menus, menu.getMenuId());
+                if (!children.isEmpty()) {
+                    menu.setChildren(children);
+                }
+                tree.add(menu);
+            }
+        }
+        return tree;
     }
 
     @Override
