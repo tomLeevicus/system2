@@ -142,7 +142,7 @@ public class R<T> implements Serializable {
      * @return 失败消息
      */
     public static <T> R<T> fail(int code, String msg) {
-        return new R<>(code, msg);
+        return new R<>(code, msg, null);
     }
 
     public int getCode() {

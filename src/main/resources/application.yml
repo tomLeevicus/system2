@@ -73,6 +73,7 @@ logging:
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
     com.project.system2: TRACE
+    com.project.system2.security: DEBUG
 
 # Flowable配置
 flowable:

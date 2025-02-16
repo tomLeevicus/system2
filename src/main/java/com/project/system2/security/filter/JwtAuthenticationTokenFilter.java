@@ -10,10 +10,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 
 import java.io.IOException;
 
@@ -45,8 +50,12 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 }
-            } catch (Exception e) {
-                logger.error("Cannot set user authentication: {}", e);
+            } catch (ExpiredJwtException e) {
+                SecurityContextHolder.clearContext();
+                throw new AuthenticationServiceException("Token过期", e);
+            } catch (JwtException | IllegalArgumentException e) {
+                SecurityContextHolder.clearContext();
+                throw new BadCredentialsException("无效Token", e);
             }
         }
         chain.doFilter(request, response);

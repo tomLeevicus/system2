@@ -17,18 +17,19 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.project.system2.security.filter.JwtAuthenticationTokenFilter;
 import com.project.system2.security.handle.AuthenticationEntryPointImpl;
 import com.project.system2.security.handle.LogoutSuccessHandlerImpl;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final AuthenticationEntryPointImpl authenticationEntryPoint;
 
     @Autowired
     private JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
-    @Autowired
-    private AuthenticationEntryPointImpl unauthorizedHandler;
-    
     @Autowired
     private LogoutSuccessHandlerImpl logoutSuccessHandler;
 
@@ -41,7 +42,8 @@ public class SecurityConfig {
             // CSRF禁用
             .csrf(csrf -> csrf.disable())
             // 认证失败处理类
-            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+            .exceptionHandling(e -> e
+                .authenticationEntryPoint(authenticationEntryPoint))
             // 基于token，所以不需要session
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // 过滤请求
