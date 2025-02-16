@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.common.core.domain.PageQuery;
 import com.project.system2.domain.entity.SysRole;
+import com.project.system2.domain.dto.RoleMenuDTO;
 import com.project.system2.service.ISysRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -109,7 +110,9 @@ public class SysRoleController {
     @Operation(summary = "分配菜单权限", description = "为角色分配菜单访问权限")
     @Parameter(name = "roleId", description = "角色ID", example = "1", required = true)
     @Parameter(name = "menuIds", description = "菜单ID数组", example = "[100,101]", required = true)
-    public Result<Void> authMenu(Long roleId, Long[] menuIds) {
-        return roleService.updateRoleMenu(roleId, menuIds) ? Result.success() : Result.error();
+    public Result<Void> authMenu(@RequestBody RoleMenuDTO dto) {
+        return roleService.updateRoleMenu(dto.getRoleId(), dto.getMenuIds()) 
+               ? Result.success() 
+               : Result.error();
     }
 } 

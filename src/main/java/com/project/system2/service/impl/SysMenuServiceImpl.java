@@ -112,12 +112,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
         List<SysMenu> allMenus = menuMapper.selectList(wrapper);
         
         // 2. 构建树形结构
-        List<SysMenu> tree = buildMenuTree(allMenus, 0L);
-        if (tree.size() == 0){
-            return allMenus;
-        }
-
-        return tree;
+        return  buildMenuTree(allMenus, 0L);
     }
 
     // 递归构建菜单树
@@ -132,6 +127,10 @@ public class SysMenuServiceImpl implements ISysMenuService {
                 }
                 tree.add(menu);
             }
+        }
+
+        if (tree.isEmpty()) {
+            tree = menus;
         }
         return tree;
     }

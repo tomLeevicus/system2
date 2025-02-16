@@ -2,6 +2,7 @@ package com.project.system2.service.impl;
 
 import com.project.system2.common.core.domain.model.LoginUser;
 import com.project.system2.common.core.exception.ServiceException;
+import com.project.system2.common.core.redis.RedisCache;
 import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.entity.SysRole;
@@ -13,6 +14,7 @@ import com.project.system2.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -21,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
+import com.project.system2.common.constant.CacheConstants;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -40,8 +43,16 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private RedisCache redisCache;
+
     @Override
-    public String login(String username, String password) {
+    public String login(String username, String password, String code,String uuid) {
+        // 验证码校验
+        /*if (!validateCaptcha(code,uuid)) {
+            throw new BadCredentialsException("验证码错误");
+        }*/
+        
         // 1. 验证用户名密码
         SysUser user = userMapper.selectUserByUserName(username);
         
@@ -90,6 +101,24 @@ public class AuthServiceImpl implements AuthService {
         if (loginUser != null) {
             tokenService.deleteToken(loginUser.getToken());
         }
+    }
+
+
+    public boolean validateCaptcha(String uuid, String code) {
+        // 参数校验
+        if (StringUtils.isEmpty(uuid) || StringUtils.isEmpty(code)) {
+            return false;
+        }
+        
+        // 从Redis获取验证码
+        String cacheKey = CacheConstants.CAPTCHA_CODE_KEY + uuid;
+        String storedCode = redisCache.getCacheObject(cacheKey);
+        
+        // 删除已使用的验证码（无论对错）
+        redisCache.deleteObject(cacheKey);
+        
+        // 校验验证码（不区分大小写）
+        return code.equalsIgnoreCase(storedCode);
     }
 
     /**

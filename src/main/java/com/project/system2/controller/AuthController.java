@@ -41,7 +41,7 @@ public class AuthController {
     @Parameter(name = "password", description = "密码", example = "admin123", required = true)
     @ApiResponse(responseCode = "200", description = "登录成功返回JWT令牌")
     public R<Map<String, Object>> login(@RequestBody LoginBody loginBody) {
-        String token = authService.login(loginBody.getUsername(), loginBody.getPassword());
+        String token = authService.login(loginBody.getUsername(), loginBody.getPassword(),loginBody.getCode(),loginBody.getUuid());
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);
         return R.ok(data);

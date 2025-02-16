@@ -115,9 +115,12 @@ public class SysRoleServiceImpl implements ISysRoleService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean updateRoleMenu(Long roleId, Long[] menuIds) {
-        return roleMenuMapper.saveRoleMenu(roleId, menuIds);
+        // 删除原有权限
+        roleMenuMapper.deleteRoleMenuByRoleId(roleId);
+        // 新增权限
+        return menuIds.length > 0 && roleMenuMapper.batchRoleMenu(roleId, menuIds) > 0;
     }
 
     @Override

@@ -10,14 +10,23 @@
     </select>
 
     <!-- 保存角色菜单关系 -->
-    <insert id="saveRoleMenu">
-        <!-- 先删除旧关系 -->
+    <update id="updateRoleMenu">
         DELETE FROM sys_role_menu WHERE role_id = #{roleId};
         
-        <!-- 插入新关系 -->
+        INSERT INTO sys_role_menu(role_id, menu_id) VALUES
+        <foreach collection="menuIds" item="menuId" separator=",">
+            (#{roleId}, #{menuId})
+        </foreach>
+    </update>
+
+    <insert id="batchRoleMenu">
         INSERT INTO sys_role_menu(role_id, menu_id) VALUES
         <foreach collection="menuIds" item="menuId" separator=",">
             (#{roleId}, #{menuId})
         </foreach>
     </insert>
+
+    <delete id="deleteRoleMenuByRoleId">
+        DELETE FROM sys_role_menu WHERE role_id = #{roleId}
+    </delete>
 </mapper> 

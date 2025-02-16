@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import com.project.system2.common.core.redis.RedisCache;
+import com.project.system2.config.SecurityTokenConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,6 @@ import com.project.system2.common.constant.TokenConstants;
 import com.project.system2.common.core.domain.model.LoginUser;
 import com.project.system2.common.core.utils.JwtUtils;
 import com.project.system2.common.core.utils.StringUtils;
-import com.project.system2.config.TokenConfig;
 import com.project.system2.service.TokenService;
 
 import io.jsonwebtoken.Claims;
@@ -36,13 +36,12 @@ public class TokenServiceImpl implements TokenService {
     private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    private TokenConfig tokenConfig;
+    private SecurityTokenConfig securityTokenConfig;
 
     @Autowired
     private HttpServletRequest request;
 
-    protected static final long MILLIS_SECOND = 1000;
-    protected static final long MILLIS_MINUTE = 30*60 * MILLIS_SECOND; //30分钟
+    protected static final long MILLIS_MINUTE = 60 * 1000L;
     private static final Long MILLIS_MINUTE_TEN = 20 * 60 * 1000L;
 
     @Override
@@ -54,7 +53,11 @@ public class TokenServiceImpl implements TokenService {
         Map<String, Object> claims = new HashMap<>();
         claims.put(CacheConstants.LOGIN_USER_KEY, token);
         
-        return JwtUtils.generateToken(claims, tokenConfig.getSecret());
+        return JwtUtils.generateToken(
+            claims, 
+            securityTokenConfig.getSecret(),
+            securityTokenConfig.getExpireTime()
+        );
     }
 
     @Override
@@ -62,7 +65,7 @@ public class TokenServiceImpl implements TokenService {
         String token = getToken(request);
         if (StringUtils.isNotEmpty(token)) {
             try {
-                Claims claims = JwtUtils.parseToken(token, tokenConfig.getSecret());
+                Claims claims = JwtUtils.parseToken(token, securityTokenConfig.getSecret());
                 String uuid = (String) claims.get(CacheConstants.LOGIN_USER_KEY);
                 String userKey = getTokenKey(uuid);
                 return redisCache.getCacheObject(userKey);
@@ -75,9 +78,9 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public String getToken(HttpServletRequest request) {
-        String token = request.getHeader(tokenConfig.getHeader());
-        if (StringUtils.isNotEmpty(token) && token.startsWith(tokenConfig.getTokenPrefix())) {
-            token = token.substring(tokenConfig.getTokenPrefix().length());
+        String token = request.getHeader(securityTokenConfig.getHeader());
+        if (StringUtils.isNotEmpty(token) && token.startsWith(securityTokenConfig.getPrefix())) {
+            token = token.substring(securityTokenConfig.getPrefix().length());
         }
         return token;
     }
@@ -101,16 +104,21 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public void refreshToken(LoginUser loginUser) {
-        loginUser.setLoginTime(System.currentTimeMillis());
-        loginUser.setExpireTime(loginUser.getLoginTime() + tokenConfig.getExpireTime() * MILLIS_MINUTE);
-        String userKey = getTokenKey(loginUser.getToken());
-        redisCache.setCacheObject(userKey, loginUser, tokenConfig.getExpireTime(), TimeUnit.MINUTES);
+        long expireTimeMillis = securityTokenConfig.getExpireTime() * MILLIS_MINUTE;
+        loginUser.setExpireTime(System.currentTimeMillis() + expireTimeMillis);
+        
+        redisCache.setCacheObject(
+            getTokenKey(loginUser.getToken()),
+            loginUser,
+            securityTokenConfig.getExpireTime(),
+            TimeUnit.MINUTES
+        );
     }
 
     @Override
     public boolean validateToken(String token) {
         try {
-            Claims claims = JwtUtils.parseToken(token, tokenConfig.getSecret());
+            Claims claims = JwtUtils.parseToken(token, securityTokenConfig.getSecret());
             String uuid = (String) claims.get(CacheConstants.LOGIN_USER_KEY);
             String userKey = getTokenKey(uuid);
             return redisCache.hasKey(userKey);
@@ -123,7 +131,7 @@ public class TokenServiceImpl implements TokenService {
     @Override
     public UsernamePasswordAuthenticationToken getAuthentication(String token) {
         try {
-            Claims claims = JwtUtils.parseToken(token, tokenConfig.getSecret());
+            Claims claims = JwtUtils.parseToken(token, securityTokenConfig.getSecret());
             String uuid = (String) claims.get(CacheConstants.LOGIN_USER_KEY);
             String userKey = getTokenKey(uuid);
             LoginUser loginUser = redisCache.getCacheObject(userKey);

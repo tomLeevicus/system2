@@ -7,7 +7,7 @@ spring:
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.80.128:3306/system2?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+    url: jdbc:mysql://192.168.80.128:3306/system2?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true&allowMultiQueries=true
     username: root
     password: root
     druid:
@@ -66,28 +66,6 @@ mybatis-plus:
   mapperLocations: classpath*:mapper/**/*.xml
   # 加载全局的配置文件
   configLocation: classpath:mybatis-config.xml
-
-# Token配置
-token:
-  # 令牌密钥 (至少32字节/256位)
-  secret: 6L6T5LqG5L2/55So5aSp55qE5a6d5a6d5oiR5Lus5Y+R5aSp5LiL6Z2i5YWI5p2l5LiA6LW35p2l5Y+R6YCB6K+d
-  # 令牌有效期（默认30分钟）
-  expireTime: 30
-  # 令牌前缀
-  tokenPrefix: "Bearer "
-  # 令牌头部
-  header: Authorization
-
-# JWT配置
-jwt:
-  # 令牌密钥
-  secret: jdsadsajoincxznsajdsajoincxznsajdsajoincxzns
-  # 令牌有效期（默认30分钟）
-  expireTime: 30
-  # 令牌前缀
-  tokenPrefix: "Bearer "
-  # 令牌头部
-  header: Authorization
 
 # 日志配置
 logging:
@@ -175,3 +153,12 @@ springfox:
       base-url: /api  # 如果项目有统一前缀
     api-docs:
       path: /v2/api-docs
+
+# 保留统一后的配置
+security:
+  token:
+    secret: "VGVzdEtleS0yNTYtYml0LXNlY3JldC1oZXJlLTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTA="
+    expire-time: 120  # 单位分钟
+    refresh-time: 30  # 自动刷新阈值
+    prefix: "Bearer "
+    header: Authorization

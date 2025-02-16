@@ -99,7 +99,7 @@ public class Assets  extends BaseEntity {
     @Schema(description = "数据状态（0-正常，1-删除）", example = "0")
     private Integer assetStatus;
 
-    @Schema(description = "资产分类路径", example = "电子设备/笔记本电脑")
+    /*@Schema(description = "资产分类路径", example = "电子设备/笔记本电脑")
     private String categoryPath;
 
     @Schema(description = "使用年限（年）", example = "5")
@@ -109,5 +109,5 @@ public class Assets  extends BaseEntity {
     private BigDecimal depreciationRate;
 
     @Schema(description = "维保状态（0-在保，1-过保）", example = "0")
-    private Integer maintenanceStatus;
+    private Integer maintenanceStatus;*/
 }
