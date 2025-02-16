@@ -1,6 +1,7 @@
 package com.project.system2.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.entity.SysDept;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.mapper.SysDeptMapper;
@@ -26,8 +27,11 @@ public class SysDeptServiceImpl implements ISysDeptService {
     @Override
     public List<SysDept> selectDeptList(SysDept dept) {
         LambdaQueryWrapper<SysDept> wrapper = new LambdaQueryWrapper<>();
+        wrapper.like(StringUtils.isNotEmpty(dept.getDeptName()),SysDept::getDeptName,dept.getDeptName())
+                .eq(StringUtils.isNotEmpty(dept.getStatus()),SysDept::getStatus,dept.getStatus());
         // 可以添加更多的查询条件
-        return deptMapper.selectList(wrapper);
+        List<SysDept> sysDepts = deptMapper.selectList(wrapper);
+        return buildDeptTree(sysDepts);
     }
 
     @Override
