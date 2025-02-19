@@ -1,5 +1,7 @@
 package com.project.system2.config;
 
+import com.project.system2.security.filter.JwtAuthenticationTokenFilter;
+import com.project.system2.security.handle.AuthenticationEntryPointImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.project.system2.security.filter.JwtAuthenticationTokenFilter;
-import com.project.system2.security.handle.AuthenticationEntryPointImpl;
 import com.project.system2.security.handle.LogoutSuccessHandlerImpl;
 import lombok.RequiredArgsConstructor;
 
