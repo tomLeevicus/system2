@@ -33,3 +33,5 @@ build/
 .vscode/
 #禁用前端项目提交
 #/vue-ui/
+
+/src/main/resources/db/system2.sql
