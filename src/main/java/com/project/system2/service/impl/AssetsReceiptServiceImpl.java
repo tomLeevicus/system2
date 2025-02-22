@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetReceipt;
+import com.project.system2.domain.entity.Assets;
 import com.project.system2.domain.model.AssetReceiptQuery;
 import com.project.system2.mapper.AssetReceiptMapper;
+import com.project.system2.mapper.AssetsMapper;
 import com.project.system2.service.IAssetsReceiptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,9 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
 
     @Autowired
     private AssetReceiptMapper assetReceiptMapper;
+
+    @Autowired
+    private AssetsMapper assetMapper;
 
     @Override
     public Result<IPage<AssetReceipt>> queryList(AssetReceiptQuery query) {
@@ -54,8 +59,19 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
     @Override
     @Transactional
     public Result<Boolean> add(AssetReceipt assetsReceipt) {
+        // 查询资产信息
+        Assets asset = assetMapper.selectById(assetsReceipt.getAssetId());
+        
+        // 检查asset_user_id是否有数据
+        if (asset.getAssetUserId() == null) {
+            return Result.error("资产已被领用");
+        }
+
+        // 填充AssetReceipt对象数据
         EntityUtils.setCreateAndUpdateInfo(assetsReceipt, true);
         assetsReceipt.setReceiverName(EntityUtils.setUserName());
+        assetsReceipt.setReturnStatus(0);
+        assetsReceipt.setReviewStatus(0);
         int rows = assetReceiptMapper.insert(assetsReceipt);
         return Result.success(rows > 0);
     }

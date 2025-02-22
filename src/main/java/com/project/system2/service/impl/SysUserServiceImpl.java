@@ -93,4 +93,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public Page<SysUser> selectUserPage(Page<SysUser> page, SysUser user) {
         return userMapper.selectUserWithDeptRolePage(page, user);
     }
+
+    @Override
+    public List<SysUser> getApprovalUsers() {
+        return userMapper.selectApprovalUsers();
+    }
 } 

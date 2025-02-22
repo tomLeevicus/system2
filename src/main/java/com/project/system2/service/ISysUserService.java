@@ -36,4 +36,9 @@ public interface ISysUserService {
      * 分页查询用户列表
      */
     Page<SysUser> selectUserPage(Page<SysUser> page, SysUser user);
+
+    /**
+     * 获取资产审批员列表
+     */
+    List<SysUser> getApprovalUsers();
 } 

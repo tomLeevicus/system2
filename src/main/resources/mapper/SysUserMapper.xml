@@ -141,4 +141,12 @@
         </collection>
     </resultMap>
 
+    <select id="selectApprovalUsers" resultMap="UserWithDeptRoleResult">
+        SELECT u.id,u.nickname
+        FROM sys_user u
+        JOIN sys_user_role ur ON u.id = ur.user_id
+        JOIN sys_role r ON ur.role_id = r.role_id
+        WHERE r.role_id = 100 AND r.role_key = 'asset_approval'
+    </select>
+
 </mapper> 

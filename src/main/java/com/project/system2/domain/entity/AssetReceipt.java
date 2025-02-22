@@ -15,13 +15,13 @@ import java.time.LocalDate;
  */
 @Data
 @TableName(value = "asset_receipt")
-@Schema(description = "资产验收记录实体")
+@Schema(description = "资产领用实体")
 public class AssetReceipt extends BaseEntity {
     /**
      * id
      */
     @TableId(value = "id", type = IdType.ASSIGN_ID)
-    @Schema(description = "验收记录ID", example = "600")
+    @Schema(description = "领用记录ID", example = "600")
     private Long id;
 
     /**
@@ -47,14 +47,14 @@ public class AssetReceipt extends BaseEntity {
      * 领用日期
      */
     @TableField(value = "collection_date")
-    @Schema(description = "验收日期", example = "2023-04-01")
+    @Schema(description = "领用日期", example = "2023-04-01")
     private Date collectionDate;
 
     /**
      * 领用说明
      */
     @TableField(value = "instructions_for_use")
-    @Schema(description = "验收说明", example = "设备功能正常，外观无损伤")
+    @Schema(description = "领用说明", example = "")
     private String instructionsForUse;
 
     /**
@@ -70,7 +70,7 @@ public class AssetReceipt extends BaseEntity {
     private Date returnTime;
 
     /**
-     * 归还状态 0：违规还 1：已归还
+     * 归还状态 0：未规还 1：已归还
      */
     @TableField(value = "return_status")
     private Integer returnStatus;

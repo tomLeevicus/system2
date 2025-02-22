@@ -3,13 +3,17 @@ package com.project.system2.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetRepair;
+import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.model.AssetRepairQuery;
 import com.project.system2.service.IAssetRepairService;
+import com.project.system2.service.ISysUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @Author: BlueberryLee

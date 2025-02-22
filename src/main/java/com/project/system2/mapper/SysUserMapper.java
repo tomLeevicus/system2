@@ -44,4 +44,9 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
                                                   @Param("currentUserId") Long currentUserId);
     
     Page<SysUser> selectUserWithDeptRolePage(Page<SysUser> page, @Param("user") SysUser user);
+
+    /**
+     * 获取资产审批员列表
+     */
+    List<SysUser> selectApprovalUsers();
 } 

@@ -3,13 +3,17 @@ package com.project.system2.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetReceipt;
+import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.model.AssetReceiptQuery;
 import com.project.system2.service.IAssetsReceiptService;
+import com.project.system2.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/asset/receipt")
@@ -18,6 +22,10 @@ public class AssetReceiptController {
 
     @Autowired
     private IAssetsReceiptService assetsReceiptService;
+
+
+    @Autowired
+    private ISysUserService sysUserService;
 
     /**
      * 分页查询资产领用记录
@@ -68,5 +76,15 @@ public class AssetReceiptController {
     @Parameter(name = "id", description = "领用记录ID", example = "700", required = true)
     public Result<Boolean> remove(@PathVariable Long id) {
         return assetsReceiptService.deleteById(id);
+    }
+
+
+    /**
+     * 获取资产审批员列表
+     */
+    @GetMapping("/approvalUsers")
+    @Operation(summary = "获取资产审批员列表", description = "查询角色为资产审批员的用户")
+    public Result<List<SysUser>> getApprovalUsers() {
+        return Result.success(sysUserService.getApprovalUsers());
     }
 } 
