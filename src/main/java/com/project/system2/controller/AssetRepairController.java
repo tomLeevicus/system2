@@ -3,9 +3,11 @@ package com.project.system2.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetRepair;
+import com.project.system2.domain.entity.AssetScrap;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.model.AssetRepairQuery;
 import com.project.system2.service.IAssetRepairService;
+import com.project.system2.service.IAssetScrapService;
 import com.project.system2.service.ISysUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,6 +28,9 @@ import java.util.List;
 public class AssetRepairController {
     @Autowired
     private IAssetRepairService assetRepairService;
+
+    @Autowired
+    private IAssetScrapService assetScrapService;
 
     /**
      * 分页查询维修记录
@@ -76,5 +81,15 @@ public class AssetRepairController {
     @Parameter(name = "id", description = "维修记录ID", example = "500", required = true)
     public Result<Boolean> remove(@PathVariable Long id) {
         return assetRepairService.deleteById(id);
+    }
+
+    /**
+     * 资产报废
+     */
+    @PostMapping("/scrap")
+    @Operation(summary = "资产报废", description = "处理资产报废请求")
+    @Parameter(name = "assetScrap", description = "资产报废对象", required = true)
+    public Result<Boolean> scrap(@RequestBody AssetScrap assetScrap) {
+        return assetScrapService.scrapAsset(assetScrap);
     }
 }

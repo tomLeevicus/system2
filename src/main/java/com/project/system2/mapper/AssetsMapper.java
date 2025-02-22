@@ -22,4 +22,6 @@ public interface AssetsMapper extends BaseMapper<Assets> {
      * @return 分页查询结果
      */
     IPage<Assets> selectAssetsList(Page<Assets> page, @Param("query") AssetsQuery query);
-} 
+
+    void updateAssetUseStatus(@Param("assetId")Long assetId);
+}

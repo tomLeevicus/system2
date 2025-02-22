@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.common.core.domain.Result;
+import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.domain.entity.AssetReceipt;
 import com.project.system2.domain.entity.Assets;
 import com.project.system2.domain.model.AssetReceiptQuery;
+import com.project.system2.domain.dto.PersonalAssetDTO;
 import com.project.system2.mapper.AssetReceiptMapper;
 import com.project.system2.mapper.AssetsMapper;
 import com.project.system2.service.IAssetsReceiptService;
@@ -69,7 +71,8 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
 
         // 填充AssetReceipt对象数据
         EntityUtils.setCreateAndUpdateInfo(assetsReceipt, true);
-        assetsReceipt.setReceiverName(EntityUtils.setUserName());
+        assetsReceipt.setReceiverId(SecurityUtils.getUserId());
+        assetsReceipt.setReceiverName(SecurityUtils.getUsername());
         assetsReceipt.setReturnStatus(0);
         assetsReceipt.setReviewStatus(0);
         int rows = assetReceiptMapper.insert(assetsReceipt);
@@ -89,5 +92,12 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
     public Result<Boolean> deleteById(Long id) {
         int rows = assetReceiptMapper.deleteById(id);
         return Result.success(rows > 0);
+    }
+
+    @Override
+    public Result<IPage<PersonalAssetDTO>> getPersonalAssets(Long userId, int pageNum, int pageSize) {
+        Page<PersonalAssetDTO> page = new Page<>(pageNum, pageSize);
+        IPage<PersonalAssetDTO> resultPage = assetReceiptMapper.selectPersonalAssets(page, userId);
+        return Result.success(resultPage);
     }
 } 

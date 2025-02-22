@@ -66,6 +66,12 @@ mybatis-plus:
   mapperLocations: classpath*:mapper/**/*.xml
   # 加载全局的配置文件
   configLocation: classpath:mybatis-config.xml
+  global-config:
+    db-config:
+      logic-delete-field: delFlag
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath*:mapper/**/*.xml
 
 # 日志配置
 logging:

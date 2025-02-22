@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Data
 @TableName(value = "asset_repair")
 @Schema(description = "资产维修记录实体")
-public class AssetRepair {
+public class AssetRepair extends BaseEntity {
     /**
      * id
      */
@@ -61,21 +61,6 @@ public class AssetRepair {
     @Schema(description = "维修状态（0-进行中，1-已完成）", example = "1")
     private Integer status;
 
-    @TableField(value = "create_by")
-    private Long createBy;
-
-    @TableField(value = "create_time")
-    private Date createTime;
-
-    @TableField(value = "update_by")
-    private Long updateBy;
-
-    @TableField(value = "update_time")
-    private Date updateTime;
-
-    @TableField(value = "del_flag")
-    @Schema(description = "删除标志（0-存在，1-删除）", example = "0")
-    private Integer delFlag;
 
 /*    @Schema(description = "维修单号", example = "REP_2023001")
     private String repairNo;

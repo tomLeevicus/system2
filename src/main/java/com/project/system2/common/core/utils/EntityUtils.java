@@ -30,12 +30,4 @@ public class EntityUtils {
             entity.setUpdateTime(now);
         }
     }
-
-    /**
-     * 获取当前登录用户名
-     */
-    public static String setUserName() {
-        String username = SecurityUtils.getUsername();
-        return username != null ? username : "admin";
-    }
 } 

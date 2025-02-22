@@ -132,4 +132,8 @@
             #{id}
         </foreach>
     </delete>
+
+    <update id="updateAssetUseStatus" parameterType="Long">
+        update assets set asset_use_status = 3 where id = #{assetId}
+    </update>
 </mapper>

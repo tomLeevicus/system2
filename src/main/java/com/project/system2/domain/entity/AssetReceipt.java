@@ -38,6 +38,11 @@ public class AssetReceipt extends BaseEntity {
     private String assetName;
 
     /**
+     * 领用人Id
+     */
+    @TableField(value = "receiver_id")
+    private Long receiverId;
+    /**
      * 领用人名称
      */
     @TableField(value = "receiver_name")

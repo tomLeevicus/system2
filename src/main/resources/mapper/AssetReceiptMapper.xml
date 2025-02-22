@@ -26,4 +26,20 @@
     return_time, return_status, review_status, create_by, create_time, update_by, update_time, 
     del_flag
   </sql>
+  <select id="selectPersonalAssets" resultType="com.project.system2.domain.dto.PersonalAssetDTO">
+    SELECT 
+        ar.id,
+        ar.collection_date as collectionDate,
+        ar.is_long_term_use as isLongTermUse,
+        ar.return_time as returnTime,
+        ar.return_status as returnStatus,
+        ar.review_status as reviewStatus,
+        ar.asset_id as assetId,
+        a.asset_number as assetNumber,
+        a.asset_name as assetName,
+        a.asset_storage_location as assetStorageLocation
+    FROM asset_receipt ar
+    JOIN assets a ON ar.asset_id = a.id
+    WHERE a.asset_user_id = #{userId}
+  </select>
 </mapper>

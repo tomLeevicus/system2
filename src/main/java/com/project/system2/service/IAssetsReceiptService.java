@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetReceipt;
 import com.project.system2.domain.model.AssetReceiptQuery;
+import com.project.system2.domain.dto.PersonalAssetDTO;
 
 public interface IAssetsReceiptService {
     /**
@@ -30,4 +31,9 @@ public interface IAssetsReceiptService {
      * 删除资产领用记录
      */
     Result<Boolean> deleteById(Long id);
+
+    /**
+     * 获取当前用户的资产信息及领用信息
+     */
+    Result<IPage<PersonalAssetDTO>> getPersonalAssets(Long userId, int pageNum, int pageSize);
 } 
