@@ -18,4 +18,10 @@
         AND ud1.post_sort <![CDATA[ < ]]> ud2.post_sort
     </select>
     
+    <update id="updateUserDept">
+        UPDATE sys_user_dept
+        SET dept_id = #{deptId}
+        WHERE user_id = #{userId}
+    </update>
+    
 </mapper> 

@@ -20,8 +20,6 @@ public class SysUser extends BaseEntity {
     @Schema(description = "用户ID", example = "1001")
     private Long id;
 
-    private Long deptId;
-
     @NotBlank(message = "用户账号不能为空")
     @Size(min = 0, max = 30, message = "用户账号长度不能超过30个字符")
     @Schema(description = "用户名", example = "zhangsan")

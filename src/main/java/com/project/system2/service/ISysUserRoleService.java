@@ -33,4 +33,6 @@ public interface ISysUserRoleService {
     boolean checkRoleExistUser(Long roleId);
 
     boolean checkUserIsValidLeader(String starterId, String leaderId);
+
+    void updateUserDept(Long userId, Long deptId);
 } 

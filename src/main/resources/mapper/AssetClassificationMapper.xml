@@ -28,22 +28,17 @@
   <select id="selectClassificationPage" resultType="com.project.system2.domain.entity.AssetClassification">
     SELECT 
         ac.*,
-        COUNT(a.id) as assetCount
+        (SELECT COUNT(*) FROM assets a WHERE a.asset_classification_id = ac.id AND a.del_flag = 0) AS assetCount
     FROM 
         asset_classification ac
-        LEFT JOIN assets a ON ac.id = a.asset_classification_id 
-            AND a.del_flag = 0
     <where>
         ac.del_flag = 0
-        <if test="query != null">
+        <if test="query != null and query.categoryName != null and query.categoryName != ''">
             <if test="query.categoryName != null and query.categoryName != ''">
                 AND ac.category_name LIKE CONCAT('%', #{query.categoryName}, '%')
             </if>
         </if>
     </where>
-    GROUP BY 
-        ac.id, ac.category_name, ac.sort_num, 
-        ac.create_time, ac.create_by, ac.update_time, ac.update_by
     ORDER BY 
         ac.sort_num ASC
   </select>

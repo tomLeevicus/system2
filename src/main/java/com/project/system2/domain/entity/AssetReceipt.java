@@ -14,7 +14,7 @@ import java.time.LocalDate;
  * 资产领用
  */
 @Data
-@TableName(value = "assets_receipt")
+@TableName(value = "asset_receipt")
 @Schema(description = "资产验收记录实体")
 public class AssetReceipt extends BaseEntity {
     /**

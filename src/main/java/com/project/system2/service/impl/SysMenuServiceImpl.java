@@ -43,6 +43,7 @@ public class SysMenuServiceImpl implements ISysMenuService {
     public List<SysMenu> buildMenuTree(List<SysMenu> menus) {
         List<SysMenu> returnList = new ArrayList<>();
         List<Long> tempList = menus.stream().map(SysMenu::getMenuId).collect(Collectors.toList());
+        
         for (SysMenu menu : menus) {
             // 如果是顶级节点，遍历该父节点的所有子节点
             if (!tempList.contains(menu.getParentId())) {
@@ -50,9 +51,12 @@ public class SysMenuServiceImpl implements ISysMenuService {
                 returnList.add(menu);
             }
         }
+        
+        // 如果构建的树为空，返回原始菜单列表
         if (returnList.isEmpty()) {
-            returnList = menus;
+            return menus;
         }
+        
         return returnList;
     }
 
@@ -129,10 +133,8 @@ public class SysMenuServiceImpl implements ISysMenuService {
             }
         }
 
-        if (tree.isEmpty()) {
-            tree = menus;
-        }
-        return tree;
+        // 如果没有找到任何子菜单，返回空树
+        return tree.isEmpty() ? new ArrayList<>() : tree;
     }
 
     @Override

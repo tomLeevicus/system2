@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.entity.SysDept;
 import com.project.system2.domain.entity.SysUser;
+import com.project.system2.domain.entity.SysUserDept;
 import com.project.system2.mapper.SysDeptMapper;
+import com.project.system2.mapper.SysUserDeptMapper;
 import com.project.system2.mapper.SysUserMapper;
 import com.project.system2.service.ISysDeptService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class SysDeptServiceImpl implements ISysDeptService {
 
     @Autowired
     private SysUserMapper userMapper;
+
+    @Autowired
+    private SysUserDeptMapper sysUserDeptMapper;
 
     @Override
     public List<SysDept> selectDeptList(SysDept dept) {
@@ -114,8 +119,8 @@ public class SysDeptServiceImpl implements ISysDeptService {
 
     @Override
     public boolean checkDeptExistUser(Long deptId) {
-        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(SysUser::getDeptId, deptId);
-        return userMapper.selectCount(wrapper) > 0;
+        LambdaQueryWrapper<SysUserDept> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUserDept::getDeptId, deptId);
+        return sysUserDeptMapper.selectCount(wrapper) > 0;
     }
 } 

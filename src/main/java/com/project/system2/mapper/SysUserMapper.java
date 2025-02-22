@@ -1,6 +1,9 @@
 package com.project.system2.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.domain.entity.SysUser;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -39,4 +42,6 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      */
     List<Map<String, Object>> selectUsersByRoleKey(@Param("roleKey") String roleKey,
                                                   @Param("currentUserId") Long currentUserId);
+    
+    Page<SysUser> selectUserWithDeptRolePage(Page<SysUser> page, @Param("user") SysUser user);
 } 

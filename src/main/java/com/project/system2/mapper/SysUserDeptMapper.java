@@ -10,4 +10,6 @@ public interface SysUserDeptMapper extends BaseMapper<SysUserDept> {
     boolean existsUserDept(@Param("userId") Long userId, @Param("deptId") Long deptId);
     
     boolean isSuperior(@Param("subordinateId") Long subordinateId, @Param("leaderId") Long leaderId);
+
+    void updateUserDept(@Param("userId") Long userId, @Param("deptId") Long deptId);
 } 

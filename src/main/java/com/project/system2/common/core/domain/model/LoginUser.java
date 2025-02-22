@@ -79,7 +79,6 @@ public class LoginUser implements UserDetails {
         this.user = user;
 //        this.permissions = permissions;
         this.userId = user.getId();
-        this.deptId = user.getDeptId();
     }
 
 

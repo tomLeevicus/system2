@@ -105,4 +105,10 @@ public class SysUserRoleServiceImpl implements ISysUserRoleService {
         // 检查是否是上级
         return userDeptMapper.isSuperior(Long.parseLong(starterId), Long.parseLong(leaderId));
     }
+
+    @Override
+    public void updateUserDept(Long userId, Long deptId) {
+        // 直接调用Mapper层更新用户部门信息
+        userDeptMapper.updateUserDept(userId, deptId);
+    }
 } 

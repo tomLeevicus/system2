@@ -39,7 +39,20 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     @Transactional
     public boolean updateUser(SysUser user) {
-        return userMapper.updateById(user) > 0;
+        // 更新用户信息
+        boolean isUpdated = userMapper.updateById(user) > 0;
+
+        // 更新用户角色
+        if (user.getRoleIds() != null) {
+            userRoleService.saveUserRole(user.getId(), user.getRoleIds());
+        }
+
+        // 更新用户部门
+        if (user.getDept() != null) {
+            userRoleService.updateUserDept(user.getId(), user.getDept().getDeptId());
+        }
+
+        return isUpdated;
     }
 
     @Override
@@ -57,18 +70,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Transactional
     public boolean updateUserRole(Long userId, Long[] roleIds) {
         return userRoleService.saveUserRole(userId, roleIds);
-    }
-
-    @Override
-    public List<SysUser> selectUserList(SysUser user) {
-        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
-        if (user != null) {
-            wrapper.like(user.getUsername() != null, SysUser::getUsername, user.getUsername())
-                    .like(user.getNickname() != null, SysUser::getNickname, user.getNickname())
-                    .eq(user.getStatus() != null, SysUser::getStatus, user.getStatus())
-                    .eq(user.getDeptId() != null, SysUser::getDeptId, user.getDeptId());
-        }
-        return userMapper.selectList(wrapper);
     }
 
     @Override
@@ -90,13 +91,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public Page<SysUser> selectUserPage(Page<SysUser> page, SysUser user) {
-        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
-        if (user != null) {
-            wrapper.like(user.getUsername() != null, SysUser::getUsername, user.getUsername())
-                    .like(user.getNickname() != null, SysUser::getNickname, user.getNickname())
-                    .eq(user.getStatus() != null, SysUser::getStatus, user.getStatus())
-                    .eq(user.getDeptId() != null, SysUser::getDeptId, user.getDeptId());
-        }
-        return userMapper.selectPage(page, wrapper);
+        return userMapper.selectUserWithDeptRolePage(page, user);
     }
 } 

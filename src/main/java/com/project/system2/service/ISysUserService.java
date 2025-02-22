@@ -21,10 +21,6 @@ public interface ISysUserService {
      */
     boolean updateUserRole(Long userId, Long[] roleIds);
 
-    /**
-     * 查询用户列表
-     */
-    List<SysUser> selectUserList(SysUser user);
 
     /**
      * 批量删除用户
