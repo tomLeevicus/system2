@@ -87,9 +87,6 @@ public class SysMenuController {
     @Operation(summary = "修改菜单", description = "更新现有菜单信息")
     @Parameter(name = "menu", description = "菜单对象", required = true)
     public Result<Void> edit(@Validated @RequestBody SysMenu menu) {
-        if (menuService.hasChildByMenuId(menu.getMenuId())) {
-            return Result.error("存在子菜单,不允许修改");
-        }
         return menuService.updateMenu(menu) ? Result.success() : Result.error();
     }
 

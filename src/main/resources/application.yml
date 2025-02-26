@@ -7,9 +7,9 @@ spring:
   # 数据源配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://192.168.80.128:3306/system2?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true&allowMultiQueries=true
+    url: jdbc:mysql://localhost:3306/system2?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true&allowMultiQueries=true
     username: root
-    password: root
+    password: 123456
     druid:
       initial-size: 5
       min-idle: 10
@@ -40,7 +40,7 @@ spring:
       # Redis数据库索引（默认为0）
       database: 0
       # Redis服务器地址
-      host: 192.168.80.128
+      host: localhost
       # Redis服务器连接端口
       port: 6379
       # Redis服务器连接密码（默认为空）
@@ -80,6 +80,7 @@ logging:
     org.springframework.web: DEBUG
     com.project.system2: TRACE
     com.project.system2.security: DEBUG
+    com.project.system2.mapper: TRACE
 
 # Flowable配置
 flowable:

@@ -14,9 +14,13 @@ import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.entity.SysMenu;
 import com.project.system2.mapper.SysMenuMapper;
 import com.project.system2.service.ISysMenuService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class SysMenuServiceImpl implements ISysMenuService {
+
+    private static final Logger log = LoggerFactory.getLogger(SysMenuServiceImpl.class);
 
     @Autowired
     private SysMenuMapper menuMapper;
@@ -35,14 +39,20 @@ public class SysMenuServiceImpl implements ISysMenuService {
             menus = menuMapper.selectMenuTreeAll();
         } else {
             menus = menuMapper.selectMenuTreeByUserId(userId);
+            log.debug("普通用户 {} 查询到的原始菜单数据: {}", userId, menus);
         }
         return buildMenuTree(menus);
     }
 
     @Override
     public List<SysMenu> buildMenuTree(List<SysMenu> menus) {
+        log.debug("开始构建菜单树，原始数据量: {}", menus.size());
+        
         List<SysMenu> returnList = new ArrayList<>();
-        List<Long> tempList = menus.stream().map(SysMenu::getMenuId).collect(Collectors.toList());
+        List<Long> tempList = menus.stream()
+            .map(SysMenu::getMenuId)
+            .peek(id -> log.trace("菜单ID: {}", id)) // 跟踪每个菜单ID
+            .collect(Collectors.toList());
         
         for (SysMenu menu : menus) {
             // 如果是顶级节点，遍历该父节点的所有子节点
