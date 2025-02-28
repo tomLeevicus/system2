@@ -5,6 +5,7 @@ import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetReceipt;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.model.AssetReceiptQuery;
+import com.project.system2.domain.query.AssetReceiptRecordQuery;
 import com.project.system2.service.IAssetsReceiptService;
 import com.project.system2.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,5 +87,11 @@ public class AssetReceiptController {
     @Operation(summary = "获取资产审批员列表", description = "查询角色为资产审批员的用户")
     public Result<List<SysUser>> getApprovalUsers() {
         return Result.success(sysUserService.getApprovalUsers());
+    }
+
+    @PostMapping("/approve")
+    @Operation(summary = "审批领用申请")
+    public Result<Boolean> approveReceipt(@RequestBody AssetReceiptRecordQuery AssetReceiptRecordQuery) {
+        return assetsReceiptService.approveReceipt(AssetReceiptRecordQuery);
     }
 } 

@@ -8,6 +8,8 @@ import com.project.system2.domain.model.AssetsQuery;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
+
 /**
  * 资产管理 数据层
  */
@@ -24,4 +26,8 @@ public interface AssetsMapper extends BaseMapper<Assets> {
     IPage<Assets> selectAssetsList(Page<Assets> page, @Param("query") AssetsQuery query);
 
     void updateAssetUseStatus(@Param("assetId")Long assetId);
+
+    int updateReceiptStatus(@Param("assetId") Long assetId, 
+                          @Param("userId") Long userId,
+                          @Param("useTime") Date useTime);
 }

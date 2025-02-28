@@ -5,6 +5,7 @@ import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetReceipt;
 import com.project.system2.domain.model.AssetReceiptQuery;
 import com.project.system2.domain.dto.PersonalAssetDTO;
+import com.project.system2.domain.query.AssetReceiptRecordQuery;
 
 public interface IAssetsReceiptService {
     /**
@@ -36,4 +37,6 @@ public interface IAssetsReceiptService {
      * 获取当前用户的资产信息及领用信息
      */
     Result<IPage<PersonalAssetDTO>> getPersonalAssets(Long userId, int pageNum, int pageSize);
-} 
+
+    Result<Boolean> approveReceipt(AssetReceiptRecordQuery assetReceiptRecordQuery);
+}

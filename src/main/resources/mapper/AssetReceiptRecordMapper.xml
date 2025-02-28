@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.system2.mapper.AssetReceiptRecordMapper">
+    <resultMap id="BaseResultMap" type="com.project.system2.domain.entity.AssetReceiptRecord">
+        <id column="id" property="id" />
+        <result column="receipt_id" property="receiptId" />
+        <result column="repair_id" property="repairId" />
+        <result column="asset_id" property="assetId" />
+        <result column="recipient_id" property="recipientId" />
+        <result column="approver_id" property="approverId" />
+        <result column="approval_time" property="approvalTime" />
+        <result column="apply_time" property="applyTime" />
+        <result column="status" property="status" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <!-- 基本列 -->
+    <sql id="Base_Column_List">
+        id, receipt_id, repair_id, asset_id, recipient_id, approver_id, 
+        approval_time, apply_time, status, remark
+    </sql>
+
+    <!-- 自定义分页查询示例 -->
+    <select id="selectPageByCondition" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM asset_receipt_record
+        <where>
+            <if test="param.assetId != null">
+                AND asset_id = #{param.assetId}
+            </if>
+            <if test="param.status != null">
+                AND status = #{param.status}
+            </if>
+        </where>
+    </select>
+    <select id="checkAssetId" resultType="java.lang.Integer">
+        select count(id) from asset_receipt_record where asset_id = ${assetId} and status = 0
+    </select>
+    <select id="selectByReceiptId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM asset_receipt_record
+        WHERE receipt_id = #{receiptId}
+        and status = 0
+    </select>
+</mapper> 

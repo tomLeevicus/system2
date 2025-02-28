@@ -136,4 +136,14 @@
     <update id="updateAssetUseStatus" parameterType="Long">
         update assets set asset_use_status = 3 where id = #{assetId}
     </update>
+
+    <update id="updateReceiptStatus">
+        UPDATE assets
+        SET asset_user_id = #{userId},
+            asset_use_time = #{useTime},
+            asset_use_status = 1,
+            update_time = NOW()
+        WHERE id = #{assetId}
+        AND asset_user_id IS NULL  -- 确保资产未被其他人领用
+    </update>
 </mapper>
