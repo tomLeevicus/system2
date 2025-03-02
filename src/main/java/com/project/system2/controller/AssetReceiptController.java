@@ -9,6 +9,7 @@ import com.project.system2.domain.query.AssetReceiptRecordQuery;
 import com.project.system2.service.IAssetsReceiptService;
 import com.project.system2.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -89,6 +90,7 @@ public class AssetReceiptController {
         return Result.success(sysUserService.getApprovalUsers());
     }
 
+    @PreAuthorize("@ss.hasPermi('asset:receipt:approve')")
     @PostMapping("/approve")
     @Operation(summary = "审批领用申请")
     public Result<Boolean> approveReceipt(@RequestBody AssetReceiptRecordQuery AssetReceiptRecordQuery) {

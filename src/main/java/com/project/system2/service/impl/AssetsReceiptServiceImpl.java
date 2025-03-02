@@ -71,7 +71,7 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Result<Boolean> add(AssetReceipt assetsReceipt) {
         // 查询资产信息
         Assets asset = assetMapper.selectById(assetsReceipt.getAssetId());
@@ -83,16 +83,21 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
 
         // 填充并保存AssetReceipt
         EntityUtils.setCreateAndUpdateInfo(assetsReceipt, true);
+        assetsReceipt.setAssetName(asset.getAssetName());
         assetsReceipt.setReceiverId(SecurityUtils.getUserId());
         assetsReceipt.setReceiverName(SecurityUtils.getUsername());
         assetsReceipt.setReturnStatus(0);
         assetsReceipt.setReviewStatus(0);
         int rows = assetReceiptMapper.insert(assetsReceipt);
         
-        if (rows == 0){ return Result.error("领用申请提交失败");}
+        if (rows == 0){
+            return Result.error("领用申请提交失败");
+        }
 
         int i = assetReceiptRecordMapper.checkAssetId(assetsReceipt.getAssetId());
-        if (i != 0) {return Result.error("资产已被申请领用在审核中");}
+        if (i != 0) {
+            throw new RuntimeException("资产已被申请领用在审核中");
+        }
         AssetReceiptRecord record = new AssetReceiptRecord();
         record.setReceiptId(assetsReceipt.getId());
         record.setAssetId(assetsReceipt.getAssetId());
@@ -106,7 +111,7 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
         if (insert >0){
             return Result.success(true);
         }
-        return Result.error("领用申请提交失败");
+        throw new RuntimeException("提交失败");
     }
 
     @Override
@@ -132,7 +137,7 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Result<Boolean> approveReceipt(AssetReceiptRecordQuery query) {
         try {
             // 1. 查询领用记录
@@ -140,21 +145,24 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
             if (record == null) {
                 return Result.error("领用记录不存在");
             }
-            
+
             // 2. 检查审批状态
             if (record.getStatus() != 0) {
                 return Result.error("该申请已处理，不可重复操作");
             }
 
             // 3. 更新审批记录
-            record.setStatus(query.isAgree() ? 1 : 2);
+            record.setStatus(query.getIsAgree() ? 1 : 2);
             record.setApproverId(SecurityUtils.getUserId());
             record.setApprovalTime(new Date());
             record.setRemark(query.getRemark());
-            assetReceiptRecordMapper.updateById(record);
+            int updateResult = assetReceiptRecordMapper.updateById(record);
+            if (updateResult <= 0) {
+                throw new RuntimeException("更新审批记录失败");
+            }
 
             // 4. 审批通过处理
-            if (query.isAgree()) {
+            if (query.getIsAgree()) {
                 int result = assetMapper.updateReceiptStatus(
                     record.getAssetId(),
                     record.getRecipientId(),
@@ -169,7 +177,7 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
             return Result.success(true);
         } catch (Exception e) {
             log.error("审批操作异常：", e);
-            return Result.error("审批流程异常：" + e.getMessage());
+            throw new RuntimeException("审批流程异常：" + e.getMessage());
         }
     }
 
