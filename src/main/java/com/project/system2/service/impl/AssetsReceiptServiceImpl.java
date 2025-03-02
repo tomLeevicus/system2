@@ -82,6 +82,10 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
             return Result.error("资产已被领用");
         }
 
+        if (0 == assetsReceipt.getIsLongTermUse() && StringUtils.isEmpty(assetsReceipt.getReturnTime().toString())){
+            throw new RuntimeException("短期领用需要填写归还时间");
+        }
+
         // 填充并保存AssetReceipt
         EntityUtils.setCreateAndUpdateInfo(assetsReceipt, true);
         assetsReceipt.setAssetName(asset.getAssetName());
