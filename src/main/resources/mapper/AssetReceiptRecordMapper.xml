@@ -11,12 +11,13 @@
         <result column="apply_time" property="applyTime" />
         <result column="status" property="status" />
         <result column="remark" property="remark" />
+        <result column="del_flag" property="delFlag"/>
     </resultMap>
 
     <!-- 基本列 -->
     <sql id="Base_Column_List">
         id, receipt_id, asset_id, recipient_id, approver_id,
-        approval_time, apply_time, status, remark
+        approval_time, apply_time, status, remark, del_flag
     </sql>
 
     <!-- 自定义分页查询示例 -->
@@ -33,12 +34,17 @@
         </where>
     </select>
     <select id="checkAssetId" resultType="java.lang.Integer">
-        select count(id) from asset_receipt_record where asset_id = ${assetId} and status = 0
+        select count(id) from asset_receipt_record where asset_id = #{assetId} and status = 0 and del_flag = 0
     </select>
     <select id="selectByReceiptId" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List" />
         FROM asset_receipt_record
         WHERE receipt_id = #{receiptId}
         and status = 0
+        and del_flag = 0
     </select>
+
+    <delete id="deleteByReceiptId" parameterType="Long">
+        update asset_receipt_record set del_flag = 1 where receipt_id = #{id}
+    </delete>
 </mapper> 

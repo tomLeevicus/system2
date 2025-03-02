@@ -8,5 +8,8 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface AssetReceiptRecordMapper extends BaseMapper<AssetReceiptRecord> {
     int checkAssetId(@Param("assetId") Long assetId);
+
     AssetReceiptRecord selectByReceiptId(@Param("receiptId") Long receiptId);
+
+    int deleteByReceiptId(@Param("id") Long id);
 }

@@ -11,4 +11,7 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface AssetReceiptMapper extends BaseMapper<AssetReceipt> {
     IPage<PersonalAssetDTO> selectPersonalAssets(Page<PersonalAssetDTO> page, @Param("userId") Long userId);
+
+    int updateReviewStatus(@Param("receiptId") Long receiptId,@Param("reviewStatus") int reviewStatus);
+
 }

@@ -42,4 +42,8 @@
     JOIN assets a ON ar.asset_id = a.id
     WHERE a.asset_user_id = #{userId}
   </select>
+
+  <update id="updateReviewStatus">
+      update asset_receipt set review_status = #{reviewStatus} where id = #{receiptId}
+    </update>
 </mapper>

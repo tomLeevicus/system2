@@ -1,6 +1,7 @@
 package com.project.system2.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.update.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -105,6 +106,7 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
         record.setApproverId(null); // 审批人ID需要后续审批流程设置
         record.setApplyTime(new Date());
         record.setStatus(0); // 初始状态
+        record.setDelFlag(0);
 
         // 保存领用记录
         int insert = assetReceiptRecordMapper.insert(record);
@@ -126,6 +128,10 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
     @Transactional
     public Result<Boolean> deleteById(Long id) {
         int rows = assetReceiptMapper.deleteById(id);
+        AssetReceiptRecord record = assetReceiptRecordMapper.selectByReceiptId(id);
+        if (0 == record.getStatus()){
+            assetReceiptRecordMapper.deleteByReceiptId(id);
+        }
         return Result.success(rows > 0);
     }
 
@@ -173,7 +179,13 @@ public class AssetsReceiptServiceImpl implements IAssetsReceiptService {
                     throw new RuntimeException("资产状态更新失败，可能已被他人领用");
                 }
             }
-            
+
+            //5. 修改领用记录表
+            int i = assetReceiptMapper.updateReviewStatus(record.getReceiptId(), query.getIsAgree() ? 1 : 2);
+            if (i == 0 ){
+                throw new RuntimeException("更新领用记录失败");
+            }
+
             return Result.success(true);
         } catch (Exception e) {
             log.error("审批操作异常：", e);
