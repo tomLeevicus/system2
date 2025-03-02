@@ -32,7 +32,7 @@
 
     <select id="selectMenuTreeAll" resultMap="SysMenuResult">
         select distinct m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.query, m.visible, m.status, ifnull(m.perms,'') as perms, m.is_frame, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time
-        from sys_menu m where m.menu_type in ('M', 'C') and m.status = 0
+        from sys_menu m where m.menu_type in ('M', 'C') and m.status = 1
         order by m.parent_id, m.order_num
     </select>
 
@@ -45,9 +45,9 @@
             INNER JOIN sys_role r ON ur.role_id = r.role_id
             WHERE rm.menu_id = m.menu_id
             AND ur.user_id = #{userId}
-            AND r.status = 0
+            AND r.status = 1
         )
-        AND m.status = 0
+        AND m.status = 1
         AND m.menu_type IN ('M', 'C')
         ORDER BY m.parent_id, m.order_num
     </select>
@@ -58,7 +58,7 @@
         left join sys_role_menu rm on m.menu_id = rm.menu_id
         left join sys_user_role ur on rm.role_id = ur.role_id
         left join sys_role r on r.role_id = ur.role_id
-        where m.status = '0' and r.status = '0' and ur.user_id = #{userId} and m.perms is not null
+        where m.status = '1' and r.status = '1' and ur.user_id = #{userId} and m.perms is not null
     </select>
 
     <select id="selectMenuListByRoleId" resultType="Long">
@@ -87,7 +87,7 @@
         from sys_menu m
         left join sys_role_menu rm on m.menu_id = rm.menu_id
         where rm.role_id = #{roleId}
-        and m.status = '0'
+        and m.status = '1'
         and m.perms is not null
         and m.perms != ''
     </select>

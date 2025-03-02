@@ -41,6 +41,8 @@ public class SysMenuServiceImpl implements ISysMenuService {
             menus = menuMapper.selectMenuTreeByUserId(userId);
             log.debug("普通用户 {} 查询到的原始菜单数据: {}", userId, menus);
         }
+
+
         return buildMenuTree(menus);
     }
 
