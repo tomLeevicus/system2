@@ -6,6 +6,7 @@ import com.project.system2.domain.entity.AssetRepair;
 import com.project.system2.domain.entity.AssetScrap;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.model.AssetRepairQuery;
+import com.project.system2.domain.dto.AssetScrapApprovalDTO;
 import com.project.system2.service.IAssetRepairService;
 import com.project.system2.service.IAssetScrapService;
 import com.project.system2.service.ISysUserService;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -83,13 +85,4 @@ public class AssetRepairController {
         return assetRepairService.deleteById(id);
     }
 
-    /**
-     * 资产报废
-     */
-    @PostMapping("/scrap")
-    @Operation(summary = "资产报废", description = "处理资产报废请求")
-    @Parameter(name = "assetScrap", description = "资产报废对象", required = true)
-    public Result<Boolean> scrap(@RequestBody AssetScrap assetScrap) {
-        return assetScrapService.scrapAsset(assetScrap);
-    }
 }

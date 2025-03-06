@@ -12,33 +12,41 @@ import java.util.Date;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("asset_scrap")
-@Schema(description = "资产报废主记录")
-public class AssetScrap extends BaseEntity {
+@TableName("asset_scrap_record")
+@Schema(description = "资产报废审批记录")
+public class AssetScrapRecord extends BaseEntity {
 
     @TableId(type = IdType.AUTO)
     @Schema(description = "主键ID", example = "1")
     private Long id;
 
+    @TableField("scrap_id")
+    @Schema(description = "报废记录编号", example = "SCR2023001")
+    private Long scrapId;
+
     @TableField("asset_id")
     @Schema(description = "资产ID", example = "1001")
     private Long assetId;
 
-    @TableField("asset_name")
-    @Schema(description = "资产名称", example = "联想笔记本电脑")
-    private String assetName;
+    @TableField("scrap_user_id")
+    @Schema(description = "报废申请人ID", example = "2001")
+    private Long scrapUserId;
 
-    @TableField("start_time")
-    @Schema(description = "启用时间", example = "2023-01-01")
-    private Date startTime;
+    @TableField("approver_id")
+    @Schema(description = "审批人ID", example = "2002")
+    private Long approverId;
+
+    @TableField("approval_comment")
+    @Schema(description = "审批意见", example = "设备已过报废年限")
+    private String approvalComment;
 
     @TableField("scrap_time")
-    @Schema(description = "报废时间", example = "2023-12-31")
+    @Schema(description = "操作时间", example = "2023-12-31 10:00:00")
     private Date scrapTime;
 
-    @TableField("scrap_reason")
-    @Schema(description = "报废原因", example = "设备老化无法正常使用")
-    private String scrapReason;
+    @TableField("is_agreed")
+    @Schema(description = "是否同意（0-拒绝，1-同意）", example = "1")
+    private Integer isAgreed;
 
     // 继承字段说明（BaseEntity中已包含）：
     // createBy 创建人

@@ -1,0 +1,4 @@
+<resultMap id="BaseResultMap" type="AssetScrapRecord">
+    <result column="asset_name" property="assetName" />
+    <!-- 其他字段映射... -->
+</resultMap> 
