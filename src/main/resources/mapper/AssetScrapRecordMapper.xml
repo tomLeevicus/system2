@@ -1,4 +1,84 @@
-<resultMap id="BaseResultMap" type="AssetScrapRecord">
-    <result column="asset_name" property="assetName" />
-    <!-- 其他字段映射... -->
-</resultMap> 
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.system2.mapper.AssetScrapRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.project.system2.domain.entity.AssetScrapRecord">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="scrap_id" property="scrapId" jdbcType="BIGINT"/>
+        <result column="asset_id" property="assetId" jdbcType="BIGINT"/>
+        <result column="scrap_user_id" property="scrapUserId" jdbcType="BIGINT"/>
+        <result column="approver_id" property="approverId" jdbcType="BIGINT"/>
+        <result column="is_agreed" property="isAgreed" jdbcType="INTEGER"/>
+        <result column="approval_comment" property="approvalComment" jdbcType="VARCHAR"/>
+        <result column="scrap_time" property="scrapTime" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, scrap_id, asset_id, scrap_user_id, approver_id, is_agreed, approval_comment, 
+        scrap_time, create_time, update_time
+    </sql>
+
+    <!-- 分页查询报废记录 -->
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM asset_scrap_record
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+    <!-- 根据资产ID查询报废记录 -->
+    <select id="selectByAssetId" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM asset_scrap_record
+        WHERE asset_id = #{assetId}
+    </select>
+
+    <!-- 根据报废申请ID查询报废记录 -->
+    <select id="selectByScrapId" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM asset_scrap_record
+        WHERE scrap_id = #{scrapId}
+    </select>
+
+    <!-- 查询待审批的报废记录 -->
+    <select id="selectPendingApproval" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM asset_scrap_record
+        WHERE approver_id IS NULL
+        AND is_agreed IS NULL
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 查询用户的报废记录 -->
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM asset_scrap_record
+        WHERE scrap_user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 统计用户的报废记录数量 -->
+    <select id="countByUserId" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM asset_scrap_record
+        WHERE scrap_user_id = #{userId}
+    </select>
+
+    <!-- 查询已审批的报废记录 -->
+    <select id="selectApproved" resultMap="BaseResultMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM asset_scrap_record
+        WHERE approver_id IS NOT NULL
+        AND is_agreed IS NOT NULL
+        ORDER BY scrap_time DESC
+    </select>
+</mapper> 

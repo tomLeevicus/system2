@@ -1,8 +1,8 @@
 package com.project.system2.domain.query;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
-import javax.validation.constraints.Min;
 
 @Data
 @Schema(description = "资产报废分页查询参数")
