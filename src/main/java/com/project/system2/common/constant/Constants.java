@@ -42,4 +42,64 @@ public class Constants {
      * https请求
      */
     public static final String HTTPS = "https://";
+
+    /**
+     * 启用状态
+     */
+    public static final Integer STATUS_NORMAL = 0;
+    
+    /**
+     * 停用状态
+     */
+    public static final Integer STATUS_DISABLE = 1;
+    
+    /**
+     * 删除标志 - 未删除
+     */
+    public static final Integer NOT_DELETED = 0;
+    
+    /**
+     * 删除标志 - 已删除
+     */
+    public static final Integer DELETED = 1;
+    
+    /**
+     * 菜单类型 - 目录
+     */
+    public static final String MENU_TYPE_DIR = "M";
+    
+    /**
+     * 菜单类型 - 菜单
+     */
+    public static final String MENU_TYPE_MENU = "C";
+    
+    /**
+     * 菜单类型 - 按钮
+     */
+    public static final String MENU_TYPE_BUTTON = "F";
+    
+    /**
+     * 是否 - 是
+     */
+    public static final Integer YES = 1;
+    
+    /**
+     * 是否 - 否
+     */
+    public static final Integer NO = 0;
+    
+    /**
+     * 审批状态 - 待审批
+     */
+    public static final Integer APPROVAL_PENDING = 0;
+    
+    /**
+     * 审批状态 - 已通过
+     */
+    public static final Integer APPROVAL_PASSED = 1;
+    
+    /**
+     * 审批状态 - 已拒绝
+     */
+    public static final Integer APPROVAL_REJECTED = 2;
 } 

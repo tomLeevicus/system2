@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @Data
 @Schema(description = "资产详细信息实体")
-public class Assets  extends BaseEntity {
+public class Assets extends BaseEntity {
     /**
     * uuid
     */

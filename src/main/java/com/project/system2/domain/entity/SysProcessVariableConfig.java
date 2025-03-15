@@ -76,16 +76,7 @@ public class SysProcessVariableConfig extends BaseEntity {
      */
     @Schema(description = "配置状态（0-启用，1-停用）", example = "0")
     private Integer status;
-    
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-    
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
+
 
     /*@Schema(description = "关联值（角色KEY/用户ID/部门ID）", example = "asset_approver")
     private String relatedValue;*/

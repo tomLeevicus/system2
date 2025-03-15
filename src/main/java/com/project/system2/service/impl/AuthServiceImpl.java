@@ -64,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
             throw new ServiceException("密码错误"); 
         }
         
-        if ("1".equals(user.getStatus())) {
+        if ("0".equals(user.getStatus())) {
             throw new ServiceException("用户已停用");
         }
         

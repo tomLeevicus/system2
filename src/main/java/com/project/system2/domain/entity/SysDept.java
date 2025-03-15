@@ -28,18 +28,23 @@ public class SysDept extends BaseEntity {
     @Schema(description = "部门名称", example = "研发部")
     private String deptName;
 
+    @Schema(description = "显示顺序", example = "1")
     private Integer orderNum;
 
+    @Schema(description = "负责人", example = "张三")
     private String leader;
 
+    @Schema(description = "联系电话", example = "13800138000")
     private String phone;
 
+    @Schema(description = "邮箱", example = "devdept@example.com")
     private String email;
 
     @Schema(description = "部门状态（0正常 1停用）", example = "0")
     private String status;
 
     @TableField(exist = false)
+    @Schema(description = "子部门列表")
     private List<SysDept> children = new ArrayList<>();
 
     public boolean isTop() {

@@ -142,7 +142,7 @@ public class SysRoleServiceImpl implements ISysRoleService {
             new LambdaQueryWrapper<SysRole>()
                 .like(StringUtils.isNotBlank(role.getRoleName()), SysRole::getRoleName, role.getRoleName())
                 .like(StringUtils.isNotBlank(role.getRoleKey()), SysRole::getRoleKey, role.getRoleKey())
-                .eq(role != null, SysRole::getStatus, role != null ? role.getStatus() : 0)
+                .eq(role != null, SysRole::getStatus, role != null ? role.getStatus() : 1)
                 .orderByAsc(SysRole::getRoleSort)
         );
         

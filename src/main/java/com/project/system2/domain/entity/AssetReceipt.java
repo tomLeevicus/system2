@@ -41,11 +41,13 @@ public class AssetReceipt extends BaseEntity {
      * 领用人Id
      */
     @TableField(value = "receiver_id")
+    @Schema(description = "领用人ID", example = "2001")
     private Long receiverId;
     /**
      * 领用人名称
      */
     @TableField(value = "receiver_name")
+    @Schema(description = "领用人名称", example = "张三")
     private String receiverName;
 
     /**
@@ -66,24 +68,28 @@ public class AssetReceipt extends BaseEntity {
      * 是否长期领用 1：是  0： 否
      */
     @TableField(value = "is_long_term_use")
+    @Schema(description = "是否长期领用（1-是, 0-否）", example = "0")
     private Integer isLongTermUse;
 
     /**
      * 归还日期
      */
     @TableField(value = "return_time")
+    @Schema(description = "归还时间", example = "2023-05-01")
     private Date returnTime;
 
     /**
      * 归还状态 0：未规还 1：已归还
      */
     @TableField(value = "return_status")
+    @Schema(description = "归还状态（0-未归还, 1-已归还）", example = "0")
     private Integer returnStatus;
 
     /**
      * 审核状态 0：未审核 1：审核通过 2：审核未通过
      */
     @TableField(value = "review_status")
+    @Schema(description = "审核状态（0-未审核, 1-通过, 2-拒绝）", example = "1")
     private Integer reviewStatus;
 /*
     *//**

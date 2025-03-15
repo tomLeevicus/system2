@@ -38,6 +38,7 @@ public class AssetRepair extends BaseEntity {
      * 维修原因
      */
     @TableField(value = "reason_for_repair")
+    @Schema(description = "维修原因", example = "屏幕损坏需要更换")
     private String reasonForRepair;
 
     /**

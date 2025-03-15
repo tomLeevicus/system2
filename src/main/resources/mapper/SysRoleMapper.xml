@@ -43,4 +43,28 @@
         </if>
         order by r.role_sort
     </select>
+
+    <!-- 在原有内容基础上新增分页查询 -->
+    <select id="selectRolePage" resultMap="BaseResultMap">
+        SELECT 
+            r.role_id,
+            r.role_name,
+            r.role_key,
+            r.role_sort,
+            r.status,
+            r.remark,
+            r.create_by,
+            r.create_time,
+            r.update_by,
+            r.update_time,
+            r.del_flag
+        FROM sys_role r
+        <where>
+            ${ew.sqlSegment}
+            <if test="ew.nonEmptyOfWhere">
+                AND r.del_flag = 0
+            </if>
+        </where>
+        ORDER BY r.role_sort ASC
+    </select>
 </mapper> 

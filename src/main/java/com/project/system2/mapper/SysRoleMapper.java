@@ -22,9 +22,5 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
      */
     List<SysRole> selectRolesByUserId(Long userId);
 
-    @Select("SELECT role_id, role_name, role_key, role_sort, status, remark, "
-        + "create_by, create_time, update_by, update_time, del_flag "
-        + "FROM sys_role "
-        + "${ew.customSqlSegment}") // 使用MyBatis-Plus的Wrapper条件
     IPage<SysRole> selectRolePage(IPage<SysRole> page, @Param(Constants.WRAPPER) Wrapper<SysRole> queryWrapper);
 } 
