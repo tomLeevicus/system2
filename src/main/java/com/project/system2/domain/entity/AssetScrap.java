@@ -16,7 +16,7 @@ import java.util.Date;
 @Schema(description = "资产报废主记录")
 public class AssetScrap extends BaseEntity {
 
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     @Schema(description = "主键ID", example = "1")
     private Long id;
 
