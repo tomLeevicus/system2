@@ -45,6 +45,7 @@ public class AssetRepairServiceImpl implements IAssetRepairService {
         assetRepair.setCreateTime(new Date());
         assetRepair.setCreateBy(SecurityUtils.getUserId());
         assetRepair.setDelFlag(0);
+        assetRepair.setStatus(0);
         int rows = assetRepairMapper.insert(assetRepair);
         return Result.success(rows > 0);
     }

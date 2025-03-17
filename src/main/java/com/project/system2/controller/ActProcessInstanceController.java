@@ -379,24 +379,36 @@ public class ActProcessInstanceController {
         }
     }
 
-    /*@GetMapping("/history")
-    @PreAuthorize("@ss.hasPermi('workflow:instance:history')")
-    @Operation(summary = "获取历史流程", description = "查询已完成的流程实例历史记录")
-    @Parameter(name = "pageNum", description = "页码", example = "1")
-    @Parameter(name = "pageSize", description = "每页数量", example = "10")
-    public Result<Page<ActProcessInstance>> getHistoryInstances(
-        @RequestParam(defaultValue = "1") Integer pageNum,
-        @RequestParam(defaultValue = "10") Integer pageSize) {
-        // ...
-    }
-
     @PostMapping("/comment")
     @PreAuthorize("@ss.hasPermi('workflow:instance:comment')")
     @Operation(summary = "添加流程评论", description = "为流程实例添加处理意见")
     @Parameter(name = "processInstanceId", description = "流程实例ID", example = "PI_1001", required = true)
     @Parameter(name = "comment", description = "评论内容", example = "同意申请", required = true)
     public Result<Void> addComment(@RequestParam String processInstanceId, @RequestParam String comment) {
-        // ...
+        try {
+            // 获取当前任务
+            Task task = taskService.createTaskQuery()
+                .processInstanceId(processInstanceId)
+                .singleResult();
+            
+            if (task == null) {
+                return Result.error("未找到相关任务");
+            }
+            
+            // 设置认证用户
+            Authentication.setAuthenticatedUserId(SecurityUtils.getUsername());
+            
+            // 添加评论
+            taskService.addComment(task.getId(), processInstanceId, comment);
+            
+            return Result.success();
+        } catch (Exception e) {
+            log.error("添加评论失败", e);
+            return Result.error("添加评论失败：" + e.getMessage());
+        } finally {
+            // 清除认证用户
+            Authentication.setAuthenticatedUserId(null);
+        }
     }
 
     @PostMapping("/attachment")
@@ -404,7 +416,38 @@ public class ActProcessInstanceController {
     @Operation(summary = "添加流程附件", description = "为流程实例上传相关附件")
     @Parameter(name = "processInstanceId", description = "流程实例ID", example = "PI_1001", required = true)
     @Parameter(name = "file", description = "附件文件", required = true)
-    public Result<Void> addAttachment(@RequestParam String processInstanceId, @RequestParam MultipartFile file) {
-        // ...
-    }*/
+    public Result<Void> addAttachment(
+            @RequestParam String processInstanceId,
+            @RequestParam String taskId,
+            @RequestParam MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                return Result.error("上传文件不能为空");
+            }
+            
+            // 设置认证用户
+            Authentication.setAuthenticatedUserId(SecurityUtils.getUsername());
+            
+            // 保存附件
+            String fileName = file.getOriginalFilename();
+            String attachmentType = "attachment";
+            
+            taskService.createAttachment(
+                attachmentType,
+                taskId,
+                processInstanceId,
+                fileName,
+                "流程附件: " + fileName,
+                file.getInputStream()
+            );
+            
+            return Result.success();
+        } catch (Exception e) {
+            log.error("添加附件失败", e);
+            return Result.error("添加附件失败：" + e.getMessage());
+        } finally {
+            // 清除认证用户
+            Authentication.setAuthenticatedUserId(null);
+        }
+    }
 }

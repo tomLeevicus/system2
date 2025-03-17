@@ -51,15 +51,15 @@ public class AssetRepair extends BaseEntity {
     /**
      * 维修费用（元）
      */
-    @TableField(value = "cost")
+    /*@TableField(value = "cost")
     @Schema(description = "维修费用（元）", example = "1500.00")
     private BigDecimal cost;
-
+*/
     /**
-     * 维修状态 0：待审核 1：审核完成 2：审核未通过
+     * 维修状态
      */
     @TableField(value = "`status`")
-    @Schema(description = "维修状态（0-进行中，1-已完成）", example = "1")
+    @Schema(description = "维修状态 0:未修理  1:维修完成", example = "1")
     private Integer status;
 
 

@@ -21,7 +21,7 @@ public class EntityUtils {
             userId = 1L;
         }
         Date now = new Date();
-
+        entity.setDelFlag(0);
         if (isAdd) {
             entity.setCreateBy(userId);
             entity.setCreateTime(now);
