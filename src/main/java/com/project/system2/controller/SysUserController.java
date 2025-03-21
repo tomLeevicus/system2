@@ -35,17 +35,6 @@ public class SysUserController {
     }
 
     /**
-     * 根据用户编号获取详细信息
-     */
-    @PreAuthorize("@ss.hasPermi('system:user:query')")
-    @GetMapping(value = "/getInfo/{userId}")
-    @Operation(summary = "获取用户详情", description = "根据用户ID获取详细信息")
-    @Parameter(name = "userId", description = "用户ID", example = "1", required = true)
-    public Result<SysUser> getInfo(@PathVariable Long userId) {
-        return Result.success(userService.getUserById(userId));
-    }
-
-    /**
      * 新增用户
      */
     @PreAuthorize("@ss.hasPermi('system:user:add')")
