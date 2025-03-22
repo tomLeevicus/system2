@@ -29,10 +29,14 @@ import org.apache.commons.lang3.StringUtils;
 @RequiredArgsConstructor
 public class AssetScrapServiceImpl implements IAssetScrapService {
 
-    private final AssetScrapRecordMapper scrapRecordMapper;
-    private final AssetsMapper assetsMapper;
+    @Autowired
+    private  AssetScrapRecordMapper scrapRecordMapper;
 
-    private final AssetScrapMapper assetScrapMapper;
+    @Autowired
+    private  AssetsMapper assetsMapper;
+
+    @Autowired
+    private  AssetScrapMapper assetScrapMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -102,6 +106,7 @@ public class AssetScrapServiceImpl implements IAssetScrapService {
               .le(StringUtils.isNotEmpty(query.getEndTime()), AssetScrap::getCreateTime, query.getEndTime())
               .orderByDesc(AssetScrap::getCreateTime);
 
-        return Result.success(assetScrapMapper.selectPage(page, wrapper));
+        Page<AssetScrap> resultPage = assetScrapMapper.selectPage(page, wrapper);
+        return Result.success(resultPage);
     }
 } 

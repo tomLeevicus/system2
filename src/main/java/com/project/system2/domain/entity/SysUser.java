@@ -44,7 +44,7 @@ public class SysUser extends BaseEntity {
     @Schema(description = "用户性别（0男 1女 2未知）", example = "0")
     private String gender;
 
-    @Schema(description = "头像地址", example = "/profile/avatar/2023/01/01/avatar.png")
+    @Schema(description = "用户头像地址", example = "http://minio-server/userimages/avatar/xxx.jpg")
     private String avatar;
 
     @TableField(select = false)
@@ -54,9 +54,9 @@ public class SysUser extends BaseEntity {
     @Schema(description = "帐号状态（0停用 1正常）", example = "1")
     private String status;
 
-    @TableField(fill = FieldFill.INSERT)
+    /*@TableField(fill = FieldFill.INSERT)
     @Schema(description = "最后登录IP", example = "127.0.0.1")
-    private String loginIp;
+    private String loginIp;*/
 
     @TableField(fill = FieldFill.INSERT)
     @Schema(description = "最后登录时间", example = "2023-06-01 10:00:00")

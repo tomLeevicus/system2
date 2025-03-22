@@ -173,3 +173,10 @@ security:
     refresh-time: 30  # 自动刷新阈值
     prefix: "Bearer "
     header: Authorization
+
+# MinIO配置
+minio:
+  endpoint: http://192.168.80.128:9000  # MinIO服务地址
+  accessKey: minioadmin             # 访问密钥
+  secretKey: minioadmin             # 密钥
+  bucketName: user-pic           # 默认存储桶
