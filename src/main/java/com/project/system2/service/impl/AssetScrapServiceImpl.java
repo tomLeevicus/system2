@@ -61,7 +61,7 @@ public class AssetScrapServiceImpl implements IAssetScrapService {
         assetScrapRecord.setAssetId(assetScrap.getAssetId());
         assetScrapRecord.setScrapId(assetScrap.getId());
         assetScrapRecord.setScrapUserId(userId);
-
+        EntityUtils.setCreateAndUpdateInfo(assetScrapRecord, true);
         int insert = scrapRecordMapper.insert(assetScrapRecord);
 
         return Result.success(insert > 0 );
@@ -71,7 +71,7 @@ public class AssetScrapServiceImpl implements IAssetScrapService {
     @Transactional
     public Result<Boolean> approveScrap(AssetScrapApprovalDTO dto) {
         // 1. 查询报废记录
-        AssetScrapRecord record = scrapRecordMapper.selectById(dto.getScrapRecordId());
+        AssetScrapRecord record = scrapRecordMapper.selectByScrapId(dto.getScrapRecordId());
         if (record == null) {
             return Result.error("报废记录不存在");
         }

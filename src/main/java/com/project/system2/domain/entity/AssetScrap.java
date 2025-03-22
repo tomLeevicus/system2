@@ -39,12 +39,4 @@ public class AssetScrap extends BaseEntity {
     @TableField("scrap_reason")
     @Schema(description = "报废原因", example = "设备老化无法正常使用")
     private String scrapReason;
-
-    // 继承字段说明（BaseEntity中已包含）：
-    // createBy 创建人
-    // createTime 创建时间
-    // updateBy 更新人
-    // updateTime 更新时间
-    // delFlag 删除标志
-    // remark 备注
 } 
