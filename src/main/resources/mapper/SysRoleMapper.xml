@@ -44,9 +44,9 @@
         order by r.role_sort
     </select>
 
-    <!-- 在原有内容基础上新增分页查询 -->
-    <select id="selectRolePage" resultMap="BaseResultMap">
-        SELECT 
+    <!-- 修复查询角色分页 -->
+    <select id="selectRolePage" resultType="com.project.system2.domain.entity.SysRole">
+        SELECT
             r.role_id,
             r.role_name,
             r.role_key,
@@ -60,11 +60,8 @@
             r.del_flag
         FROM sys_role r
         <where>
-            ${ew.sqlSegment}
-            <if test="ew.nonEmptyOfWhere">
-                AND r.del_flag = 0
-            </if>
+            AND r.del_flag = 0
+            ${ew.customSqlSegment}
         </where>
-        ORDER BY r.role_sort ASC
     </select>
 </mapper> 

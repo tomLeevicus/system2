@@ -137,14 +137,16 @@ public class SysRoleServiceImpl implements ISysRoleService {
 
     @Override
     public IPage<SysRole> selectRolePage(IPage<SysRole> page, SysRole role) {
-        // 先查询角色基本信息
-        IPage<SysRole> rolePage = roleMapper.selectRolePage(page,
-            new LambdaQueryWrapper<SysRole>()
-                .like(StringUtils.isNotBlank(role.getRoleName()), SysRole::getRoleName, role.getRoleName())
-                .like(StringUtils.isNotBlank(role.getRoleKey()), SysRole::getRoleKey, role.getRoleKey())
-                .eq(role != null, SysRole::getStatus, role != null ? role.getStatus() : 1)
-                .orderByAsc(SysRole::getRoleSort)
-        );
+        // 构建查询条件
+        LambdaQueryWrapper<SysRole> wrapper = new LambdaQueryWrapper<SysRole>()
+            .eq(SysRole::getDelFlag, 0)  // 添加删除标志条件
+            .like(StringUtils.isNotBlank(role.getRoleName()), SysRole::getRoleName, role.getRoleName())
+            .like(StringUtils.isNotBlank(role.getRoleKey()), SysRole::getRoleKey, role.getRoleKey())
+            .eq(role != null && role.getStatus() != null, SysRole::getStatus, role.getStatus())
+            .orderByAsc(SysRole::getRoleSort);
+        
+        // 直接使用 MyBatis-Plus 的 selectPage 方法
+        IPage<SysRole> rolePage = roleMapper.selectPage(page, wrapper);
         
         // 为每个角色查询关联的菜单ID
         rolePage.getRecords().forEach(r -> {

@@ -40,7 +40,7 @@ public class SysRole extends BaseEntity {
     private Integer roleSort;
 
     @Schema(description = "是否启用（1-正常，0-停用）", example = "0", defaultValue = "0")
-    private int status;
+    private Integer status;
 
     private String remark;
 
@@ -54,6 +54,7 @@ public class SysRole extends BaseEntity {
     private Long[] deptIds;
 
     /** 角色菜单权限 */
+    @TableField(exist = false)
     private Set<String> permissions;
 
     public boolean isAdmin() {
