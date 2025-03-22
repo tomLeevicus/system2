@@ -62,13 +62,7 @@ public class AssetRepairServiceImpl implements IAssetRepairService {
     @Override
     @Transactional
     public Result<Boolean> deleteById(Long id) {
-        // 软删除
-        AssetRepair assetRepair = new AssetRepair();
-        assetRepair.setId(id);
-        assetRepair.setDelFlag(1);
-        assetRepair.setUpdateTime(new Date());
-        assetRepair.setUpdateBy(SecurityUtils.getUserId());
-        int rows = assetRepairMapper.updateById(assetRepair);
-        return Result.success(rows > 0);
+
+        return assetRepairMapper.deleteById(id) == 1? Result.success():Result.error();
     }
 }

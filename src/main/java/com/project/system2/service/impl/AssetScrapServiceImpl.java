@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.databind.JavaType;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.common.core.exception.ServiceException;
 import com.project.system2.common.core.utils.EntityUtils;
@@ -19,6 +20,7 @@ import com.project.system2.mapper.AssetScrapRecordMapper;
 import com.project.system2.mapper.AssetsMapper;
 import com.project.system2.service.IAssetScrapService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +54,8 @@ public class AssetScrapServiceImpl implements IAssetScrapService {
         }
         assetScrap.setAssetName(assets.getAssetName());
         assetScrap.setStartTime(assets.getAssetUseTime());
+//         未审核
+        assetScrap.setStatus(0);
         EntityUtils.setCreateAndUpdateInfo(assetScrap, true);
         int rows = assetScrapMapper.insert(assetScrap);
         if (rows == 0) {
@@ -76,7 +80,7 @@ public class AssetScrapServiceImpl implements IAssetScrapService {
             return Result.error("报废记录不存在");
         }
         
-        // 2. 更新审批信息
+        // 2. 更新审批记录信息
         record.setApproverId(SecurityUtils.getUserId());
         record.setApprovalComment(dto.getApprovalComment());
         record.setIsAgreed(dto.getIsAgreed());
@@ -91,6 +95,9 @@ public class AssetScrapServiceImpl implements IAssetScrapService {
             }
             asset.setAssetUseStatus(3); // 3-已报废
             assetsMapper.updateById(asset);
+            assetScrapMapper.update(new UpdateWrapper<AssetScrap>().set(true,"status",1, "javaType=int").eq("id",dto.getScrapRecordId()));
+        }else {
+            assetScrapMapper.update(new UpdateWrapper<AssetScrap>().set(true,"status",2, "javaType=int").eq("id",dto.getScrapRecordId()));
         }
         
         return Result.success(true);

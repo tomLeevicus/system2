@@ -39,4 +39,8 @@ public class AssetScrap extends BaseEntity {
     @TableField("scrap_reason")
     @Schema(description = "报废原因", example = "设备老化无法正常使用")
     private String scrapReason;
+
+    @TableField("status")
+    @Schema(description = "状态", example = "状态 0待审核 1审核通过 2审核不通过")
+    private Integer status;
 } 
