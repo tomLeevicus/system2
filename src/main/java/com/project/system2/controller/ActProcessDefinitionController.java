@@ -7,7 +7,9 @@ import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.ProcessDefinitionConfig;
 import com.project.system2.domain.entity.ActProcessDefinition;
+import com.project.system2.domain.entity.ActProcessInstance;
 import com.project.system2.service.IActProcessDefinitionService;
+import com.project.system2.service.IActProcessInstanceService;
 import org.flowable.common.engine.api.FlowableException;
 import org.flowable.common.engine.api.FlowableObjectNotFoundException;
 import org.flowable.engine.RepositoryService;
@@ -62,6 +64,9 @@ public class ActProcessDefinitionController {
 
     @Autowired
     private RepositoryService repositoryService;
+
+    @Autowired
+    private IActProcessInstanceService processInstanceService;
 
     @Autowired
     private Map<String, ProcessDefinitionConfig> processConfigs;
@@ -403,6 +408,26 @@ public class ActProcessDefinitionController {
         } catch (FlowableException e) {
             log.error("获取已部署流程列表失败", e);
             return Result.error("获取流程列表失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取用户待办任务（迁移自ActProcessDefinitionController）
+     */
+    @GetMapping("/tasks/todo")
+    @PreAuthorize("@ss.hasPermi('workflow:task:todo')")
+    @Operation(summary = "获取待办任务", description = "查询当前用户的待办任务列表")
+    public Result<Page<ActProcessInstance>> getTodoTasks(
+            @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
+            @Parameter(description = "每页数量") @RequestParam(defaultValue = "10") Integer pageSize) {
+        try {
+            String userId = SecurityUtils.getUserId().toString();
+            Page<ActProcessInstance> page = new Page<>(pageNum, pageSize);
+            page = processInstanceService.getTodoInstances(page, userId);
+            return Result.success(page);
+        } catch (Exception e) {
+            log.error("获取用户待办任务失败", e);
+            return Result.error("获取用户待办任务失败: " + e.getMessage());
         }
     }
 } 
