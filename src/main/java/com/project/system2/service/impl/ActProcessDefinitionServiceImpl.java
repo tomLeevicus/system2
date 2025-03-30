@@ -91,40 +91,90 @@ public class ActProcessDefinitionServiceImpl implements IActProcessDefinitionSer
     @Transactional(rollbackFor = Exception.class)
     public String deployProcessDefinition(String name, String category, MultipartFile file) {
         try {
-            // 部署流程
+            // 执行流程部署
             Deployment deployment = repositoryService.createDeployment()
                 .name(name)
                 .category(category)
                 .addInputStream(file.getOriginalFilename(), file.getInputStream())
                 .deploy();
             
-            // 获取流程定义
-            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+            // 获取部署后的流程定义
+            ProcessDefinition definition = repositoryService.createProcessDefinitionQuery()
                 .deploymentId(deployment.getId())
                 .singleResult();
             
-            // 保存到流程定义表
-            ActProcessDefinition actProcessDefinition = new ActProcessDefinition();
-            actProcessDefinition.setId(processDefinition.getId());
-            actProcessDefinition.setName(processDefinition.getName());
-            actProcessDefinition.setProcessKey(processDefinition.getKey());
-            actProcessDefinition.setCategory(processDefinition.getCategory());
-            actProcessDefinition.setVersion(processDefinition.getVersion());
-            actProcessDefinition.setDeploymentId(deployment.getId());
-            actProcessDefinition.setResourceName(processDefinition.getResourceName());
-            actProcessDefinition.setDiagramResourceName(processDefinition.getDiagramResourceName());
-            actProcessDefinition.setSuspended(processDefinition.isSuspended());
+            if (definition != null) {
+                // 保存流程定义信息到自定义表
+                ActProcessDefinition actProcessDefinition = new ActProcessDefinition();
+                actProcessDefinition.setId(definition.getId());
+                actProcessDefinition.setName(definition.getName());
+                actProcessDefinition.setProcessKey(definition.getKey());
+                actProcessDefinition.setCategory(definition.getCategory());
+                actProcessDefinition.setVersion(definition.getVersion());
+                actProcessDefinition.setDeploymentId(definition.getDeploymentId());
+                actProcessDefinition.setResourceName(definition.getResourceName());
+                actProcessDefinition.setDiagramResourceName(getProcessDiagramResourceName(definition));
+                actProcessDefinition.setDescription(definition.getDescription());
+                actProcessDefinition.setSuspended(definition.isSuspended());
+                
+                // 设置创建者信息
+                actProcessDefinition.setCreateBy(SecurityUtils.getUserId());
+                actProcessDefinition.setCreateTime(new Date());
+                
+                // 保存到数据库
+                saveProcessDefinition(actProcessDefinition);
+            }
             
-            processDefinitionMapper.insert(actProcessDefinition);
-
-            // 同步流程配置
-            syncProcessConfig(processDefinition.getKey());
+            log.info("流程部署成功 - 部署ID: {}, 流程定义ID: {}", 
+                    deployment.getId(), definition != null ? definition.getId() : "未知");
             
             return deployment.getId();
-        } catch (IOException e) {
-            log.error("部署流程失败", e);
-            throw new RuntimeException("部署流程失败: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("部署流程定义失败", e);
+            throw new RuntimeException("部署流程定义失败: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * 获取流程图资源名称
+     */
+    private String getProcessDiagramResourceName(ProcessDefinition processDefinition) {
+        String resourceName = processDefinition.getResourceName();
+        
+        // 尝试查找对应的图形资源
+        if (resourceName != null && resourceName.endsWith(".bpmn20.xml")) {
+            String baseName = resourceName.substring(0, resourceName.length() - 11);
+            List<String> resourceNames = repositoryService.getDeploymentResourceNames(
+                    processDefinition.getDeploymentId());
+            
+            for (String name : resourceNames) {
+                if (name.startsWith(baseName) && (name.endsWith(".png") || name.endsWith(".svg"))) {
+                    return name;
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    @Override
+    public boolean saveProcessDefinition(ActProcessDefinition processDefinition) {
+        ActProcessDefinition existing = processDefinitionMapper.selectById(processDefinition.getId());
+        
+        if (existing != null) {
+            processDefinition.setUpdateBy(SecurityUtils.getUserId());
+            processDefinition.setUpdateTime(new Date());
+            return processDefinitionMapper.updateById(processDefinition) > 0;
+        } else {
+            return processDefinitionMapper.insert(processDefinition) > 0;
+        }
+    }
+
+    @Override
+    public ActProcessDefinition getByDeploymentId(String deploymentId) {
+        LambdaQueryWrapper<ActProcessDefinition> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ActProcessDefinition::getDeploymentId, deploymentId);
+        return processDefinitionMapper.selectOne(wrapper);
     }
 
     @Override

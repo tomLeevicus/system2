@@ -220,6 +220,7 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
                     instance.setAssignee(task.getAssignee());
                     instance.setTaskEndTime(task.getCreateTime());
                     instance.setTaskStatus(task.isSuspended() ? "suspended" : "active");
+                    instance.setProcessDefinitionKey(task.getTaskDefinitionKey());
 
                     ActProcessInstance customInfo = processInstanceMapper.selectById(task.getProcessInstanceId());
                     if(customInfo != null){

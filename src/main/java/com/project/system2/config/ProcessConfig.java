@@ -35,8 +35,8 @@ public class ProcessConfig {
     private SysProcessVariableConfigMapper variableConfigMapper;
     
     @Bean
-    public Map<String, ProcessDefinitionConfig> processConfigs() {
-        Map<String, ProcessDefinitionConfig> configs = new HashMap<>();
+    public Map<String, SysProcessConfig> processConfigs() {
+        Map<String, SysProcessConfig> configs = new HashMap<>();
         
         try {
             // 查询所有有效的流程配置
@@ -54,63 +54,17 @@ public class ProcessConfig {
                         .orderByAsc(SysProcessVariableConfig::getSortOrder)
                 );
                 
-                // 转换为ProcessVariableConfig
-                List<ProcessVariableConfig> variables = variableConfigs.stream()
-                    .map(this::convertToProcessVariableConfig)
-                    .collect(Collectors.toList());
+                // 在这里我们可以扩展SysProcessConfig的功能，如果需要的话
+                // 例如，可以将变量配置等信息存储在适当的地方
                 
-                // 创建流程配置
-                ProcessDefinitionConfig definitionConfig = ProcessDefinitionConfig.builder()
-                    .name(processConfig.getName())
-                    .key(processConfig.getProcessKey())
-                    .category(processConfig.getCategory())
-                    .roleKey(processConfig.getRoleKey())
-                    .variableConfigs(variables)
-                    .build();
-                
-                // 设置必填参数列表
-                List<String> requiredVariables = variables.stream()
-                    .filter(ProcessVariableConfig::isRequired)
-                    .map(ProcessVariableConfig::getName)
-                    .collect(Collectors.toList());
-                definitionConfig.setRequiredVariables(requiredVariables);
-                
-                configs.put(processConfig.getProcessKey(), definitionConfig);
+                // 直接使用SysProcessConfig，无需转换为ProcessDefinitionConfig
+                configs.put(processConfig.getProcessKey(), processConfig);
             }
         } catch (Exception e) {
             log.error("加载流程配置失败", e);
         }
         
         return configs;
-    }
-    
-    private ProcessVariableConfig convertToProcessVariableConfig(SysProcessVariableConfig config) {
-        List<VariableValidator> validators = new ArrayList<>();
-        
-        // 解析验证规则
-        if (StringUtils.isNotEmpty(config.getValidator())) {
-            try {
-                JSONObject validatorJson = JSON.parseObject(config.getValidator());
-                if (validatorJson.containsKey("min")) {
-                    validators.add(new MinValueValidator(validatorJson.getDouble("min")));
-                }
-                if (validatorJson.containsKey("max")) {
-                    validators.add(new MaxValueValidator(validatorJson.getDouble("max")));
-                }
-                // 添加其他验证规则...
-            } catch (Exception e) {
-                log.error("解析验证规则失败: {}", config.getValidator(), e);
-            }
-        }
-        
-        return ProcessVariableConfig.builder()
-            .name(config.getName())
-            .label(config.getLabel())
-            .type(config.getVariableType().toString())
-            .required(config.getRequired())
-            .defaultValue(config.getDefaultValue())
-            .validators(validators)
-            .build();
     }
     
     /**

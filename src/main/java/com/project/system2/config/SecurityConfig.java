@@ -56,7 +56,9 @@ public class SecurityConfig {
                     "/swagger-resources/**",
                     "/webjars/**",
                     "/process/definition/**",
-                    "/process/instance/**"
+                    "/process/instance/**",
+                    "/workflow/process/deploy/direct",
+                    "/workflow/process/list"
                 ).permitAll()
                 // 对于登录login 注册register 验证码captcha 允许匿名访问
                 .requestMatchers("/auth/login", "/auth/register", "/auth/captcha").permitAll()

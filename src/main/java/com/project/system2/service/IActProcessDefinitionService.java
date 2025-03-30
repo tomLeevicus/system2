@@ -124,4 +124,18 @@ public interface IActProcessDefinitionService {
      * 插入流程定义
      */
     void insertProcessDefinition(ActProcessDefinition processDefinition);
+
+    /**
+     * 保存流程定义信息
+     * @param processDefinition 流程定义对象
+     * @return 是否保存成功
+     */
+    boolean saveProcessDefinition(ActProcessDefinition processDefinition);
+
+    /**
+     * 根据部署ID获取流程定义
+     * @param deploymentId 部署ID
+     * @return 流程定义对象
+     */
+    ActProcessDefinition getByDeploymentId(String deploymentId);
 } 

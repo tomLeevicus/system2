@@ -1,9 +1,16 @@
 package com.project.system2.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.project.system2.domain.converter.ProcessVariableConverter;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,26 +25,63 @@ import java.util.Map;
  */
 @Data
 @Builder
-public class ProcessDefinitionConfig {
-    /**
-     * 流程名称
-     */
-    private String name;
+@NoArgsConstructor
+@AllArgsConstructor
+@TableName("sys_process_definition_config")
+public class ProcessDefinitionConfig implements Serializable {
     
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * ID
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
+
     /**
      * 流程标识
      */
-    private String key;
+    private String processKey;
+
+    /**
+     * 流程名称
+     */
+    private String processName;
+
+    /**
+     * 审批角色标识
+     */
+    private String roleKey;
+    
+    /**
+     * 表单路径
+     */
+    private String formPath;
+    
+    /**
+     * 状态（0正常 1停用）
+     */
+    private String status;
+    
+    /**
+     * 备注
+     */
+    private String remark;
+    
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+    
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
     
     /**
      * 流程分类
      */
     private String category;
-    
-    /**
-     * 审批角色标识
-     */
-    private String roleKey;
     
     /**
      * 必填参数列表
@@ -53,6 +97,24 @@ public class ProcessDefinitionConfig {
      * 参数转换器
      */
     private ProcessVariableConverter variableConverter;
+    
+    /**
+     * 用于临时构造特定配置的构造函数
+     */
+    public ProcessDefinitionConfig(String roleKey) {
+        this.roleKey = roleKey;
+    }
+    
+    /**
+     * 用于创建流程配置的便捷构造函数
+     */
+    public ProcessDefinitionConfig(String processKey, String processName, String roleKey, String formPath) {
+        this.processKey = processKey;
+        this.processName = processName;
+        this.roleKey = roleKey;
+        this.formPath = formPath;
+        this.status = "0"; // 默认正常
+    }
     
     /**
      * 验证流程变量
