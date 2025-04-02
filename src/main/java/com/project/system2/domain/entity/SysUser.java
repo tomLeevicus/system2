@@ -98,8 +98,6 @@ public class SysUser extends BaseEntity {
         return roleKeys.contains("admin");
     }
 
-    @Schema(description = "判断是否为管理员")
-    public static boolean isAdmin(Long userId) {
-        return userId != null && 1L == userId;
-    }
+    @TableField(exist = false)
+    private List<String> roleNames;
 }

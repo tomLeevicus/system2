@@ -2,6 +2,7 @@ package com.project.system2.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.domain.entity.ActProcessInstance;
+import com.project.system2.domain.entity.ActTaskInfo;
 import com.project.system2.domain.query.ProcessInstanceQuery;
 import org.flowable.bpmn.model.FlowElement;
 
@@ -41,9 +42,13 @@ public interface IActProcessInstanceService {
     Map<String, Object> getProcessInstanceVariables(String processInstanceId);
     
     /**
-     * 获取用户待办流程实例
+     * 获取用户待办任务
+     * 
+     * @param page 分页参数
+     * @param userId 用户ID
+     * @return 待办任务分页列表
      */
-    Page<ActProcessInstance> getTodoInstances(Page<ActProcessInstance> page, String userId);
+    Page<ActTaskInfo> getTodoInstances(Page<ActTaskInfo> page, String userId);
     
     /**
      * 完成用户任务（需要指定处理人）

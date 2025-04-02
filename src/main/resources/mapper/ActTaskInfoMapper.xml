@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.system2.mapper.ActTaskInfoMapper">
+
+    <!-- 获取用户待办任务 -->
+    <select id="selectUserTasks" resultType="com.project.system2.domain.entity.ActTaskInfo">
+        SELECT
+            t.*,
+            i.name as process_instance_name,
+            d.name as process_definition_name,
+            u.user_name as assignee_name
+        FROM
+            act_task_info t
+        LEFT JOIN
+            act_process_instance i ON t.process_instance_id = i.id
+        LEFT JOIN
+            act_process_definition d ON t.process_definition_id = d.id
+        LEFT JOIN
+            sys_user u ON t.assignee = u.user_id
+        WHERE
+            (t.assignee = #{userId} OR t.owner = #{userId})
+            AND t.status = 'pending'
+            <if test="taskName != null and taskName != ''">
+                AND t.name LIKE CONCAT('%', #{taskName}, '%')
+            </if>
+            <if test="processInstanceId != null and processInstanceId != ''">
+                AND t.process_instance_id = #{processInstanceId}
+            </if>
+        ORDER BY
+            t.create_time DESC
+    </select>
+
+    <!-- 通过流程实例ID获取任务 -->
+    <select id="selectTasksByProcessInstanceId" resultType="com.project.system2.domain.entity.ActTaskInfo">
+        SELECT
+            t.*,
+            i.name as process_instance_name,
+            d.name as process_definition_name,
+            u.user_name as assignee_name
+        FROM
+            act_task_info t
+        LEFT JOIN
+            act_process_instance i ON t.process_instance_id = i.id
+        LEFT JOIN
+            act_process_definition d ON t.process_definition_id = d.id
+        LEFT JOIN
+            sys_user u ON t.assignee = u.user_id
+        WHERE
+            t.process_instance_id = #{processInstanceId}
+        ORDER BY
+            t.create_time DESC
+    </select>
+</mapper> 

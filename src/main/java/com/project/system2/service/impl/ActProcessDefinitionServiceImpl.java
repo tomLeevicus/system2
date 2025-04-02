@@ -1,7 +1,10 @@
 package com.project.system2.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.project.system2.common.core.utils.EntityUtils;
 import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.entity.ActProcessDefinition;
@@ -116,11 +119,8 @@ public class ActProcessDefinitionServiceImpl implements IActProcessDefinitionSer
                 actProcessDefinition.setDiagramResourceName(getProcessDiagramResourceName(definition));
                 actProcessDefinition.setDescription(definition.getDescription());
                 actProcessDefinition.setSuspended(definition.isSuspended());
-                
-                // 设置创建者信息
-                actProcessDefinition.setCreateBy(SecurityUtils.getUserId());
-                actProcessDefinition.setCreateTime(new Date());
-                
+                actProcessDefinition.setDeployTime(new Date());
+
                 // 保存到数据库
                 saveProcessDefinition(actProcessDefinition);
             }
@@ -159,13 +159,19 @@ public class ActProcessDefinitionServiceImpl implements IActProcessDefinitionSer
 
     @Override
     public boolean saveProcessDefinition(ActProcessDefinition processDefinition) {
-        ActProcessDefinition existing = processDefinitionMapper.selectById(processDefinition.getId());
+//        根据key查询是否重复数据
+        ActProcessDefinition existing = processDefinitionMapper.selectOne(new QueryWrapper<ActProcessDefinition>()
+                .eq("process_key", processDefinition.getProcessKey()));
         
         if (existing != null) {
-            processDefinition.setUpdateBy(SecurityUtils.getUserId());
-            processDefinition.setUpdateTime(new Date());
-            return processDefinitionMapper.updateById(processDefinition) > 0;
+            EntityUtils.setCreateAndUpdateInfo(processDefinition,false);
+//            根据key更新数据
+            int update = processDefinitionMapper.update(processDefinition,
+                    new QueryWrapper<ActProcessDefinition>()
+                        .eq("process_key", processDefinition.getProcessKey()));
+            return update > 0?true:false;
         } else {
+            EntityUtils.setCreateAndUpdateInfo(processDefinition,true);
             return processDefinitionMapper.insert(processDefinition) > 0;
         }
     }
@@ -290,15 +296,15 @@ public class ActProcessDefinitionServiceImpl implements IActProcessDefinitionSer
     @Transactional(rollbackFor = Exception.class)
     public void updateProcessDefinitionState(String processDefinitionId, boolean suspended) {
         if (suspended) {
-            repositoryService.activateProcessDefinitionById(processDefinitionId, true, null);
-        } else {
             repositoryService.suspendProcessDefinitionById(processDefinitionId, true, null);
+        } else {
+            repositoryService.activateProcessDefinitionById(processDefinitionId, true, null);
         }
         
         // 更新数据库状态
         ActProcessDefinition processDefinition = new ActProcessDefinition();
         processDefinition.setId(processDefinitionId);
-        processDefinition.setSuspended(!suspended);
+        processDefinition.setSuspended(suspended);
         processDefinitionMapper.updateById(processDefinition);
     }
 

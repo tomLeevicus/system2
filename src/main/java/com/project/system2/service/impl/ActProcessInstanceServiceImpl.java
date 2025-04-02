@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.domain.entity.ActProcessInstance;
+import com.project.system2.domain.entity.ActTaskInfo;
+import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.query.ProcessInstanceQuery;
 import com.project.system2.mapper.ActProcessInstanceMapper;
+import com.project.system2.mapper.SysUserMapper;
 import com.project.system2.service.IActProcessInstanceService;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.*;
@@ -41,6 +44,9 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
 
     @Autowired
     private RepositoryService repositoryService;
+
+    @Autowired
+    private SysUserMapper sysUserMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -205,7 +211,7 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
     }
 
     @Override
-    public Page<ActProcessInstance> getTodoInstances(Page<ActProcessInstance> page, String userId) {
+    public Page<ActTaskInfo> getTodoInstances(Page<ActTaskInfo> page, String userId) {
         return page.setRecords(
             taskService.createTaskQuery()
                 .taskAssignee(userId)
@@ -213,24 +219,46 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
                 .list()
                 .stream()
                 .map(task -> {
-                    ActProcessInstance instance = new ActProcessInstance();
-                    instance.setId(task.getProcessInstanceId());
-                    instance.setTaskId(task.getId());
-                    instance.setTaskName(task.getName());
-                    instance.setAssignee(task.getAssignee());
-                    instance.setTaskEndTime(task.getCreateTime());
-                    instance.setTaskStatus(task.isSuspended() ? "suspended" : "active");
-                    instance.setProcessDefinitionKey(task.getTaskDefinitionKey());
-
-                    ActProcessInstance customInfo = processInstanceMapper.selectById(task.getProcessInstanceId());
-                    if(customInfo != null){
-                        instance.setBusinessKey(customInfo.getBusinessKey());
-                        instance.setStartTime(customInfo.getStartTime());
-                        instance.setStatus(customInfo.getStatus());
+                    ActTaskInfo taskInfo = new ActTaskInfo();
+                    // 基本任务信息
+                    taskInfo.setId(task.getId());
+                    taskInfo.setName(task.getName());
+                    taskInfo.setDescription(task.getDescription());
+                    taskInfo.setPriority(task.getPriority());
+                    taskInfo.setOwner(task.getOwner());
+                    taskInfo.setAssignee(task.getAssignee());
+                    taskInfo.setProcessInstanceId(task.getProcessInstanceId());
+                    taskInfo.setExecutionId(task.getExecutionId());
+                    taskInfo.setTaskDefinitionKey(task.getTaskDefinitionKey());
+                    taskInfo.setCreateTime(task.getCreateTime());
+                    taskInfo.setDueDate(task.getDueDate());
+                    taskInfo.setClaimTime(task.getClaimTime());
+                    taskInfo.setCategory(task.getCategory());
+                    taskInfo.setTenantId(task.getTenantId());
+                    taskInfo.setFormKey(task.getFormKey());
+                    taskInfo.setProcessDefinitionId(task.getProcessDefinitionId());
+                    taskInfo.setSuspended(task.isSuspended());
+                    
+                    // 附加信息
+                    taskInfo.setStatus(task.isSuspended() ? "suspended" : "pending");
+                    
+                    // 从流程实例获取更多信息
+                    ActProcessInstance processInstance = processInstanceMapper.selectById(task.getProcessInstanceId());
+                    if (processInstance != null) {
+                        taskInfo.setBusinessKey(processInstance.getBusinessKey());
+                        taskInfo.setProcessInstanceName(processInstance.getName());
+                        
+                        // 查询用户名
+                        if (taskInfo.getAssignee() != null) {
+                            SysUser assigneeUser = sysUserMapper.selectById(taskInfo.getAssignee());
+                            if (assigneeUser != null) {
+                                taskInfo.setAssigneeName(assigneeUser.getNickname());
+                            }
+                        }
                     }
-                    return instance;
+                    
+                    return taskInfo;
                 })
-                .sorted((a, b) -> b.getTaskEndTime().compareTo(a.getTaskEndTime()))
                 .collect(Collectors.toList())
         );
     }

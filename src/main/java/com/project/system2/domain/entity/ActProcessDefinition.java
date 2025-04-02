@@ -74,4 +74,11 @@ public class ActProcessDefinition extends BaseEntity {
      */
     @Schema(description = "是否挂起", example = "false")
     private Boolean suspended;
+
+    @Schema(description = "部署时间", example = "false")
+    private Date deployTime;
+
+    public String getProcessKey() {
+        return processKey;
+    }
 } 

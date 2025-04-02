@@ -8,6 +8,7 @@ import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.ProcessDefinitionConfig;
 import com.project.system2.domain.entity.ActProcessDefinition;
 import com.project.system2.domain.entity.ActProcessInstance;
+import com.project.system2.domain.entity.ActTaskInfo;
 import com.project.system2.service.IActProcessDefinitionService;
 import com.project.system2.service.IActProcessInstanceService;
 import org.flowable.common.engine.api.FlowableException;
@@ -105,8 +106,7 @@ public class ActProcessDefinitionController {
     /**
      * 直接部署流程定义（不保存文件）
      */
-    // 暂时注释掉权限检查，排除权限问题
-    // @PreAuthorize("@ss.hasPermi('workflow:process:deploy')")
+    @PreAuthorize("@ss.hasPermi('workflow:process:deploy')")
     @PostMapping("/deploy/direct")
     @Operation(summary = "直接部署流程", description = "上传并部署BPMN流程定义文件")
     public Result<String> deployDirect(@RequestParam("file") MultipartFile file,
@@ -423,17 +423,55 @@ public class ActProcessDefinitionController {
     @GetMapping("/tasks/todo")
     @PreAuthorize("@ss.hasPermi('workflow:task:todo')")
     @Operation(summary = "获取待办任务", description = "查询当前用户的待办任务列表")
-    public Result<Page<ActProcessInstance>> getTodoTasks(
+    public Result<Page<ActTaskInfo>> getTodoTasks(
             @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
             @Parameter(description = "每页数量") @RequestParam(defaultValue = "10") Integer pageSize) {
         try {
             String userId = SecurityUtils.getUserId().toString();
-            Page<ActProcessInstance> page = new Page<>(pageNum, pageSize);
+            Page<ActTaskInfo> page = new Page<>(pageNum, pageSize);
             page = processInstanceService.getTodoInstances(page, userId);
             return Result.success(page);
         } catch (Exception e) {
             log.error("获取用户待办任务失败", e);
             return Result.error("获取用户待办任务失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 通过流程定义ID直接获取流程图
+     */
+    @GetMapping("/deployGetImage/{id}")
+    @Operation(summary = "获取流程定义图像", description = "通过流程定义ID直接获取流程图，无需流程实例")
+    @Parameter(name = "processDefinitionId", description = "流程定义ID", example = "asset-approval:1", required = true)
+    public Result<byte[]> getProcessDefinitionImage(@PathVariable String id) {
+        try {
+            log.info("开始获取流程定义图像 - 流程定义ID: {}", id);
+            
+            // 查询流程定义
+            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                .processDefinitionId(id)
+                .singleResult();
+                
+            if (processDefinition == null) {
+                log.error("流程定义不存在: {}", id);
+                return Result.error("流程定义不存在");
+            }
+            
+            log.info("流程定义信息 - deploymentId: {}, resourceName: {}, diagramResourceName: {}", 
+                processDefinition.getDeploymentId(),
+                processDefinition.getResourceName(),
+                processDefinition.getDiagramResourceName());
+                
+            byte[] image = processDefinitionService.getProcessDefinitionImage(id);
+            if (image == null) {
+                return Result.error("未找到流程图");
+            }
+            
+            log.info("成功获取流程图，大小: {} bytes", image.length);
+            return Result.success(image);
+        } catch (Exception e) {
+            log.error("获取流程图失败", e);
+            return Result.error("获取流程图失败：" + e.getMessage());
         }
     }
 } 

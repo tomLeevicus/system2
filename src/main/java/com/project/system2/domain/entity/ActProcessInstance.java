@@ -63,12 +63,8 @@ public class ActProcessInstance extends BaseEntity {
     
     @TableField(exist = false)
     private String taskStatus; // 任务状态（active/suspended）
-    
-    public String getTaskStatus() {
-        return taskStatus;
-    }
-    
-    public void setTaskStatus(String taskStatus) {
-        this.taskStatus = taskStatus;
-    }
+
+//    任务创建时间
+    private Date taskCreatecTime;
+
 } 

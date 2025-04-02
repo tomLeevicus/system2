@@ -2,9 +2,13 @@ package com.project.system2.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.common.core.domain.Result;
+import com.project.system2.common.core.utils.EntityUtils;
 import com.project.system2.common.core.utils.SecurityUtils;
+import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.entity.ActProcessInstance;
+import com.project.system2.domain.entity.ActTaskInfo;
 import com.project.system2.service.IActProcessInstanceService;
+import com.project.system2.service.IActTaskInfoService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.FlowElement;
@@ -21,7 +25,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.util.StringUtils;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.bpmn.model.UserTask;
 import com.project.system2.domain.query.ProcessInstanceQuery;
@@ -31,6 +34,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.Date;
+import java.util.ArrayList;
 
 @Slf4j
 @RestController
@@ -46,6 +50,9 @@ public class ActProcessInstanceController {
     
     @Autowired
     private RuntimeService runtimeService;
+
+    @Autowired
+    private IActTaskInfoService taskInfoService;
 
     /**
      * 启动流程实例（迁移自ActProcessDefinitionController）
@@ -64,6 +71,10 @@ public class ActProcessInstanceController {
             Map<String, Object> variables = (Map<String, Object>) requestBody.get("variables");
             variables.put("userId", userId);
 
+            if (StringUtils.isEmpty((String) requestBody.get("businessKey"))){
+                return Result.error("请输入业务标识符");
+            }
+
             // 启动流程实例
             ProcessInstance instance = runtimeService.startProcessInstanceByKey(
                 processKey, 
@@ -80,9 +91,13 @@ public class ActProcessInstanceController {
             customInstance.setProcessDefinitionId(instance.getProcessDefinitionId());
             customInstance.setProcessDefinitionKey(processKey);
             customInstance.setStartUserId(SecurityUtils.getUserId());
+            customInstance.setStartUserName(SecurityUtils.getUsername());
+            customInstance.setBusinessKey(processKey);
+            customInstance.setName(instance.getName());
             customInstance.setStatus("running");
             customInstance.setProcessDefinitionVersion(instance.getProcessDefinitionVersion());
             customInstance.setStartTime(instance.getStartTime());
+            EntityUtils.setCreateAndUpdateInfo(customInstance,true);
             processInstanceService.syncInstance(customInstance);
 
             Map<String, Object> result = new HashMap<>();
@@ -187,8 +202,6 @@ public class ActProcessInstanceController {
         }
     }
 
-
-
     /**
      * 分页查询流程实例
      */
@@ -280,11 +293,11 @@ public class ActProcessInstanceController {
     @PreAuthorize("@ss.hasPermi('workflow:instance:todo')")
     @GetMapping("/todo")
     @Operation(summary = "获取待办流程", description = "查询当前用户的待办流程实例")
-    public Result<Page<ActProcessInstance>> getTodoInstances(
+    public Result<Page<ActTaskInfo>> getTodoInstances(
         @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
         @Parameter(description = "每页数量") @RequestParam(defaultValue = "10") Integer pageSize) {
         
-        Page<ActProcessInstance> page = new Page<>(pageNum, pageSize);
+        Page<ActTaskInfo> page = new Page<>(pageNum, pageSize);
         return Result.success(processInstanceService.getTodoInstances(page, SecurityUtils.getUserId().toString()));
     }
 
@@ -432,4 +445,41 @@ public class ActProcessInstanceController {
             Authentication.setAuthenticatedUserId(null);
         }
     }
+
+    /**
+     * 获取任务详情
+     *
+     * @param taskId 任务ID
+     * @return 任务详情
+     */
+    @GetMapping("/task/{taskId}/detail")
+    @PreAuthorize("@ss.hasPermi('workflow:task:query')")
+    @Operation(summary = "获取任务详情", description = "通过任务ID获取任务详细信息")
+    @Parameter(name = "taskId", description = "任务ID", required = true)
+    public Result<ActTaskInfo> getTaskDetail(@PathVariable String taskId) {
+        try {
+            log.info("获取任务详情 - 任务ID: {}", taskId);
+            
+            ActTaskInfo taskInfo = taskInfoService.getTaskDetail(taskId);
+            if (taskInfo == null) {
+                log.warn("任务不存在: {}", taskId);
+                return Result.error("任务不存在");
+            }
+            
+            // 补充流程实例信息
+            if (StringUtils.isNotEmpty(taskInfo.getProcessInstanceId())) {
+                ActProcessInstance processInstance = processInstanceService.getProcessInstanceById(taskInfo.getProcessInstanceId());
+                if (processInstance != null) {
+                    taskInfo.setProcessInstanceName(processInstance.getName());
+                    taskInfo.setBusinessKey(processInstance.getBusinessKey());
+                }
+            }
+            
+            return Result.success(taskInfo);
+        } catch (Exception e) {
+            log.error("获取任务详情失败", e);
+            return Result.error("获取任务详情失败：" + e.getMessage());
+        }
+    }
+
 }
