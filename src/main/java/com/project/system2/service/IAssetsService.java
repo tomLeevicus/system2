@@ -1,11 +1,9 @@
 package com.project.system2.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.project.system2.domain.entity.Assets;
 import com.project.system2.common.core.domain.Result;
-import com.project.system2.domain.model.AssetsQuery;
-import java.util.List;
+import com.project.system2.domain.query.AssetsQuery;
 
 /**
  * 资产管理 服务层

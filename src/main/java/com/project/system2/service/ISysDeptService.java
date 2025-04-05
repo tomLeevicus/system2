@@ -1,11 +1,12 @@
 package com.project.system2.service;
 
 import com.project.system2.domain.entity.SysDept;
+import com.project.system2.domain.query.SysDeptQuery;
 import java.util.List;
 
 public interface ISysDeptService {
     
-    List<SysDept> selectDeptList(SysDept dept);
+    List<SysDept> selectDeptList(SysDeptQuery query);
     
     List<SysDept> buildDeptTree(List<SysDept> depts);
     

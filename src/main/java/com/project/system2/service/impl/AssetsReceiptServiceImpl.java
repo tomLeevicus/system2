@@ -1,16 +1,14 @@
 package com.project.system2.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.conditions.update.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.domain.entity.AssetReceipt;
 import com.project.system2.domain.entity.Assets;
-import com.project.system2.domain.model.AssetReceiptQuery;
 import com.project.system2.domain.dto.PersonalAssetDTO;
+import com.project.system2.domain.query.AssetReceiptQuery;
 import com.project.system2.domain.query.AssetReceiptRecordQuery;
 import com.project.system2.mapper.AssetReceiptMapper;
 import com.project.system2.mapper.AssetReceiptRecordMapper;

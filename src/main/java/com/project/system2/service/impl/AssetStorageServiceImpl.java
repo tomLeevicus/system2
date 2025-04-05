@@ -3,9 +3,10 @@ package com.project.system2.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetStorage;
-import com.project.system2.domain.model.AssetStorageQuery;
+import com.project.system2.domain.query.AssetStorageQuery;
 import com.project.system2.mapper.AssetStorageMapper;
 import com.project.system2.service.IAssetStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.project.system2.common.core.utils.EntityUtils;
 
 @Service
-public class AssetStorageServiceImpl implements IAssetStorageService {
+public class AssetStorageServiceImpl extends ServiceImpl<AssetStorageMapper,AssetStorage> implements IAssetStorageService {
 
     @Autowired
     private AssetStorageMapper assetStorageMapper;
@@ -25,18 +26,43 @@ public class AssetStorageServiceImpl implements IAssetStorageService {
         Page<AssetStorage> page = new Page<>(query.getPageNum(), query.getPageSize());
         
         LambdaQueryWrapper<AssetStorage> wrapper = new LambdaQueryWrapper<>();
-        wrapper.like(StringUtils.isNotBlank(query.getAssetName()),
-                    AssetStorage::getAssetName, query.getAssetName())
-               .like(StringUtils.isNotBlank(query.getOperatorName()),
-                    AssetStorage::getOperatorName, query.getOperatorName())
-               .ge(query.getWarehouseTimeStart() != null,
-                    AssetStorage::getWarehouseTime, query.getWarehouseTimeStart())
-               .le(query.getWarehouseTimeEnd() != null,
-                    AssetStorage::getWarehouseTime, query.getWarehouseTimeEnd())
-               .orderByDesc(AssetStorage::getCreateTime);
         
-        IPage<AssetStorage> pageResult = assetStorageMapper.selectPage(page, wrapper);
-        return Result.success(pageResult);
+        // 添加资产ID查询条件
+        if (query.getAssetId() != null) {
+            wrapper.eq(AssetStorage::getAssetId, query.getAssetId());
+        }
+        
+        // 添加资产名称查询条件
+        if (StringUtils.isNotBlank(query.getAssetName())) {
+            wrapper.like(AssetStorage::getAssetName, query.getAssetName());
+        }
+        
+        // 添加操作者名称查询条件
+        if (StringUtils.isNotBlank(query.getOperatorName())) {
+            wrapper.like(AssetStorage::getOperatorName, query.getOperatorName());
+        }
+        
+        // 添加入库时间范围查询条件
+        if (query.getWarehouseTimeStart() != null && query.getWarehouseTimeEnd() != null) {
+            wrapper.between(AssetStorage::getWarehouseTime, 
+                           query.getWarehouseTimeStart(), 
+                           query.getWarehouseTimeEnd());
+        }
+        
+        // 添加排序条件
+        if (StringUtils.isNotBlank(query.getOrderByColumn())) {
+            // 这里需要根据实际的排序字段做映射处理
+            // 简单示例:
+            if ("warehouseTime".equals(query.getOrderByColumn())) {
+                wrapper.orderBy(true, "asc".equalsIgnoreCase(query.getIsAsc()), 
+                              AssetStorage::getWarehouseTime);
+            }
+        } else {
+            // 默认排序
+            wrapper.orderByDesc(AssetStorage::getWarehouseTime);
+        }
+        
+        return Result.success(page(page, wrapper));
     }
 
     @Override

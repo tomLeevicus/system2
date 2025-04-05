@@ -3,6 +3,7 @@ package com.project.system2.service;
 import java.util.List;
 import java.util.Set;
 import com.project.system2.domain.entity.SysMenu;
+import com.project.system2.domain.query.SysMenuQuery;
 
 public interface ISysMenuService {
     
@@ -83,10 +84,10 @@ public interface ISysMenuService {
     /**
      * 查询菜单列表
      *
-     * @param menu 菜单信息
+     * @param query 查询条件
      * @return 菜单列表
      */
-    List<SysMenu> selectMenuList(SysMenu menu);
+    List<SysMenu> selectMenuList(SysMenuQuery query);
 
     /**
      * 根据角色ID查询菜单树信息

@@ -2,6 +2,7 @@ package com.project.system2.controller;
 
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.SysMenu;
+import com.project.system2.domain.query.SysMenuQuery;
 import com.project.system2.service.ISysMenuService;
 import com.project.system2.common.core.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +32,9 @@ public class SysMenuController {
     @GetMapping("/list")
     @Operation(summary = "获取菜单列表", description = "根据条件查询菜单列表")
     @Parameter(name = "menuName", description = "菜单名称", example = "系统管理")
-    public Result<List<SysMenu>> list(SysMenu menu) {
-        List<SysMenu> menus = menuService.selectMenuList(menu);
-        return Result.success(menus);
+    public Result<List<SysMenu>> list(SysMenuQuery query) {
+        List<SysMenu> menuTree = menuService.selectMenuList(query);
+        return Result.success(menuTree);
     }
 
     /**
@@ -51,9 +52,9 @@ public class SysMenuController {
      * 获取菜单下拉树列表
      */
     @GetMapping("/treeselect")
-    public Result<List<SysMenu>> treeselect(SysMenu menu) {
-        List<SysMenu> menus = menuService.selectMenuList(menu);
-        return Result.success(menuService.buildMenuTree(menus));
+    public Result<List<SysMenu>> treeselect(SysMenuQuery query) {
+        List<SysMenu> menus = menuService.selectMenuList(query);
+        return Result.success(menus);
     }
 
     /**
@@ -61,10 +62,10 @@ public class SysMenuController {
      */
     @GetMapping(value = "/roleMenuTreeselect/{roleId}")
     public Result<Map<String, Object>> roleMenuTreeselect(@PathVariable Long roleId) {
-        List<SysMenu> menus = menuService.selectMenuList(new SysMenu());
+        List<SysMenu> menus = menuService.selectMenuList(new SysMenuQuery());
         Map<String, Object> result = new HashMap<>();
         result.put("checkedKeys", menuService.selectMenuListByRoleId(roleId));
-        result.put("menus", menuService.buildMenuTree(menus));
+        result.put("menus", menus);
         return Result.success(result);
     }
 

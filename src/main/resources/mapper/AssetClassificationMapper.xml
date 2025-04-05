@@ -42,4 +42,11 @@
     ORDER BY 
         ac.sort_num ASC
   </select>
+
+  <select id="countAssetsByClassificationId" resultType="java.lang.Long">
+    SELECT COUNT(*) 
+    FROM assets 
+    WHERE asset_classification_id = #{classificationId}
+    AND del_flag = 0
+  </select>
 </mapper>

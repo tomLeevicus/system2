@@ -3,10 +3,14 @@ package com.project.system2.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.entity.SysRole;
+import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.entity.SysUserRole;
+import com.project.system2.domain.query.SysRoleQuery;
 import com.project.system2.mapper.SysRoleMapper;
+import com.project.system2.mapper.SysUserMapper;
 import com.project.system2.mapper.SysUserRoleMapper;
 import com.project.system2.mapper.SysRoleMenuMapper;
 import com.project.system2.service.ISysRoleService;
@@ -18,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class SysRoleServiceImpl implements ISysRoleService {
+public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> implements ISysRoleService {
 
     @Autowired
     private SysRoleMapper roleMapper;
@@ -136,25 +140,39 @@ public class SysRoleServiceImpl implements ISysRoleService {
     }
 
     @Override
-    public IPage<SysRole> selectRolePage(IPage<SysRole> page, SysRole role) {
-        // 构建查询条件
-        LambdaQueryWrapper<SysRole> wrapper = new LambdaQueryWrapper<SysRole>()
-            .eq(SysRole::getDelFlag, 0)  // 添加删除标志条件
-            .like(StringUtils.isNotBlank(role.getRoleName()), SysRole::getRoleName, role.getRoleName())
-            .like(StringUtils.isNotBlank(role.getRoleKey()), SysRole::getRoleKey, role.getRoleKey())
-            .eq(role != null && role.getStatus() != null, SysRole::getStatus, role.getStatus())
-            .orderByAsc(SysRole::getRoleSort);
+    public Page<SysRole> selectRolePage(Page<SysRole> page, SysRoleQuery query) {
+        LambdaQueryWrapper<SysRole> lqw = new LambdaQueryWrapper<>();
         
-        // 直接使用 MyBatis-Plus 的 selectPage 方法
-        IPage<SysRole> rolePage = roleMapper.selectPage(page, wrapper);
+        if (query != null) {
+            // 根据角色名称模糊查询
+            if (StringUtils.isNotBlank(query.getRoleName())) {
+                lqw.like(SysRole::getRoleName, query.getRoleName());
+            }
+            
+            // 根据角色权限字符串模糊查询
+            if (StringUtils.isNotBlank(query.getRoleKey())) {
+                lqw.like(SysRole::getRoleKey, query.getRoleKey());
+            }
+            
+            // 根据角色状态查询
+            if (StringUtils.isNotBlank(query.getStatus())) {
+                lqw.eq(SysRole::getStatus, query.getStatus());
+            }
+            
+            // 添加排序条件
+            if (StringUtils.isNotBlank(query.getOrderByColumn())) {
+                // 这里需要根据实际的排序字段做映射处理
+                // 简单示例:
+                if ("createTime".equals(query.getOrderByColumn())) {
+                    lqw.orderBy(true, "asc".equalsIgnoreCase(query.getIsAsc()), SysRole::getCreateTime);
+                }
+            } else {
+                // 默认排序
+                lqw.orderByDesc(SysRole::getCreateTime);
+            }
+        }
         
-        // 为每个角色查询关联的菜单ID
-        rolePage.getRecords().forEach(r -> {
-            List<Long> menuIds = roleMenuMapper.selectMenuIdsByRoleId(r.getRoleId());
-            r.setMenuIds(menuIds);
-        });
-        
-        return rolePage;
+        return page(page,lqw);
     }
 
     @Override

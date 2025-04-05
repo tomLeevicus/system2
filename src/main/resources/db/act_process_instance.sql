@@ -1,17 +1,17 @@
 /*
  Navicat Premium Dump SQL
 
- Source Server         : local
+ Source Server         : mac
  Source Server Type    : MySQL
- Source Server Version : 80041 (8.0.41-0ubuntu0.24.04.1)
- Source Host           : 192.168.80.128:3306
+ Source Server Version : 80400 (8.4.0)
+ Source Host           : 192.168.2.4:3306
  Source Schema         : system2
 
  Target Server Type    : MySQL
- Target Server Version : 80041 (8.0.41-0ubuntu0.24.04.1)
+ Target Server Version : 80400 (8.4.0)
  File Encoding         : 65001
 
- Date: 08/02/2025 22:45:13
+ Date: 04/04/2025 12:52:13
 */
 
 SET NAMES utf8mb4;
@@ -44,6 +44,8 @@ CREATE TABLE `act_process_instance`  (
   `update_time` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `del_flag` tinyint(1) NOT NULL DEFAULT 0 COMMENT '删除标志（0未删 1已删）',
   `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `start_user_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `task_create_time` datetime NULL DEFAULT NULL COMMENT '任务创建时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_process_def`(`process_definition_key` ASC, `process_definition_version` ASC) USING BTREE,
   INDEX `idx_business_key`(`business_key` ASC) USING BTREE,

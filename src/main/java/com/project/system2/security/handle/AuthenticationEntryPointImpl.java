@@ -51,9 +51,8 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
                 msg = "Token无效或已失效";
             }
         }
-
-        log.warn("认证失败: [{}]{} - {}", code, msg, e.getMessage());
-        response.setStatus(HttpStatus.UNAUTHORIZED);
+        response.setStatus(HttpStatus.UNAUTHORIZED);  // Main status code
+        response.setHeader("X-Error-Code", String.valueOf(code));
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         

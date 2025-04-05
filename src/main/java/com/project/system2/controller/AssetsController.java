@@ -3,7 +3,7 @@ package com.project.system2.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.Assets;
-import com.project.system2.domain.model.AssetsQuery;
+import com.project.system2.domain.query.AssetsQuery;
 import com.project.system2.service.IAssetsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +26,6 @@ public class AssetsController {
      */
     @PostMapping("/query")
     @Operation(summary = "资产分页查询", description = "根据条件分页查询资产信息")
-    @Parameter(name = "pageNum", description = "页码", example = "1")
-    @Parameter(name = "pageSize", description = "每页数量", example = "10")
     public Result<IPage<Assets>> query(@RequestBody AssetsQuery query) {
         return assetsService.queryAssetsList(query);
     }

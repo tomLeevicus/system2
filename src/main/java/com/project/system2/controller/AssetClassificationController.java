@@ -3,7 +3,7 @@ package com.project.system2.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetClassification;
-import com.project.system2.domain.model.AssetClassificationQuery;
+import com.project.system2.domain.query.AssetClassificationQuery;
 import com.project.system2.service.IAssetClassificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,15 +26,12 @@ public class AssetClassificationController {
      */
     @GetMapping("/list")
     @Operation(summary = "分页查询分类", description = "根据条件分页查询资产分类")
-    @Parameter(name = "pageNum", description = "页码", example = "1")
-    @Parameter(name = "pageSize", description = "每页数量", example = "10")
     public Result<IPage<AssetClassification>> list(AssetClassificationQuery query) {
         return assetClassificationService.queryList(query);
     }
 
     /**
      * 获取列表无分页
-     * @return
      */
     @GetMapping("/queryList")
     @Operation(summary = "获取全部分类", description = "获取所有资产分类列表（无分页）")

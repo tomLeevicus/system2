@@ -2,6 +2,7 @@ package com.project.system2.controller;
 
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.SysDept;
+import com.project.system2.domain.query.SysDeptQuery;
 import com.project.system2.service.ISysDeptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,8 +29,8 @@ public class SysDeptController {
     @GetMapping("/list")
     @Operation(summary = "获取部门列表", description = "根据条件查询部门列表")
     @Parameter(name = "deptName", description = "部门名称", example = "研发部")
-    public Result<List<SysDept>> list(SysDept dept) {
-        List<SysDept> depts = deptService.selectDeptList(dept);
+    public Result<List<SysDept>> list(SysDeptQuery query) {
+        List<SysDept> depts = deptService.selectDeptList(query);
         return Result.success(depts);
     }
 
@@ -37,8 +38,8 @@ public class SysDeptController {
      * 获取部门树形结构
      */
     @GetMapping("/treeselect")
-    public Result<List<SysDept>> treeselect(SysDept dept) {
-        List<SysDept> depts = deptService.selectDeptList(dept);
+    public Result<List<SysDept>> treeselect(SysDeptQuery query) {
+        List<SysDept> depts = deptService.selectDeptList(query);
         return Result.success(deptService.buildDeptTree(depts));
     }
 

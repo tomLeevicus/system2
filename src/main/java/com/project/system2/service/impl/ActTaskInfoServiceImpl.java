@@ -206,6 +206,43 @@ public class ActTaskInfoServiceImpl extends ServiceImpl<ActTaskInfoMapper, ActTa
 
     @Override
     public ActTaskInfo getTaskDetail(String taskId) {
-        return baseMapper.selectById(taskId);
+        // 从 Flowable 的 TaskService 中查询任务
+        Task task = taskService.createTaskQuery()
+                .taskId(taskId)
+                .singleResult();
+
+        if (task == null) {
+            throw new RuntimeException("任务不存在: " + taskId);
+        }
+
+        // 将 Flowable 的 Task 对象转换为 ActTaskInfo
+        ActTaskInfo taskInfo = new ActTaskInfo();
+        taskInfo.setId(task.getId());
+        taskInfo.setName(task.getName());
+        taskInfo.setDescription(task.getDescription());
+        taskInfo.setPriority(task.getPriority());
+        taskInfo.setOwner(task.getOwner());
+        taskInfo.setAssignee(task.getAssignee());
+        taskInfo.setProcessInstanceId(task.getProcessInstanceId());
+        taskInfo.setExecutionId(task.getExecutionId());
+        taskInfo.setTaskDefinitionKey(task.getTaskDefinitionKey());
+        taskInfo.setCreateTime(task.getCreateTime());
+        taskInfo.setDueDate(task.getDueDate());
+        taskInfo.setClaimTime(task.getClaimTime());
+        taskInfo.setCategory(task.getCategory());
+        taskInfo.setTenantId(task.getTenantId());
+        taskInfo.setFormKey(task.getFormKey());
+        taskInfo.setProcessDefinitionId(task.getProcessDefinitionId());
+        taskInfo.setStatus(task.isSuspended() ? "suspended" : "pending");
+        taskInfo.setSuspended(task.isSuspended());
+
+        // 获取业务键（Business Key）
+        String businessKey = runtimeService.createProcessInstanceQuery()
+                .processInstanceId(task.getProcessInstanceId())
+                .singleResult()
+                .getBusinessKey();
+        taskInfo.setBusinessKey(businessKey);
+
+        return taskInfo;
     }
 } 

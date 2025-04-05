@@ -1,6 +1,5 @@
 package com.project.system2.security.filter;
 
-import com.project.system2.common.core.domain.model.LoginUser;
 import com.project.system2.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,7 +13,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -47,6 +46,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                 if (tokenService.validateToken(token)) {
                     UsernamePasswordAuthenticationToken authentication = tokenService.getAuthentication(token);
                     if (authentication != null) {
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 }
@@ -64,6 +64,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
+        // 排除认证相关路径
         return path.startsWith("/auth/");
     }
 } 

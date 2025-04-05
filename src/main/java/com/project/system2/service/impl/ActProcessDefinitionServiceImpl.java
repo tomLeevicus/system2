@@ -50,6 +50,7 @@ import org.flowable.bpmn.model.FlowElement;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.bpmn.model.ExtensionAttribute;
+import java.util.HashMap;
 
 @Slf4j
 @Service
@@ -658,20 +659,21 @@ public class ActProcessDefinitionServiceImpl implements IActProcessDefinitionSer
     @Override
     public List<Map<String, Object>> getApproversByRoleKey(String roleKey) {
         try {
-            // 获取当前用户ID
-            Long currentUserId = SecurityUtils.getUserId();  // 确保这里返回 Long 类型
-            
-            // 根据角色标识查询用户列表（排除当前用户）
-            List<Map<String, Object>> approvers = userMapper.selectUsersByRoleKey(roleKey, currentUserId);
-            
-            if (approvers == null || approvers.isEmpty()) {
-                log.warn("未找到角色[{}]对应的审批人", roleKey);
-                return new ArrayList<>();
-            }
-            
-            return approvers;
+            Long userId = SecurityUtils.getUserId();
+            // 根据角色Key查询用户列表
+            List<Map<String, Object>> users = userMapper.selectUsersByRoleKey(roleKey, userId);
+
+            // 转换为前端需要的格式
+            return users.stream()
+                .map(user -> {
+                    Map<String, Object> approver = new HashMap<>();
+                    approver.put("id", user.get("id"));  // 从Map中获取userId
+                    approver.put("username", user.get("username"));  // 从Map中获取userName
+                    return approver;
+                })
+                .collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("获取审批人列表失败", e);
+            log.error("根据角色获取审批人列表失败", e);
             throw new RuntimeException("获取审批人列表失败: " + e.getMessage());
         }
     }

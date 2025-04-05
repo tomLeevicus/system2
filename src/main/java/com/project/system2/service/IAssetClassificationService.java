@@ -3,7 +3,7 @@ package com.project.system2.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetClassification;
-import com.project.system2.domain.model.AssetClassificationQuery;
+import com.project.system2.domain.query.AssetClassificationQuery;
 
 import java.util.List;
 

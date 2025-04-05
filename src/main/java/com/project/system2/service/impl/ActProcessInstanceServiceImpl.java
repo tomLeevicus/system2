@@ -16,6 +16,7 @@ import org.flowable.bpmn.model.*;
 import org.flowable.common.engine.api.FlowableException;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
+import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -460,10 +461,48 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
 
     @Override
     public boolean hasNextGateway(String taskId) {
-        Task task = validateTask(taskId);
-        List<FlowElement> nextElements = getNextFlowElements(task);
-        return nextElements.stream()
-            .anyMatch(e -> e instanceof ExclusiveGateway);
+        // 查询当前任务
+        Task task = taskService.createTaskQuery()
+                .taskId(taskId)
+                .singleResult();
+
+        if (task == null) {
+            throw new RuntimeException("任务不存在: " + taskId);
+        }
+
+        // 获取当前任务的流程定义
+         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                .processDefinitionId(task.getProcessDefinitionId())
+                .singleResult();
+
+        if (processDefinition == null) {
+            throw new RuntimeException("流程定义不存在: " + task.getProcessDefinitionId());
+        }
+
+        // 获取当前任务的流程模型
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinition.getId());
+
+        // 获取当前任务的流程节点
+        FlowElement currentElement = bpmnModel.getFlowElement(task.getTaskDefinitionKey());
+
+        if (currentElement == null) {
+            throw new RuntimeException("流程节点不存在: " + task.getTaskDefinitionKey());
+        }
+
+        // 检查当前节点是否有下一个网关
+        if (currentElement instanceof UserTask) {
+            UserTask userTask = (UserTask) currentElement;
+            List<SequenceFlow> outgoingFlows = userTask.getOutgoingFlows();
+
+            for (SequenceFlow flow : outgoingFlows) {
+                FlowElement targetElement = bpmnModel.getFlowElement(flow.getTargetRef());
+                if (targetElement instanceof Gateway) {
+                    return true; // 存在下一个网关
+                }
+            }
+        }
+
+        return false; // 不存在下一个网关
     }
 
     @Override

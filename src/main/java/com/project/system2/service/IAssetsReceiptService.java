@@ -3,8 +3,8 @@ package com.project.system2.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetReceipt;
-import com.project.system2.domain.model.AssetReceiptQuery;
 import com.project.system2.domain.dto.PersonalAssetDTO;
+import com.project.system2.domain.query.AssetReceiptQuery;
 import com.project.system2.domain.query.AssetReceiptRecordQuery;
 
 public interface IAssetsReceiptService {

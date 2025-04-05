@@ -1,13 +1,16 @@
 package com.project.system2.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.domain.entity.AssetRepair;
-import com.project.system2.domain.model.AssetRepairQuery;
+import com.project.system2.domain.query.AssetRepairQuery;
 import com.project.system2.mapper.AssetRepairMapper;
 import com.project.system2.service.IAssetRepairService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +23,7 @@ import java.util.Date;
  * @Description: TODO
  */
 @Service
-public class AssetRepairServiceImpl implements IAssetRepairService {
+public class AssetRepairServiceImpl extends ServiceImpl<AssetRepairMapper, AssetRepair> implements IAssetRepairService {
     @Autowired
     private AssetRepairMapper assetRepairMapper;
 
@@ -28,8 +31,49 @@ public class AssetRepairServiceImpl implements IAssetRepairService {
     public Result<IPage<AssetRepair>> queryList(AssetRepairQuery query) {
         Page<AssetRepair> page = new Page<>(query.getPageNum(), query.getPageSize());
         
-        IPage<AssetRepair> pageResult = assetRepairMapper.selectRepairPage(page, query);
+        LambdaQueryWrapper<AssetRepair> wrapper = new LambdaQueryWrapper<>();
         
+        // 添加资产ID查询条件
+        if (query.getAssetId() != null) {
+            wrapper.eq(AssetRepair::getAssetId, query.getAssetId());
+        }
+        
+        // 添加资产名称查询条件
+        if (StringUtils.isNotBlank(query.getAssetName())) {
+            wrapper.like(AssetRepair::getAssetName, query.getAssetName());
+        }
+        
+        // 添加维修原因查询条件
+        if (StringUtils.isNotBlank(query.getReasonForRepair())) {
+            wrapper.like(AssetRepair::getReasonForRepair, query.getReasonForRepair());
+        }
+        
+        // 添加维修日期范围查询条件
+        if (query.getRepairDateStart() != null && query.getRepairDateEnd() != null) {
+            wrapper.between(AssetRepair::getRepairDate, 
+                           query.getRepairDateStart(), 
+                           query.getRepairDateEnd());
+        }
+        
+        // 添加维修状态查询条件
+        if (query.getStatus() != null) {
+            wrapper.eq(AssetRepair::getStatus, query.getStatus());
+        }
+        
+        // 添加排序条件
+        if (StringUtils.isNotBlank(query.getOrderByColumn())) {
+            // 这里需要根据实际的排序字段做映射处理
+            // 简单示例:
+            if ("repairDate".equals(query.getOrderByColumn())) {
+                wrapper.orderBy(true, "asc".equalsIgnoreCase(query.getIsAsc()), 
+                              AssetRepair::getRepairDate);
+            }
+        } else {
+            // 默认排序
+            wrapper.orderByDesc(AssetRepair::getRepairDate);
+        }
+        
+        IPage<AssetRepair> pageResult = page(page, wrapper);
         return Result.success(pageResult);
     }
 

@@ -3,7 +3,7 @@ package com.project.system2.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetRepair;
-import com.project.system2.domain.model.AssetRepairQuery;
+import com.project.system2.domain.query.AssetRepairQuery;
 
 public interface IAssetRepairService {
     /**

@@ -2,6 +2,8 @@ package com.project.system2.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.domain.entity.SysUser;
+import com.project.system2.domain.query.SysUserQuery;
+
 import java.util.List;
 
 public interface ISysUserService {
@@ -35,7 +37,7 @@ public interface ISysUserService {
     /**
      * 分页查询用户列表
      */
-    Page<SysUser> selectUserPage(Page<SysUser> page, SysUser user);
+    Page<SysUser> selectUserPage(Page<SysUser> page, SysUserQuery query);
 
     /**
      * 获取资产审批员列表

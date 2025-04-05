@@ -3,21 +3,14 @@ package com.project.system2.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetRepair;
-import com.project.system2.domain.entity.AssetScrap;
-import com.project.system2.domain.entity.SysUser;
-import com.project.system2.domain.model.AssetRepairQuery;
-import com.project.system2.domain.dto.AssetScrapApprovalDTO;
+import com.project.system2.domain.query.AssetRepairQuery;
 import com.project.system2.service.IAssetRepairService;
 import com.project.system2.service.IAssetScrapService;
-import com.project.system2.service.ISysUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * @Author: BlueberryLee
@@ -39,8 +32,6 @@ public class AssetRepairController {
      */
     @GetMapping("/list")
     @Operation(summary = "分页查询维修记录", description = "根据条件分页查询维修记录")
-    @Parameter(name = "pageNum", description = "页码", example = "1")
-    @Parameter(name = "pageSize", description = "每页数量", example = "10")
     public Result<IPage<AssetRepair>> list(AssetRepairQuery query) {
         return assetRepairService.queryList(query);
     }

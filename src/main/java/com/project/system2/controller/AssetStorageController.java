@@ -3,7 +3,7 @@ package com.project.system2.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetStorage;
-import com.project.system2.domain.model.AssetStorageQuery;
+import com.project.system2.domain.query.AssetStorageQuery;
 import com.project.system2.service.IAssetStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

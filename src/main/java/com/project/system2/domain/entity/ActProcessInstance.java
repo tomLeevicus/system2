@@ -65,6 +65,6 @@ public class ActProcessInstance extends BaseEntity {
     private String taskStatus; // 任务状态（active/suspended）
 
 //    任务创建时间
-    private Date taskCreatecTime;
+    private Date taskCreateTime;
 
 } 

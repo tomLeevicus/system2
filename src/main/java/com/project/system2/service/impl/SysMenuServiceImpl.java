@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.project.system2.common.core.utils.EntityUtils;
+import com.project.system2.domain.entity.SysRole;
+import com.project.system2.mapper.SysRoleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,13 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.entity.SysMenu;
+import com.project.system2.domain.query.SysMenuQuery;
 import com.project.system2.mapper.SysMenuMapper;
 import com.project.system2.service.ISysMenuService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
-public class SysMenuServiceImpl implements ISysMenuService {
+public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu>  implements ISysMenuService {
 
     private static final Logger log = LoggerFactory.getLogger(SysMenuServiceImpl.class);
 
@@ -54,7 +58,6 @@ public class SysMenuServiceImpl implements ISysMenuService {
         List<SysMenu> returnList = new ArrayList<>();
         List<Long> tempList = menus.stream()
             .map(SysMenu::getMenuId)
-            .peek(id -> log.trace("菜单ID: {}", id)) // 跟踪每个菜单ID
             .collect(Collectors.toList());
         
         for (SysMenu menu : menus) {
@@ -120,40 +123,44 @@ public class SysMenuServiceImpl implements ISysMenuService {
     }
 
     @Override
-    public List<SysMenu> selectMenuList(SysMenu menu) {
-        // 1. 查询所有符合条件的菜单（包含子菜单）
-        LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
-        wrapper.like(StringUtils.isNotEmpty(menu.getMenuName()), SysMenu::getMenuName, menu.getMenuName())
-               .eq(StringUtils.isNotEmpty(menu.getStatus()), SysMenu::getStatus, menu.getStatus())
-               .orderByAsc(SysMenu::getParentId)
-               .orderByAsc(SysMenu::getOrderNum);
-        List<SysMenu> allMenus = menuMapper.selectList(wrapper);
+    public List<SysMenu> selectMenuList(SysMenuQuery query) {
+        LambdaQueryWrapper<SysMenu> lqw = new LambdaQueryWrapper<>();
         
-        // 2. 构建树形结构
-        return  buildMenuTree(allMenus, 0L);
-    }
-
-    // 递归构建菜单树
-    private List<SysMenu> buildMenuTree(List<SysMenu> menus, Long parentId) {
-        List<SysMenu> tree = new ArrayList<>();
-        for (SysMenu menu : menus) {
-            if (parentId.equals(menu.getParentId())) {
-                // 查找子菜单
-                List<SysMenu> children = buildMenuTree(menus, menu.getMenuId());
-                if (!children.isEmpty()) {
-                    menu.setChildren(children);
+        if (query != null) {
+            // 根据菜单名称模糊查询
+            if (StringUtils.isNotBlank(query.getMenuName())) {
+                lqw.like(SysMenu::getMenuName, query.getMenuName());
+            }
+            
+            // 根据菜单状态查询
+            if (StringUtils.isNotBlank(query.getVisible())) {
+                lqw.eq(SysMenu::getVisible, query.getVisible());
+            }
+            
+            // 根据菜单类型查询
+            if (StringUtils.isNotBlank(query.getMenuType())) {
+                lqw.eq(SysMenu::getMenuType, query.getMenuType());
+            }
+            
+            // 添加排序条件
+            if (StringUtils.isNotBlank(query.getOrderByColumn())) {
+                // 这里需要根据实际的排序字段做映射处理
+                // 简单示例:
+                if ("createTime".equals(query.getOrderByColumn())) {
+                    lqw.orderBy(true, "asc".equalsIgnoreCase(query.getIsAsc()), SysMenu::getCreateTime);
                 }
-                tree.add(menu);
+            } else {
+                // 默认排序
+                lqw.orderByAsc(SysMenu::getParentId)
+                   .orderByAsc(SysMenu::getOrderNum);
             }
         }
-
-        // 如果没有找到任何子菜单，返回空树
-        return tree.isEmpty() ? new ArrayList<>() : tree;
-    }
-
-    @Override
-    public List<Long> selectMenuListByRoleId(Long roleId) {
-        return menuMapper.selectMenuListByRoleId(roleId);
+        
+        // 查询数据
+        List<SysMenu> menus = list(lqw);
+        
+        // 构建树结构
+        return buildMenuTree(menus);
     }
 
     /**
@@ -183,5 +190,10 @@ public class SysMenuServiceImpl implements ISysMenuService {
      */
     private boolean hasChild(List<SysMenu> list, SysMenu t) {
         return !getChildList(list, t).isEmpty();
+    }
+
+    @Override
+    public List<Long> selectMenuListByRoleId(Long roleId) {
+        return menuMapper.selectMenuListByRoleId(roleId);
     }
 } 

@@ -296,16 +296,36 @@ public class ActProcessDefinitionController {
     /**
      * 获取审批人列表
      */
-    @GetMapping("/approvers/{processKey}")
-    @Operation(summary = "获取流程审批人", description = "根据流程Key获取可选的审批人列表")
-    @Parameter(name = "processKey", description = "流程标识", example = "ASSET_APPROVAL", required = true)
-    public Result<List<Map<String, Object>>> getApprovers(@PathVariable String processKey) {
+    @GetMapping("/task/{taskId}/approvers")
+    @Operation(summary = "获取任务审批人", description = "根据任务ID获取可选的审批人列表")
+    @Parameter(name = "taskId", description = "任务ID", example = "task-1001", required = true)
+    public Result<List<Map<String, Object>>> getApprovers(@PathVariable String taskId) {
         try {
-            SysProcessConfig config = processConfigs.get(processKey);
+            // 获取任务信息
+            Task task = taskService.createTaskQuery()
+                .taskId(taskId)
+                .singleResult();
+
+            if (task == null) {
+                return Result.error("任务不存在");
+            }
+
+            // 获取流程定义信息
+            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                .processDefinitionId(task.getProcessDefinitionId())
+                .singleResult();
+
+            if (processDefinition == null) {
+                return Result.error("流程定义不存在");
+            }
+
+            // 获取流程配置
+            SysProcessConfig config = processConfigs.get(processDefinition.getKey());
             if (config == null) {
                 return Result.error("不支持的流程类型");
             }
-            
+
+            // 根据角色获取审批人列表
             List<Map<String, Object>> approvers = processDefinitionService.getApproversByRoleKey(config.getRoleKey());
             return Result.success(approvers);
         } catch (Exception e) {

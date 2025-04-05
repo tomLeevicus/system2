@@ -1,11 +1,15 @@
 package com.project.system2.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.project.system2.common.core.utils.StringUtils;
 import com.project.system2.domain.entity.SysDept;
+import com.project.system2.domain.entity.SysRole;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.entity.SysUserDept;
+import com.project.system2.domain.query.SysDeptQuery;
 import com.project.system2.mapper.SysDeptMapper;
+import com.project.system2.mapper.SysRoleMapper;
 import com.project.system2.mapper.SysUserDeptMapper;
 import com.project.system2.mapper.SysUserMapper;
 import com.project.system2.service.ISysDeptService;
@@ -18,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class SysDeptServiceImpl implements ISysDeptService {
+public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> implements ISysDeptService {
 
     @Autowired
     private SysDeptMapper deptMapper;
@@ -30,13 +34,39 @@ public class SysDeptServiceImpl implements ISysDeptService {
     private SysUserDeptMapper sysUserDeptMapper;
 
     @Override
-    public List<SysDept> selectDeptList(SysDept dept) {
-        LambdaQueryWrapper<SysDept> wrapper = new LambdaQueryWrapper<>();
-        wrapper.like(StringUtils.isNotEmpty(dept.getDeptName()),SysDept::getDeptName,dept.getDeptName())
-                .eq(StringUtils.isNotEmpty(dept.getStatus()),SysDept::getStatus,dept.getStatus());
-        // 可以添加更多的查询条件
-        List<SysDept> sysDepts = deptMapper.selectList(wrapper);
-        return buildDeptTree(sysDepts);
+    public List<SysDept> selectDeptList(SysDeptQuery query) {
+        LambdaQueryWrapper<SysDept> lqw = new LambdaQueryWrapper<>();
+        
+        if (query != null) {
+            // 根据部门名称模糊查询
+            if (StringUtils.isNotBlank(query.getDeptName())) {
+                lqw.like(SysDept::getDeptName, query.getDeptName());
+            }
+            
+            // 根据部门状态查询
+            if (StringUtils.isNotBlank(query.getStatus())) {
+                lqw.eq(SysDept::getStatus, query.getStatus());
+            }
+            
+            // 添加排序条件
+            if (StringUtils.isNotBlank(query.getOrderByColumn())) {
+                // 这里需要根据实际的排序字段做映射处理
+                // 简单示例:
+                if ("createTime".equals(query.getOrderByColumn())) {
+                    lqw.orderBy(true, "asc".equalsIgnoreCase(query.getIsAsc()), SysDept::getCreateTime);
+                }
+            } else {
+                // 默认排序
+                lqw.orderByAsc(SysDept::getParentId)
+                   .orderByAsc(SysDept::getOrderNum);
+            }
+        }
+        
+        // 查询数据
+        List<SysDept> depts = list(lqw);
+        
+        // 构建树结构
+        return buildDeptTree(depts);
     }
 
     @Override

@@ -4,9 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetReceipt;
 import com.project.system2.domain.entity.SysUser;
-import com.project.system2.domain.model.AssetReceiptQuery;
+import com.project.system2.domain.query.AssetReceiptQuery;
 import com.project.system2.domain.query.AssetReceiptRecordQuery;
-import com.project.system2.service.IAssetsReceiptService;
+import com.project.system2.service.IAssetReceiptService;
 import com.project.system2.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,8 +23,7 @@ import java.util.List;
 public class AssetReceiptController {
 
     @Autowired
-    private IAssetsReceiptService assetsReceiptService;
-
+    private IAssetReceiptService assetReceiptService;
 
     @Autowired
     private ISysUserService sysUserService;
@@ -37,7 +36,7 @@ public class AssetReceiptController {
     @Parameter(name = "pageNum", description = "页码", example = "1")
     @Parameter(name = "pageSize", description = "每页数量", example = "10")
     public Result<IPage<AssetReceipt>> list(AssetReceiptQuery query) {
-        return assetsReceiptService.queryList(query);
+        return Result.success(assetReceiptService.queryList(query));
     }
 
     /**
@@ -47,7 +46,7 @@ public class AssetReceiptController {
     @Operation(summary = "获取领用详情", description = "根据领用ID获取详细信息")
     @Parameter(name = "id", description = "领用记录ID", example = "700", required = true)
     public Result<AssetReceipt> getInfo(@PathVariable Long id) {
-        return assetsReceiptService.getById(id);
+        return Result.success(assetReceiptService.getById(id));
     }
 
     /**
@@ -55,9 +54,9 @@ public class AssetReceiptController {
      */
     @PostMapping("/add")
     @Operation(summary = "新增领用记录", description = "创建新的资产领用记录")
-    @Parameter(name = "assetsReceipt", description = "领用记录对象", required = true)
-    public Result<Boolean> add(@RequestBody AssetReceipt assetsReceipt) {
-        return assetsReceiptService.add(assetsReceipt);
+    @Parameter(name = "assetReceipt", description = "领用记录对象", required = true)
+    public Result<Boolean> add(@RequestBody AssetReceipt assetReceipt) {
+        return Result.success(assetReceiptService.add(assetReceipt));
     }
 
     /**
@@ -65,9 +64,9 @@ public class AssetReceiptController {
      */
     @PutMapping("/edit")
     @Operation(summary = "修改领用记录", description = "更新现有领用记录信息")
-    @Parameter(name = "assetsReceipt", description = "领用记录对象", required = true)
-    public Result<Boolean> edit(@RequestBody AssetReceipt assetsReceipt) {
-        return assetsReceiptService.update(assetsReceipt);
+    @Parameter(name = "assetReceipt", description = "领用记录对象", required = true)
+    public Result<Boolean> edit(@RequestBody AssetReceipt assetReceipt) {
+        return Result.success(assetReceiptService.update(assetReceipt));
     }
 
     /**
@@ -77,9 +76,8 @@ public class AssetReceiptController {
     @Operation(summary = "删除领用记录", description = "根据ID删除领用记录")
     @Parameter(name = "id", description = "领用记录ID", example = "700", required = true)
     public Result<Boolean> remove(@PathVariable Long id) {
-        return assetsReceiptService.deleteById(id);
+        return Result.success(assetReceiptService.deleteById(id));
     }
-
 
     /**
      * 获取资产审批员列表
@@ -93,7 +91,7 @@ public class AssetReceiptController {
     @PreAuthorize("@ss.hasPermi('asset:receipt:approve')")
     @PostMapping("/approve")
     @Operation(summary = "审批领用申请")
-    public Result<Boolean> approveReceipt(@RequestBody AssetReceiptRecordQuery AssetReceiptRecordQuery) {
-        return assetsReceiptService.approveReceipt(AssetReceiptRecordQuery);
+    public Result<Boolean> approveReceipt(@RequestBody AssetReceiptRecordQuery query) {
+        return Result.success(assetReceiptService.approveReceipt(query));
     }
 } 

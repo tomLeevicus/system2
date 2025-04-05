@@ -19,4 +19,9 @@ public interface AssetClassificationMapper extends BaseMapper<AssetClassificatio
      * 分页查询资产分类列表（包含资产数量）
      */
     IPage<AssetClassification> selectClassificationPage(Page<AssetClassification> page, @Param("query") AssetClassification classification);
+
+    /**
+     * 根据分类ID统计关联资产数量
+     */
+    Long countAssetsByClassificationId(@Param("classificationId") Long classificationId);
 }

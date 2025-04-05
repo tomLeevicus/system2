@@ -6,6 +6,7 @@ import com.project.system2.common.core.domain.Result;
 import com.project.system2.common.core.domain.PageQuery;
 import com.project.system2.domain.entity.SysRole;
 import com.project.system2.domain.dto.RoleMenuDTO;
+import com.project.system2.domain.query.SysRoleQuery;
 import com.project.system2.service.ISysRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,9 +32,9 @@ public class SysRoleController {
     @Operation(summary = "分页查询角色列表", description = "根据条件分页查询系统角色")
     @Parameter(name = "pageNum", description = "页码", example = "1")
     @Parameter(name = "pageSize", description = "每页数量", example = "10")
-    public Result<IPage<SysRole>> list(SysRole role, PageQuery pageQuery) {
-        IPage<SysRole> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
-        return Result.success(roleService.selectRolePage(page, role));
+    public Result<IPage<SysRole>> list(SysRoleQuery query) {
+        Page<SysRole> page = new Page<>(query.getPageNum(), query.getPageSize());
+        return Result.success(roleService.selectRolePage(page, query));
     }
 
     /**
