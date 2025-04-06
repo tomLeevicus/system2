@@ -51,6 +51,10 @@ import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.bpmn.model.ExtensionAttribute;
 import java.util.HashMap;
+import org.flowable.engine.HistoryService;
+import org.flowable.engine.ProcessEngineConfiguration;
+import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.image.ProcessDiagramGenerator;
 
 @Slf4j
 @Service
@@ -79,6 +83,9 @@ public class ActProcessDefinitionServiceImpl implements IActProcessDefinitionSer
 
     @Autowired
     private SysProcessVariableConfigMapper variableConfigMapper;
+
+    @Autowired
+    private HistoryService historyService;
 
     private static final String AUTO_COMPLETE_TASK_KEY = "userApply"; // 假设这是用户申请节点的task key
 
@@ -683,25 +690,85 @@ public class ActProcessDefinitionServiceImpl implements IActProcessDefinitionSer
         processDefinitionMapper.insert(processDefinition);
     }
 
-    /*public void autoCompleteFirstTask(String processInstanceId) {
+    @Override
+    public byte[] getProcessDiagramWithHighlight(String processInstanceId) {
         try {
-            // 查询需要自动完成的任务
-            List<Task> autoCompleteTasks = taskService.createTaskQuery()
-                .processInstanceId(processInstanceId)
-                .taskDefinitionKeyLike("autoComplete%") // 根据任务key前缀匹配
-                .list();
-
-            // 或者通过扩展属性查询
-            List<Task> tasksWithProperty = taskService.getTaskEntityManager()
-                .findTasksWithProcessVariableValueEquals("autoComplete", true);
+            log.info("获取高亮流程图 - 流程实例ID: {}", processInstanceId);
             
-            tasksWithProperty.forEach(task -> {
-                Authentication.setAuthenticatedUserId("system");
-                taskService.complete(task.getId());
-            });
+            // 获取历史流程实例
+            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .singleResult();
+                
+            if (historicProcessInstance == null) {
+                // 如果历史记录不存在，尝试查找运行中的流程实例
+                ProcessInstance processInstance = runtimeService.createProcessInstanceQuery()
+                    .processInstanceId(processInstanceId)
+                    .singleResult();
+                    
+                if (processInstance == null) {
+                    log.error("流程实例不存在: {}", processInstanceId);
+                    return null;
+                }
+            }
+            
+            // 获取流程定义ID
+            String processDefinitionId = historicProcessInstance != null ? 
+                historicProcessInstance.getProcessDefinitionId() : 
+                runtimeService.createProcessInstanceQuery()
+                    .processInstanceId(processInstanceId)
+                    .singleResult()
+                    .getProcessDefinitionId();
+                    
+            // 获取BPMN模型
+            BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinitionId);
+            if (bpmnModel == null) {
+                log.error("流程定义模型不存在: {}", processDefinitionId);
+                return null;
+            }
+            
+            // 获取历史活动实例列表
+            List<String> highLightedActivities = historyService.createHistoricActivityInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .orderByHistoricActivityInstanceStartTime().asc()
+                .list()
+                .stream()
+                .map(hai -> hai.getActivityId())
+                .collect(Collectors.toList());
+                
+            // 获取流程引擎配置
+            ProcessEngineConfiguration processEngineConfiguration = 
+                ((org.flowable.engine.impl.cfg.ProcessEngineConfigurationImpl)
+                repositoryService.getProcessEngine().getProcessEngineConfiguration());
+                
+            // 获取流程图生成器
+            org.flowable.image.ProcessDiagramGenerator diagramGenerator = 
+                processEngineConfiguration.getProcessDiagramGenerator();
+                
+            // 获取当前活动的流程连线
+            List<String> highLightedFlows = new ArrayList<>();
+            
+            // 生成流程图字节数组，高亮显示当前活动和历史活动
+            try (InputStream in = diagramGenerator.generateDiagram(
+                    bpmnModel,
+                    "png",
+                    highLightedActivities,
+                    highLightedFlows,
+                    processEngineConfiguration.getActivityFontName(),
+                    processEngineConfiguration.getLabelFontName(),
+                    processEngineConfiguration.getAnnotationFontName(),
+                    processEngineConfiguration.getClassLoader(),
+                    1.0,
+                    new java.awt.Color(255, 0, 0),  // 活动节点高亮颜色 - 红色
+                    new java.awt.Color(0, 0, 255)   // 流程连线高亮颜色 - 蓝色
+                )) {
+                
+                // 转换为字节数组返回
+                return IOUtils.toByteArray(in);
+            }
         } catch (Exception e) {
-            log.error("自动完成任务失败", e);
-            throw new FlowableException("自动完成初始任务失败: " + e.getMessage());
+            log.error("生成高亮流程图异常", e);
+            throw new RuntimeException("生成高亮流程图异常: " + e.getMessage(), e);
         }
-    }*/
+    }
 } 

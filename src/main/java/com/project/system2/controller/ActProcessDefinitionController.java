@@ -494,4 +494,28 @@ public class ActProcessDefinitionController {
             return Result.error("获取流程图失败：" + e.getMessage());
         }
     }
+
+    /**
+     * 获取流程实例的流程图(带高亮)
+     */
+    @GetMapping(value = "/diagram/{processInstanceId}", produces = "image/png")
+    @Operation(summary = "获取高亮流程图", description = "根据流程实例ID获取带有高亮的流程图，显示当前流程执行路径")
+    @Parameter(name = "processInstanceId", description = "流程实例ID", required = true)
+    public Result<byte[]> getProcessDiagram(@PathVariable String processInstanceId) {
+        try {
+            log.info("请求获取高亮流程图 - 流程实例ID: {}", processInstanceId);
+            
+            byte[] imageData = processDefinitionService.getProcessDiagramWithHighlight(processInstanceId);
+            
+            if (imageData == null) {
+                return Result.error("未找到流程图或流程实例不存在");
+            }
+            
+            log.info("成功获取高亮流程图，大小: {} bytes", imageData.length);
+            return Result.success(imageData);
+        } catch (Exception e) {
+            log.error("获取高亮流程图失败", e);
+            return Result.error("获取高亮流程图失败: " + e.getMessage());
+        }
+    }
 } 

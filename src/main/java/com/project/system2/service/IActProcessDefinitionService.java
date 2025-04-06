@@ -138,4 +138,11 @@ public interface IActProcessDefinitionService {
      * @return 流程定义对象
      */
     ActProcessDefinition getByDeploymentId(String deploymentId);
+
+    /**
+     * 获取流程实例的高亮流程图
+     * @param processInstanceId 流程实例ID
+     * @return 流程图的字节数组
+     */
+    byte[] getProcessDiagramWithHighlight(String processInstanceId);
 } 
