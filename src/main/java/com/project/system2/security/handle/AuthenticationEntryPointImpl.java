@@ -37,22 +37,21 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
         Throwable cause = e.getCause();
         
         if (e instanceof BadCredentialsException) {
-            code = HttpStatus.BAD_CREDENTIALS;
+            code = HttpStatus.INVALID_TOKEN;
             msg = "无效的凭证或验证码";
         } else if (e instanceof InsufficientAuthenticationException) {
-            code = HttpStatus.MISSING_TOKEN;
+            code = HttpStatus.NOT_BROUGHT_TOKEN;
             msg = "请求未携带有效Token";
         } else if (cause != null) {
             if (cause instanceof ExpiredJwtException) {
-                code = HttpStatus.TOKEN_EXPIRED;
+                code = HttpStatus.EXPIRED_TOKEN;
                 msg = "Token已过期，请重新登录";
             } else if (cause instanceof JwtException) {
                 code = HttpStatus.INVALID_TOKEN;
                 msg = "Token无效或已失效";
             }
         }
-        response.setStatus(HttpStatus.UNAUTHORIZED);  // Main status code
-        response.setHeader("X-Error-Code", String.valueOf(code));
+        response.setStatus(code);  // Main status code
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         

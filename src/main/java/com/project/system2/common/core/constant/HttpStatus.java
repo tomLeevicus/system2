@@ -90,10 +90,17 @@ public class HttpStatus {
     public static final int WARN = 601;
 
     /**
-     * 自定义认证错误码（401xx系列）
+     * 未携带token
      */
-    public static final int TOKEN_EXPIRED = 40101;
-    public static final int INVALID_TOKEN = 40102;
-    public static final int BAD_CREDENTIALS = 40103;
-    public static final int MISSING_TOKEN = 40104;
+    public static final int NOT_BROUGHT_TOKEN = 411;
+
+    /**
+     * 无效的token
+     */
+    public static final int INVALID_TOKEN = 412;
+
+    /**
+     * token已过期
+     */
+    public static final int EXPIRED_TOKEN = 413;
 } 

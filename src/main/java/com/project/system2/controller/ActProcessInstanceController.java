@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.bpmn.model.UserTask;
 import com.project.system2.domain.query.ProcessInstanceQuery;
+import com.project.system2.domain.query.TaskQuery;
 
 import java.util.Map;
 import java.util.List;
@@ -35,6 +36,8 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.Date;
 import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 
 @Slf4j
 @RestController
@@ -293,12 +296,14 @@ public class ActProcessInstanceController {
     @PreAuthorize("@ss.hasPermi('workflow:instance:todo')")
     @GetMapping("/todo")
     @Operation(summary = "获取待办流程", description = "查询当前用户的待办流程实例")
-    public Result<Page<ActTaskInfo>> getTodoInstances(
-        @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
-        @Parameter(description = "每页数量") @RequestParam(defaultValue = "10") Integer pageSize) {
-        
-        Page<ActTaskInfo> page = new Page<>(pageNum, pageSize);
-        return Result.success(processInstanceService.getTodoInstances(page, SecurityUtils.getUserId().toString()));
+    public Result<Page<ActTaskInfo>> getTodoInstances(@Valid TaskQuery query) {
+        try {
+            Page<ActTaskInfo> page = new Page<>(query.getPageNum(), query.getPageSize());
+            return Result.success(processInstanceService.getTodoInstances(page, SecurityUtils.getUserId().toString()));
+        } catch (Exception e) {
+            log.error("获取待办流程失败", e);
+            return Result.error("获取待办流程失败：" + e.getMessage());
+        }
     }
 
     /**
@@ -479,6 +484,36 @@ public class ActProcessInstanceController {
         } catch (Exception e) {
             log.error("获取任务详情失败", e);
             return Result.error("获取任务详情失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取用户发起的流程任务列表
+     */
+    @PreAuthorize("@ss.hasPermi('workflow:instance:list')")
+    @GetMapping("/user-tasks")
+    @Operation(summary = "获取用户发起的流程任务", description = "分页查询当前用户发起的流程任务列表")
+    public Result<Page<ActProcessInstance>> getUserTasks(@Valid TaskQuery query) {
+        try {
+            // 构建查询条件
+            ProcessInstanceQuery processQuery = new ProcessInstanceQuery();
+            processQuery.setPageNum(query.getPageNum());
+            processQuery.setPageSize(query.getPageSize());
+            processQuery.setName(query.getProcessName());
+            processQuery.setStatus(query.getStatus());
+            processQuery.setStartTimeBegin(query.getStartTimeBegin());
+            processQuery.setStartTimeEnd(query.getStartTimeEnd());
+            processQuery.setOrderBy(query.getOrderByColumn());
+            
+            // 设置当前用户ID
+            processQuery.setStartUserId(SecurityUtils.getUserId());
+            
+            // 查询用户发起的流程实例
+            Page<ActProcessInstance> page = processInstanceService.listProcessInstances(processQuery);
+            return Result.success(page);
+        } catch (Exception e) {
+            log.error("获取用户发起的流程任务失败", e);
+            return Result.error("获取用户发起的流程任务失败：" + e.getMessage());
         }
     }
 

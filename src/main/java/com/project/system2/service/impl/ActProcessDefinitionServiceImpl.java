@@ -55,6 +55,7 @@ import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.image.ProcessDiagramGenerator;
+import org.flowable.engine.ProcessEngines;
 
 @Slf4j
 @Service
@@ -738,8 +739,7 @@ public class ActProcessDefinitionServiceImpl implements IActProcessDefinitionSer
                 
             // 获取流程引擎配置
             ProcessEngineConfiguration processEngineConfiguration = 
-                ((org.flowable.engine.impl.cfg.ProcessEngineConfigurationImpl)
-                repositoryService.getProcessEngine().getProcessEngineConfiguration());
+                ProcessEngines.getDefaultProcessEngine().getProcessEngineConfiguration();
                 
             // 获取流程图生成器
             org.flowable.image.ProcessDiagramGenerator diagramGenerator = 
@@ -759,9 +759,7 @@ public class ActProcessDefinitionServiceImpl implements IActProcessDefinitionSer
                     processEngineConfiguration.getAnnotationFontName(),
                     processEngineConfiguration.getClassLoader(),
                     1.0,
-                    new java.awt.Color(255, 0, 0),  // 活动节点高亮颜色 - 红色
-                    new java.awt.Color(0, 0, 255)   // 流程连线高亮颜色 - 蓝色
-                )) {
+                    true)) {
                 
                 // 转换为字节数组返回
                 return IOUtils.toByteArray(in);
