@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.query.SysUserQuery;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface ISysUserService {
@@ -21,7 +22,7 @@ public interface ISysUserService {
     /**
      * 修改用户角色关联关系
      */
-    boolean updateUserRole(Long userId, Long[] roleIds);
+    boolean updateUserRole(Long userId, List<Long> roleIds);
 
 
     /**

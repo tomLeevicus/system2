@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,13 +25,13 @@ public class SysUserRoleServiceImpl implements ISysUserRoleService {
 
     @Override
     @Transactional
-    public boolean saveUserRole(Long userId, Long[] roleIds) {
+    public boolean saveUserRole(Long userId, List<Long> roleIds) {
         // 先删除原有关联
         deleteUserRoleByUserId(userId);
-        
+
         // 添加新的关联
-        if (roleIds != null && roleIds.length > 0) {
-            List<SysUserRole> list = Arrays.stream(roleIds)
+        if (roleIds != null && roleIds.size() > 0) {
+            List<SysUserRole> list = roleIds.stream()
                     .map(roleId -> {
                         SysUserRole ur = new SysUserRole();
                         ur.setUserId(userId);

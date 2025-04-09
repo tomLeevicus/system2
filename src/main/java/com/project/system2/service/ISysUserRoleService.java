@@ -1,11 +1,14 @@
 package com.project.system2.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public interface ISysUserRoleService {
     
     /**
      * 保存用户和角色关联关系
      */
-    boolean saveUserRole(Long userId, Long[] roleIds);
+    boolean saveUserRole(Long userId, List<Long> roleIds);
     
     /**
      * 删除用户和角色关联关系

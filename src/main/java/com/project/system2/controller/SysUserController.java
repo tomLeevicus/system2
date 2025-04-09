@@ -13,6 +13,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/system/user")
 @Tag(name = "用户管理", description = "系统用户管理接口")
@@ -86,7 +91,14 @@ public class SysUserController {
     @Operation(summary = "分配角色", description = "为用户分配系统角色")
     @Parameter(name = "userId", description = "用户ID", example = "1001", required = true)
     @Parameter(name = "roleIds", description = "角色ID数组", example = "[1,2]", required = true)
-    public Result<Void> insertAuthRole(Long userId, Long[] roleIds) {
+    public Result<Void> insertAuthRole(@RequestBody Map<String,Object> map) {
+        ArrayList<Integer> integers = (ArrayList<Integer>) map.get("roleIds");
+        List<Long> roleIds = integers.stream().map(a -> {
+            long l = Long.parseLong(String.valueOf(a));
+            return l;
+        }).collect(Collectors.toList());
+        Integer a = (Integer) map.get("userId");
+        long userId = a.longValue();
         return userService.updateUserRole(userId, roleIds) ? Result.success() : Result.error();
     }
 } 

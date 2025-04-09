@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -77,7 +78,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     @Transactional
-    public boolean updateUserRole(Long userId, Long[] roleIds) {
+    public boolean updateUserRole(Long userId, List<Long> roleIds) {
         return userRoleService.saveUserRole(userId, roleIds);
     }
 

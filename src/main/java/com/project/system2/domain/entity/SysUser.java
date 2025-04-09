@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +66,7 @@ public class SysUser extends BaseEntity {
 
     @TableField(exist = false)
     @Schema(description = "角色ID列表")
-    private Long[] roleIds;
+    private ArrayList<Long> roleIds;
 
     @TableField(exist = false)
     @Schema(description = "角色列表")
