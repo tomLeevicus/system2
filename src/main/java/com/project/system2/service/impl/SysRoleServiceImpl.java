@@ -52,7 +52,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         // 查询角色信息
         LambdaQueryWrapper<SysRole> roleWrapper = new LambdaQueryWrapper<>();
         roleWrapper.in(SysRole::getRoleId, roleIds)
-                .eq(SysRole::getStatus, "0"); // 只查询正常状态的角色
+                .eq(SysRole::getStatus, "1"); // 只查询正常状态的角色
         return roleMapper.selectList(roleWrapper);
     }
 

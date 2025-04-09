@@ -6,10 +6,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.project.system2.common.core.utils.EntityUtils;
 import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.domain.entity.SysUser;
+import com.project.system2.domain.entity.SysRole;
 import com.project.system2.domain.query.SysUserQuery;
 import com.project.system2.mapper.SysUserMapper;
 import com.project.system2.service.ISysUserRoleService;
 import com.project.system2.service.ISysUserService;
+import com.project.system2.service.ISysRoleService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Autowired
     private ISysUserRoleService userRoleService;
+    
+    @Autowired
+    private ISysRoleService roleService;
 
     @Override
     public SysUser getUserByUsername(String username) {
@@ -155,7 +160,22 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             }
         }
         
-        return page(page, lqw);
+        // 执行分页查询
+        Page<SysUser> userPage = page(page, lqw);
+        
+        // 获取查询结果中的用户列表
+        List<SysUser> userList = userPage.getRecords();
+        
+        // 为每个用户查询并设置角色信息
+        if (!userList.isEmpty()) {
+            for (SysUser user : userList) {
+                // 查询用户角色信息
+                List<SysRole> roles = roleService.selectRolesByUserId(user.getId());
+                user.setRoles(roles);
+            }
+        }
+        
+        return userPage;
     }
 
     @Override
