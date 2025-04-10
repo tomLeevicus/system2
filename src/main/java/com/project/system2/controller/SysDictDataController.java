@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/system/dict/data")
@@ -40,6 +42,20 @@ public class SysDictDataController {
     @Parameter(name = "dictType", description = "字典类型", example = "asset_status", required = true)
     public Result<List<SysDictData>> dictType(@PathVariable String dictType) {
         return Result.success(dictDataService.selectDictDataByType(dictType));
+    }
+
+    @GetMapping(value = "/types")
+    @Operation(summary = "批量获取字典数据", description = "根据多个字典类型批量获取字典数据")
+    @Parameter(name = "dictTypes", description = "字典类型，多个用逗号分隔", example = "sys_normal_disable,notice_type", required = true)
+    public Result<Map<String, List<SysDictData>>> dictTypes(@RequestParam String dictTypes) {
+        String[] types = dictTypes.split(",");
+        Map<String, List<SysDictData>> dictMap = new HashMap<>();
+        for (String type : types) {
+            if (type != null && !type.isEmpty()) {
+                dictMap.put(type, dictDataService.selectDictDataByType(type));
+            }
+        }
+        return Result.success(dictMap);
     }
 
     @PreAuthorize("@ss.hasPermi('system:dict:query')")
