@@ -2,8 +2,8 @@ package com.project.system2.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.common.core.domain.Result;
-import com.project.system2.common.core.domain.PageQuery;
 import com.project.system2.domain.entity.SysDictType;
+import com.project.system2.domain.query.SysDictTypeQuery;
 import com.project.system2.service.ISysDictTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,11 +24,9 @@ public class SysDictTypeController {
     @PreAuthorize("@ss.hasPermi('system:dict:list')")
     @GetMapping("/list")
     @Operation(summary = "分页查询字典类型", description = "根据条件分页查询字典类型")
-    @Parameter(name = "pageNum", description = "页码", example = "1")
-    @Parameter(name = "pageSize", description = "每页数量", example = "10")
-    public Result<Page<SysDictType>> list(SysDictType dictType, PageQuery pageQuery) {
-        Page<SysDictType> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
-        return Result.success(dictTypeService.selectDictTypePage(page, dictType));
+    public Result<Page<SysDictType>> list(SysDictTypeQuery query) {
+        Page<SysDictType> page = dictTypeService.selectDictTypePage(query);
+        return Result.success(page);
     }
 
     @PreAuthorize("@ss.hasPermi('system:dict:query')")

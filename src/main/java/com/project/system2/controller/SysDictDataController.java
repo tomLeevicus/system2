@@ -2,8 +2,8 @@ package com.project.system2.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.common.core.domain.Result;
-import com.project.system2.common.core.domain.PageQuery;
 import com.project.system2.domain.entity.SysDictData;
+import com.project.system2.domain.query.SysDictDataQuery;
 import com.project.system2.service.ISysDictDataService;
 import com.project.system2.utils.ExcelUtil;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,9 +32,8 @@ public class SysDictDataController {
     @Operation(summary = "分页查询字典数据", description = "根据条件分页查询字典数据")
     @Parameter(name = "pageNum", description = "页码", example = "1")
     @Parameter(name = "pageSize", description = "每页数量", example = "10")
-    public Result<Page<SysDictData>> list(SysDictData dictData, PageQuery pageQuery) {
-        Page<SysDictData> page = new Page<>(pageQuery.getPageNum(), pageQuery.getPageSize());
-        return Result.success(dictDataService.selectDictDataPage(page, dictData));
+    public Result<Page<SysDictData>> list(SysDictDataQuery query) {
+        return Result.success(dictDataService.selectDictDataPage(query));
     }
 
     @GetMapping(value = "/type/{dictType}")
@@ -95,8 +94,8 @@ public class SysDictDataController {
     @Operation(summary = "导出字典数据", description = "导出字典数据到Excel文件")
     @Parameter(name = "dictData", description = "字典数据查询条件", hidden = true)
     @Parameter(name = "response", description = "HTTP响应对象", hidden = true)
-    public void export(HttpServletResponse response, SysDictData dictData) {
-        List<SysDictData> list = dictDataService.selectDictDataList(dictData);
+    public void export(HttpServletResponse response, SysDictDataQuery query) {
+        List<SysDictData> list = dictDataService.selectDictDataList(query);
         ExcelUtil<SysDictData> util = new ExcelUtil<>(SysDictData.class);
         util.exportExcel(response, list, "字典数据");
     }

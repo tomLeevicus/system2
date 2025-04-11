@@ -5,6 +5,8 @@ import com.project.system2.domain.entity.Assets;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.query.AssetsQuery;
 
+import java.util.Map;
+
 /**
  * 资产管理 服务层
  */
@@ -40,4 +42,10 @@ public interface IAssetsService {
      * @return 分页查询结果
      */
     Result<IPage<Assets>> queryAssetsList(AssetsQuery query);
+
+    /**
+     * 按使用状态统计资产数量
+     * @return Map<String, Long> 状态 -> 数量
+     */
+    Map<String, Long> getAssetStatisticsByStatus();
 } 

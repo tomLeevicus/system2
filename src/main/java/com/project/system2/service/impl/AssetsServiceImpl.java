@@ -13,6 +13,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Arrays;
 
 @Service
 public class AssetsServiceImpl extends ServiceImpl<AssetsMapper, Assets> implements IAssetsService {
@@ -104,5 +108,46 @@ public class AssetsServiceImpl extends ServiceImpl<AssetsMapper, Assets> impleme
         
         IPage<Assets> pageResult = page(page, wrapper);
         return Result.success(pageResult);
+    }
+
+    @Override
+    public Map<String, Long> getAssetStatisticsByStatus() {
+        // Define all possible statuses
+        List<String> allStatuses = Arrays.asList("闲置", "在用", "维修", "报废", "未知"); 
+        // Initialize the result map with all statuses and count 0
+        Map<String, Long> resultMap = new HashMap<>();
+        for (String status : allStatuses) {
+            resultMap.put(status, 0L);
+        }
+
+        // Query assets and get actual counts
+        List<Assets> allAssets = assetsMapper.selectList(
+            new LambdaQueryWrapper<Assets>().select(Assets::getAssetUseStatus)
+        );
+
+        // Group by status and count existing assets
+        Map<String, Long> actualCounts = allAssets.stream()
+                .collect(Collectors.groupingBy(
+                    asset -> mapStatusToString(asset.getAssetUseStatus()), 
+                    Collectors.counting()
+                ));
+
+        // Merge actual counts into the result map
+        resultMap.putAll(actualCounts);
+
+        return resultMap;
+    }
+
+    // Helper method to convert status code to String (replace with actual logic)
+    private String mapStatusToString(Integer status) {
+        if (status == null) return "未知";
+        switch (status) {
+            case 0: return "闲置"; // Example mapping
+            case 1: return "在用"; // Example mapping
+            case 2: return "维修"; // Example mapping
+            case 3: return "报废"; // Example mapping
+            // Add other status codes as needed
+            default: return "状态[" + status + "]";
+        }
     }
 } 

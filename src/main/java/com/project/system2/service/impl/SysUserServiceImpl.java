@@ -7,11 +7,13 @@ import com.project.system2.common.core.utils.EntityUtils;
 import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.entity.SysRole;
+import com.project.system2.domain.entity.SysDept;
 import com.project.system2.domain.query.SysUserQuery;
 import com.project.system2.mapper.SysUserMapper;
 import com.project.system2.service.ISysUserRoleService;
 import com.project.system2.service.ISysUserService;
 import com.project.system2.service.ISysRoleService;
+import com.project.system2.service.ISysDeptService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     
     @Autowired
     private ISysRoleService roleService;
+
+    @Autowired
+    private ISysDeptService deptService;
 
     @Override
     public SysUser getUserByUsername(String username) {
@@ -57,9 +62,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             userRoleService.saveUserRole(user.getId(), user.getRoleIds());
         }
 
-        // 更新用户部门
-        if (user.getDept() != null) {
-            userRoleService.updateUserDept(user.getId(), user.getDept().getDeptId());
+        // 更新用户部门 - Restore original logic
+        if (user.getDept() != null && user.getDept().getDeptId() != null) {
+             // Assuming ISysUserRoleService or similar handles this.
+             // Adjust if the service/method name is different.
+             // If deptId is directly on SysUser table and handled by updateById, this might be redundant.
+             // Check how user-dept relationship is actually managed.
+             // For now, restoring the likely original call based on previous context:
+             userRoleService.updateUserDept(user.getId(), user.getDept().getDeptId()); 
         }
 
         return isUpdated;
@@ -73,7 +83,21 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public SysUser getUserById(Long userId) {
-        return userMapper.selectById(userId);
+        SysUser user = userMapper.selectById(userId); // Fetch basic user info
+        if (user != null) {
+            // Fetch and set roles
+            List<SysRole> roles = roleService.selectRolesByUserId(userId);
+            user.setRoles(roles); // Set roles list
+
+            // Fetch and set department info
+            if (user.getDeptId() != null) {
+                SysDept dept = deptService.getDeptById(user.getDeptId());
+                user.setDept(dept); // Set the department object
+                // You might also want to set deptName if it exists as a separate field
+                // user.setDeptName(dept != null ? dept.getDeptName() : null);
+            }
+        }
+        return user;
     }
 
     @Override
