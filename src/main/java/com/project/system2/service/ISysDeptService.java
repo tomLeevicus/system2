@@ -32,4 +32,11 @@ public interface ISysDeptService {
      * 检查部门是否存在用户
      */
     boolean checkDeptExistUser(Long deptId);
+    
+    /**
+     * 根据用户ID获取用户的主部门
+     * @param userId 用户ID
+     * @return 主部门信息，如果未分配则返回null
+     */
+    SysDept getPrimaryDeptByUserId(Long userId);
 } 

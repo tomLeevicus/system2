@@ -89,13 +89,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             List<SysRole> roles = roleService.selectRolesByUserId(userId);
             user.setRoles(roles); // Set roles list
 
-            // Fetch and set department info
-            if (user.getDeptId() != null) {
-                SysDept dept = deptService.getDeptById(user.getDeptId());
-                user.setDept(dept); // Set the department object
-                // You might also want to set deptName if it exists as a separate field
-                // user.setDeptName(dept != null ? dept.getDeptName() : null);
-            }
+            // Fetch and set primary department info using the join table
+            SysDept dept = deptService.getPrimaryDeptByUserId(userId);
+            user.setDept(dept); // Set the department object
+            // Set deptId and deptName based on the fetched dept object
+            user.setDeptId(dept != null ? dept.getDeptId() : null);
+            user.setDeptName(dept != null ? dept.getDeptName() : null);
         }
         return user;
     }

@@ -153,4 +153,23 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         wrapper.eq(SysUserDept::getDeptId, deptId);
         return sysUserDeptMapper.selectCount(wrapper) > 0;
     }
+
+    @Override
+    public SysDept getPrimaryDeptByUserId(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        // Find one user-department relationship for the user
+        SysUserDept userDept = sysUserDeptMapper.selectOne(
+            new LambdaQueryWrapper<SysUserDept>()
+                .eq(SysUserDept::getUserId, userId)
+        );
+
+        if (userDept != null && userDept.getDeptId() != null) {
+            // Fetch the department details using the found deptId
+            return getDeptById(userDept.getDeptId());
+        }
+        
+        return null; // User is not associated with any department
+    }
 } 

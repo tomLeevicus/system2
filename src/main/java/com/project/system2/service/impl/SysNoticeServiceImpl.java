@@ -3,6 +3,7 @@ package com.project.system2.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.project.system2.common.core.utils.EntityUtils;
 import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.domain.entity.SysNotice;
 import com.project.system2.domain.entity.SysNoticeAttachment;
@@ -76,7 +77,7 @@ public class SysNoticeServiceImpl extends ServiceImpl<SysNoticeMapper, SysNotice
     @Transactional(rollbackFor = Exception.class)
     public boolean addNotice(SysNotice notice) {
         // 设置创建人信息
-        notice.setCreateBy(SecurityUtils.getUserId());
+        EntityUtils.setCreateAndUpdateInfo(notice,true);
         
         // 保存通知信息
         boolean result = save(notice);

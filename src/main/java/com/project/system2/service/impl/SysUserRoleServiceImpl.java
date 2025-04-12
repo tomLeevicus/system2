@@ -2,6 +2,7 @@ package com.project.system2.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.project.system2.domain.entity.SysUserRole;
+import com.project.system2.domain.entity.SysUserDept;
 import com.project.system2.mapper.SysUserRoleMapper;
 import com.project.system2.mapper.SysUserDeptMapper;
 import com.project.system2.service.ISysUserRoleService;
@@ -108,8 +109,20 @@ public class SysUserRoleServiceImpl implements ISysUserRoleService {
     }
 
     @Override
+    @Transactional
     public void updateUserDept(Long userId, Long deptId) {
-        // 直接调用Mapper层更新用户部门信息
-        userDeptMapper.updateUserDept(userId, deptId);
+        // 1. Delete existing department associations for the user
+        userDeptMapper.delete(new LambdaQueryWrapper<SysUserDept>()
+            .eq(SysUserDept::getUserId, userId));
+
+        // 2. Insert the new department association
+        if (deptId != null) { // Only insert if a valid deptId is provided
+            SysUserDept newUserDept = new SysUserDept();
+            newUserDept.setUserId(userId);
+            newUserDept.setDeptId(deptId);
+            // Set post_sort if needed, default is likely 0 based on schema
+            // newUserDept.setPostSort(0); 
+            userDeptMapper.insert(newUserDept);
+        }
     }
 } 
