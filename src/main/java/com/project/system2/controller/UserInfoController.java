@@ -148,7 +148,7 @@ public class UserInfoController {
             LoginUser loginUser = SecurityUtils.getLoginUser();
             if (loginUser == null) {
                 // This scenario implies the security filter didn't authenticate properly
-                return Result.error(HttpStatus.UNAUTHORIZED, "用户未登录或认证信息无效");
+                return Result.error(HttpStatus.NOT_BROUGHT_TOKEN, "用户未登录或认证信息无效");
             }
 
             // Generate a new token using the existing LoginUser details
