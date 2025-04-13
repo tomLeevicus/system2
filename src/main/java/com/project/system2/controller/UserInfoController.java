@@ -1,10 +1,13 @@
 package com.project.system2.controller;
 
+import com.project.system2.common.core.constant.HttpStatus;
 import com.project.system2.common.core.domain.Result;
+import com.project.system2.common.core.domain.model.LoginUser;
 import com.project.system2.common.core.utils.SecurityUtils;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.service.ISysUserService;
 import com.project.system2.service.MinioService;
+import com.project.system2.service.TokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/system/userInfo")
@@ -29,6 +34,9 @@ public class UserInfoController {
     
     @Autowired
     private MinioService minioService;
+
+    @Autowired
+    private TokenService tokenService;
     
     @Value("${minio.bucketName}")
     private String bucketName;
@@ -127,6 +135,34 @@ public class UserInfoController {
         } catch (Exception e) {
             e.printStackTrace();
             return Result.error("文件上传失败: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 刷新认证令牌
+     */
+    @GetMapping("/refreshToken")
+    @Operation(summary = "刷新Token", description = "为当前登录用户生成新的访问令牌")
+    public Result<Map<String, String>> refreshToken() {
+        try {
+            LoginUser loginUser = SecurityUtils.getLoginUser();
+            if (loginUser == null) {
+                // This scenario implies the security filter didn't authenticate properly
+                return Result.error(HttpStatus.UNAUTHORIZED, "用户未登录或认证信息无效");
+            }
+
+            // Generate a new token using the existing LoginUser details
+            // The createToken method handles updating the cache as well
+            String newToken = tokenService.createToken(loginUser);
+
+            Map<String, String> tokenMap = new HashMap<>();
+            tokenMap.put("token", newToken);
+
+            return Result.success("Token刷新成功", tokenMap);
+        } catch (Exception e) {
+            // TODO: Add proper logging for the exception
+            // logger.error("Error refreshing token for user: {}", SecurityUtils.getUsername(), e);
+            return Result.error("Token刷新失败: " + e.getMessage());
         }
     }
 }
