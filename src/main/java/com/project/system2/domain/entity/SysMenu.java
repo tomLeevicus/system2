@@ -29,7 +29,7 @@ public class SysMenu extends BaseEntity {
     private Long parentId;
 
     /** 菜单名称 */
-    @NotBlank(message = "菜单名称不能为空")
+//    @NotBlank(message = "菜单名称不能为空")
     @Size(min = 0, max = 50, message = "菜单名称长度不能超过50个字符")
     @Schema(description = "菜单名称", example = "系统管理")
     private String menuName;

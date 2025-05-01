@@ -488,28 +488,15 @@ public class ActProcessInstanceController {
     }
 
     /**
-     * 获取用户发起的流程任务列表
+     * 获取用户发起的流程任务
      */
     @PreAuthorize("@ss.hasPermi('workflow:instance:list')")
     @GetMapping("/user-tasks")
     @Operation(summary = "获取用户发起的流程任务", description = "分页查询当前用户发起的流程任务列表")
     public Result<Page<ActProcessInstance>> getUserTasks(@Valid TaskQuery query) {
         try {
-            // 构建查询条件
-            ProcessInstanceQuery processQuery = new ProcessInstanceQuery();
-            processQuery.setPageNum(query.getPageNum());
-            processQuery.setPageSize(query.getPageSize());
-            processQuery.setName(query.getProcessName());
-            processQuery.setStatus(query.getStatus());
-            processQuery.setStartTimeBegin(query.getStartTimeBegin());
-            processQuery.setStartTimeEnd(query.getStartTimeEnd());
-            processQuery.setOrderBy(query.getOrderByColumn());
-            
-            // 设置当前用户ID
-            processQuery.setStartUserId(SecurityUtils.getUserId());
-            
-            // 查询用户发起的流程实例
-            Page<ActProcessInstance> page = processInstanceService.listProcessInstances(processQuery);
+            // 调用 Service 层方法处理查询逻辑
+            Page<ActProcessInstance> page = processInstanceService.listUserTasks(query);
             return Result.success(page);
         } catch (Exception e) {
             log.error("获取用户发起的流程任务失败", e);

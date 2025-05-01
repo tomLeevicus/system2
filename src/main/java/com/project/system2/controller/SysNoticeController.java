@@ -42,7 +42,7 @@ public class SysNoticeController {
      * 根据通知公告编号获取详细信息
      */
     @PreAuthorize("@ss.hasPermi('system:notice:query')")
-    @GetMapping(value = "/{noticeId}")
+    @GetMapping(value = "/get/{noticeId}")
     @Operation(summary = "获取通知公告详情", description = "根据通知公告ID获取详细信息")
     public Result<SysNotice> getInfo(@PathVariable Long noticeId) {
         return Result.success(noticeService.getNoticeById(noticeId));

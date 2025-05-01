@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.query.SysUserQuery;
+import com.project.system2.domain.dto.UserDTO;
 import com.project.system2.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,6 +38,19 @@ public class SysUserController {
     public Result<Page<SysUser>> list(SysUserQuery query) {
         Page<SysUser> page = new Page<>(query.getPageNum(), query.getPageSize());
         return Result.success(userService.selectUserPage(page, query));
+    }
+
+    /**
+     * 根据用户ID获取详细信息
+     */
+    @PreAuthorize("@ss.hasPermi('system:user:query')")
+    @GetMapping(value = "/get/{userId}")
+    @Operation(summary = "获取用户详细信息", description = "根据用户ID获取用户信息、部门、角色及权限信息")
+    @Parameter(name = "userId", description = "用户ID", example = "1001", required = true)
+    public Result<SysUser> getInfo(@PathVariable(value = "userId") Long userId)
+    {
+        SysUser user = userService.getUserById(userId);
+        return Result.success(user);
     }
 
     /**
@@ -97,8 +111,29 @@ public class SysUserController {
             long l = Long.parseLong(String.valueOf(a));
             return l;
         }).collect(Collectors.toList());
-        Integer a = (Integer) map.get("userId");
-        long userId = a.longValue();
+        map.get("userId");
+        long userId = Long.parseLong(map.get("userId").toString());
         return userService.updateUserRole(userId, roleIds) ? Result.success() : Result.error();
     }
+
+    /**
+     * 用户修改密码
+     */
+    // @PreAuthorize("@ss.hasPermi('system:user:changePwd')") // 您可以根据需要添加权限控制
+    @PutMapping("/changePwd")
+    @Operation(summary = "修改用户密码", description = "用户修改自己的登录密码")
+    @Parameter(name = "userDto", description = "包含用户ID、旧密码和新密码的对象", required = true)
+    public Result<Void> changePassword(@Validated @RequestBody UserDTO userDto) {
+        // 调用服务层方法处理密码修改逻辑
+        boolean success = userService.changeUserPassword(userDto);
+        if (success) {
+            return Result.success();
+        } else {
+            // 服务层应抛出或返回更具体的错误信息，这里简化处理
+            return Result.error("密码修改失败，请检查旧密码是否正确"); 
+        }
+    }
+
+    
+    
 } 

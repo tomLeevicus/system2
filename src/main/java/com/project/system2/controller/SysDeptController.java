@@ -3,6 +3,7 @@ package com.project.system2.controller;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.SysDept;
 import com.project.system2.domain.query.SysDeptQuery;
+import com.project.system2.domain.dto.AssignUsersToDeptDto;
 import com.project.system2.service.ISysDeptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,7 +41,7 @@ public class SysDeptController {
     @GetMapping("/treeselect")
     public Result<List<SysDept>> treeselect(SysDeptQuery query) {
         List<SysDept> depts = deptService.selectDeptList(query);
-        return Result.success(deptService.buildDeptTree(depts));
+        return Result.success(depts);
     }
 
     /**
@@ -100,6 +101,18 @@ public class SysDeptController {
             return Result.error("部门存在用户,不允许删除");
         }
         return deptService.deleteDept(deptId) ? Result.success() : Result.error();
+    }
+
+    /**
+     * 分配用户到部门
+     */
+    @PreAuthorize("@ss.hasPermi('system:dept:assign')")
+    @PostMapping("/assignUsers")
+    @Operation(summary = "分配用户到部门", description = "将指定用户列表分配到指定部门")
+    @Parameter(name = "dto", description = "包含部门ID和用户ID列表的对象", required = true)
+    public Result<Void> assignUsersToDept(@Validated @RequestBody AssignUsersToDeptDto dto) {
+        deptService.assignUsersToDept(dto);
+        return Result.success();
     }
 
     /*@PutMapping("/status")

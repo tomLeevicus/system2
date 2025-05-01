@@ -8,6 +8,7 @@ import com.project.system2.domain.entity.SysRole;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.entity.SysUserDept;
 import com.project.system2.domain.query.SysDeptQuery;
+import com.project.system2.domain.dto.AssignUsersToDeptDto;
 import com.project.system2.mapper.SysDeptMapper;
 import com.project.system2.mapper.SysRoleMapper;
 import com.project.system2.mapper.SysUserDeptMapper;
@@ -16,6 +17,7 @@ import com.project.system2.service.ISysDeptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -171,5 +173,43 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
         }
         
         return null; // User is not associated with any department
+    }
+
+    @Override
+    @Transactional
+    public void assignUsersToDept(AssignUsersToDeptDto dto) {
+        Long deptId = dto.getDeptId();
+        List<Long> userIds = dto.getUserIds();
+
+        if (deptId == null || CollectionUtils.isEmpty(userIds)) {
+            // 可以选择抛出异常或直接返回
+            return; 
+        }
+
+        // 1. 先删除这些指定用户所有的旧部门关联
+        LambdaQueryWrapper<SysUserDept> deleteWrapper = new LambdaQueryWrapper<>();
+        deleteWrapper.in(SysUserDept::getUserId, userIds);
+        sysUserDeptMapper.delete(deleteWrapper);
+
+        // 2. 批量插入新的关联关系 (指定用户 <-> 目标部门)
+        List<SysUserDept> userDeptList = new ArrayList<>();
+        for (Long userId : userIds) {
+            SysUserDept userDept = new SysUserDept();
+            userDept.setUserId(userId);
+            userDept.setDeptId(deptId);
+            // userDept.setPostSort(1); // 设置默认排序，如果需要
+            userDeptList.add(userDept);
+        }
+
+        // 使用自定义的批量插入方法（如果实现了SQL）或循环插入
+        if (!userDeptList.isEmpty()) {
+            // 方案一: 如果 SysUserDeptMapper.xml 中实现了 insertBatch
+            // sysUserDeptMapper.insertBatch(userDeptList);
+            
+            // 方案二: 循环单条插入（如果批量插入未实现或数据量不大）
+            for (SysUserDept userDept : userDeptList) {
+                sysUserDeptMapper.insert(userDept);
+            }
+        }
     }
 } 

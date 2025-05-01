@@ -84,4 +84,11 @@ public interface IActProcessInstanceService {
      * @return 后续节点列表
      */
     List<FlowElement> getNextFlowElements(String taskId);
+
+    /**
+     * 分页查询指定用户发起的流程任务列表
+     * @param query 查询条件 (包含分页信息, 使用 TaskQuery 类型接收前端参数)
+     * @return 分页结果
+     */
+    Page<ActProcessInstance> listUserTasks(com.project.system2.domain.query.TaskQuery query);
 }

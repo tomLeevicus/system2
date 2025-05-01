@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.AssetStorage;
 import com.project.system2.domain.query.AssetStorageQuery;
+import java.util.List;
 
 public interface IAssetStorageService {
     /**
@@ -30,4 +31,11 @@ public interface IAssetStorageService {
      * 删除资产入库记录
      */
     Result<Boolean> deleteById(Long id);
+
+    /**
+     * 批量审核资产入库记录
+     * @param storageIds 入库记录ID列表
+     * @return 操作结果
+     */
+    Result<Boolean> approveStorageBatch(List<Long> storageIds);
 } 

@@ -148,5 +148,8 @@
         JOIN sys_role r ON ur.role_id = r.role_id
         WHERE r.role_id = 100 AND r.role_key = 'asset_approval'
     </select>
+    <select id="getUserInfoHasPassword" resultType="com.project.system2.domain.entity.SysUser">
+        select * from sys_user where id = ${id}
+    </select>
 
 </mapper> 

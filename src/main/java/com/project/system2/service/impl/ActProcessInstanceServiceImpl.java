@@ -8,6 +8,7 @@ import com.project.system2.domain.entity.ActProcessInstance;
 import com.project.system2.domain.entity.ActTaskInfo;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.query.ProcessInstanceQuery;
+import com.project.system2.domain.query.TaskQuery;
 import com.project.system2.mapper.ActProcessInstanceMapper;
 import com.project.system2.mapper.SysUserMapper;
 import com.project.system2.service.IActProcessInstanceService;
@@ -112,11 +113,9 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
                 ActProcessInstance::getStartTime, query.getStartTimeBegin())
             .le(query.getStartTimeEnd() != null, 
                 ActProcessInstance::getStartTime, query.getStartTimeEnd())
-            .ge(query.getEndTimeBegin() != null, 
-                ActProcessInstance::getEndTime, query.getEndTimeBegin())
-            .le(query.getEndTimeEnd() != null, 
-                ActProcessInstance::getEndTime, query.getEndTimeEnd());
-        
+            
+            ; // Add semicolon to terminate the wrapper chain here
+
         // 处理排序
         if (StringUtils.hasText(query.getOrderBy())) {
             String[] orders = query.getOrderBy().split(",");
@@ -520,5 +519,42 @@ public class ActProcessInstanceServiceImpl implements IActProcessInstanceService
             log.error("获取后续节点失败: {}", e.getMessage());
             throw e;
         }
+    }
+
+    @Override
+    public Page<ActProcessInstance> listUserTasks(TaskQuery query) {
+        // 1. 构建 ProcessInstanceQuery 对象，用于传递给底层的 listProcessInstances 方法
+        ProcessInstanceQuery processQuery = new ProcessInstanceQuery();
+
+        // 2. 设置分页参数
+        processQuery.setPageNum(query.getPageNum());
+        processQuery.setPageSize(query.getPageSize());
+
+        // 3. 设置必须的查询条件 - 发起人ID
+        processQuery.setStartUserId(SecurityUtils.getUserId());
+
+        // 4. 条件性地从 TaskQuery 复制查询参数到 ProcessInstanceQuery
+        if (org.springframework.util.StringUtils.hasText(query.getProcessName())) {
+            processQuery.setName(query.getProcessName());
+        }
+        if (org.springframework.util.StringUtils.hasText(query.getStatus())) {
+            processQuery.setStatus(query.getStatus());
+        }
+        if (query.getStartTimeBegin() != null) {
+            processQuery.setStartTimeBegin(query.getStartTimeBegin());
+        }
+        if (query.getStartTimeEnd() != null) {
+            processQuery.setStartTimeEnd(query.getStartTimeEnd());
+        }
+        if (org.springframework.util.StringUtils.hasText(query.getOrderByColumn())) {
+            // Set the orderBy string directly from TaskQuery's orderByColumn
+            // The listProcessInstances method's internal logic handles parsing this.
+            processQuery.setOrderBy(query.getOrderByColumn());
+        }
+        // 注意: TaskQuery 中的其他字段如果 ProcessInstanceQuery 支持，也应在此处映射
+
+        // 5. 调用现有的 listProcessInstances 方法执行查询
+        // 这个方法内部已经处理了 Mybatis Plus 的 Wrapper 构建和分页查询
+        return this.listProcessInstances(processQuery);
     }
 } 

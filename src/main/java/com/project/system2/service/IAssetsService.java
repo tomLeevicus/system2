@@ -5,6 +5,7 @@ import com.project.system2.domain.entity.Assets;
 import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.query.AssetsQuery;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,4 +49,11 @@ public interface IAssetsService {
      * @return Map<String, Long> 状态 -> 数量
      */
     Map<String, Long> getAssetStatisticsByStatus();
+
+    /**
+     * 批量保存资产信息
+     * @param assetsList 资产列表
+     * @return 是否成功
+     */
+    boolean saveBatchAssets(List<Assets> assetsList);
 } 

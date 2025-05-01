@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.HashMap;
 import java.util.Arrays;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AssetsServiceImpl extends ServiceImpl<AssetsMapper, Assets> implements IAssetsService {
@@ -149,5 +150,17 @@ public class AssetsServiceImpl extends ServiceImpl<AssetsMapper, Assets> impleme
             // Add other status codes as needed
             default: return "状态[" + status + "]";
         }
+    }
+
+    /**
+     * 批量保存资产信息
+     * 利用 ServiceImpl 的 saveBatch 方法实现
+     * @param assetsList 资产列表
+     * @return 是否成功
+     */
+    @Override
+    @Transactional // 建议在实现类方法上也加上事务注解，虽然调用方已有
+    public boolean saveBatchAssets(List<Assets> assetsList) {
+        return saveBatch(assetsList); // 调用 ServiceImpl 的 saveBatch 方法
     }
 } 

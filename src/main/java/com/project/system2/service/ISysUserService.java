@@ -1,6 +1,7 @@
 package com.project.system2.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.project.system2.domain.dto.UserDTO;
 import com.project.system2.domain.entity.SysUser;
 import com.project.system2.domain.query.SysUserQuery;
 
@@ -44,4 +45,11 @@ public interface ISysUserService {
      * 获取资产审批员列表
      */
     List<SysUser> getApprovalUsers();
+
+    /**
+     * 用户修改密码
+     * @param userDto 包含用户ID、旧密码和新密码的对象
+     * @return 是否成功
+     */
+    boolean changeUserPassword(UserDTO userDto);
 } 

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 
 @RestController
 @RequestMapping("/asset/storage")
@@ -68,5 +69,18 @@ public class AssetStorageController {
     @Parameter(name = "id", description = "入库记录ID", example = "400", required = true)
     public Result<Boolean> remove(@PathVariable Long id) {
         return assetStorageService.deleteById(id);
+    }
+
+    /**
+     * 批量审核资产入库记录
+     * 审核通过后，根据入库数量在 Assets 表中创建对应的资产记录
+     */
+    @PostMapping("/approve/batch")
+    @Operation(summary = "批量审核入库记录", description = "批量审核通过指定ID列表的资产入库记录，并生成资产信息")
+    public Result<Boolean> approveBatch(@RequestBody List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Result.error("请提供需要审核的入库记录ID列表。");
+        }
+        return assetStorageService.approveStorageBatch(ids);
     }
 } 

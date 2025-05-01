@@ -2,6 +2,7 @@ package com.project.system2.service;
 
 import com.project.system2.domain.entity.SysDept;
 import com.project.system2.domain.query.SysDeptQuery;
+import com.project.system2.domain.dto.AssignUsersToDeptDto;
 import java.util.List;
 
 public interface ISysDeptService {
@@ -39,4 +40,10 @@ public interface ISysDeptService {
      * @return 主部门信息，如果未分配则返回null
      */
     SysDept getPrimaryDeptByUserId(Long userId);
+    
+    /**
+     * 分配用户到指定部门
+     * @param dto 包含部门ID和用户ID列表的DTO
+     */
+    void assignUsersToDept(AssignUsersToDeptDto dto);
 } 

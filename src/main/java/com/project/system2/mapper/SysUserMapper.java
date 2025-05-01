@@ -49,4 +49,6 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * 获取资产审批员列表
      */
     List<SysUser> selectApprovalUsers();
-} 
+
+    SysUser getUserInfoHasPassword(@Param("id") Long id);
+}

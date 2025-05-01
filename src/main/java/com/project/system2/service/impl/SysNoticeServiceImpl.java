@@ -60,8 +60,8 @@ public class SysNoticeServiceImpl extends ServiceImpl<SysNoticeMapper, SysNotice
 
     @Override
     public SysNotice getNoticeById(Long noticeId) {
-        // 查询通知信息
-        SysNotice notice = getById(noticeId);
+            // 查询通知信息
+            SysNotice notice = getById(noticeId);
         if (notice != null) {
             // 查询附件信息
             List<SysNoticeAttachment> attachments = noticeAttachmentMapper.selectList(
@@ -78,7 +78,8 @@ public class SysNoticeServiceImpl extends ServiceImpl<SysNoticeMapper, SysNotice
     public boolean addNotice(SysNotice notice) {
         // 设置创建人信息
         EntityUtils.setCreateAndUpdateInfo(notice,true);
-        
+        // 设置创建人名称
+        notice.setCreateByName(SecurityUtils.getUsername());
         // 保存通知信息
         boolean result = save(notice);
         
