@@ -5,15 +5,18 @@ import com.project.system2.common.core.domain.Result;
 import com.project.system2.domain.entity.Assets;
 import com.project.system2.domain.query.AssetsQuery;
 import com.project.system2.service.IAssetsService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
+@Tag(name = "资产管理", description = "固定资产管理相关接口")
 @RestController
 @RequestMapping("/assets")
-@Tag(name = "资产管理", description = "固定资产管理相关接口")
 public class AssetsController {
 
     @Autowired
@@ -76,6 +79,15 @@ public class AssetsController {
     @Parameter(name = "id", description = "资产ID", example = "1001", required = true)
     public Result<Boolean> remove(@PathVariable Long id) {
         return assetsService.deleteAsset(id);
+    }
+
+    @Operation(summary = "批量计算并更新资产折旧")
+    @PostMapping("/calculate-depreciation")
+    public Result<Map<String, Object>> calculateDepreciation(@RequestBody List<Long> assetIds) {
+        if (assetIds == null || assetIds.isEmpty()) {
+            return Result.error("资产ID列表不能为空");
+        }
+        return assetsService.calculateAndApplyDepreciation(assetIds);
     }
 
 } 

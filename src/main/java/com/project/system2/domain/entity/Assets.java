@@ -78,8 +78,8 @@ public class Assets extends BaseEntity {
     /**
     * 资产价格-数字
     */
-    @Schema(description = "采购价格数值", example = "15000")
-    private Integer assetPriceNum;
+    @Schema(description = "采购价格(原值)", example = "15000.00")
+    private BigDecimal assetPriceNum;
 
     /**
     * 资产价格-单位id
@@ -99,15 +99,48 @@ public class Assets extends BaseEntity {
     @Schema(description = "数据状态（0-正常，1-删除）", example = "0")
     private Integer assetStatus;
 
-    /*@Schema(description = "资产分类路径", example = "电子设备/笔记本电脑")
-    private String categoryPath;
+    /**
+     * 折旧计算方式 1:年限平均法 2:工作量法 3:双倍余额递减法 4:年数总和法
+     */
+    @Schema(description = "折旧计算方式 (1:年限平均法, 2:工作量法, 3:双倍余额递减法, 4:年数总和法)", example = "1")
+    private Integer depreciationMethod;
 
-    @Schema(description = "使用年限（年）", example = "5")
+    /**
+     * 现有估值
+     */
+    @Schema(description = "资产当前估值", example = "8500.50")
+    private BigDecimal estimatedValue;
+
+    /**
+     * 预计净残值
+     */
+    @Schema(description = "预计净残值", example = "500.00")
+    private BigDecimal salvageValue;
+
+    /**
+     * 累计折旧额
+     */
+    @Schema(description = "累计折旧额", example = "6500.00")
+    private BigDecimal accumulatedDepreciation;
+
+    /**
+     * 预计总工作量 (用于工作量法)
+     */
+    @Schema(description = "预计总工作量 (例如: 总打印页数、总行驶里程)", example = "100000")
+    private BigDecimal totalProductionUnits;
+
+    /*@Schema(description = "资产分类路径", example = "电子设备/笔记本电脑")
+    private String categoryPath;*/
+
+    @Schema(description = "预计使用年限（年）", example = "5")
     private Integer serviceLife;
 
-    @Schema(description = "折旧率（百分比）", example = "20.00")
+    /*@Schema(description = "折旧率（百分比）", example = "20.00")
     private BigDecimal depreciationRate;
 
     @Schema(description = "维保状态（0-在保，1-过保）", example = "0")
     private Integer maintenanceStatus;*/
+
+    @Schema(description = "折旧计算时间", example = "2023-03-15")
+    private Date depreciationCalculationTime;
 }

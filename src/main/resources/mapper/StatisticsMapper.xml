@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.project.system2.mapper.StatisticsMapper">
+
+    <!-- 按年份查询每月资产数量 -->
+    <select id="selectAssetsCountByYearMonthly" resultType="map">
+        SELECT
+            MONTH(create_time) AS month,
+            COUNT(*) AS count
+        FROM
+            assets <!-- 确保这里的表名 assets 是正确的 -->
+        WHERE
+            YEAR(create_time) = #{year}
+        GROUP BY
+            MONTH(create_time)
+        ORDER BY
+            month ASC
+    </select>
+
+    <!-- 按年月查询每日资产数量 -->
+    <select id="selectAssetsCountByMonthDaily" resultType="map">
+        SELECT
+            DAYOFMONTH(create_time) AS day,
+            COUNT(*) AS count
+        FROM
+            assets <!-- 确保这里的表名 assets 是正确的 -->
+        WHERE
+            YEAR(create_time) = #{year}
+          AND MONTH(create_time) = #{month}
+        GROUP BY
+            DAYOFMONTH(create_time)
+        ORDER BY
+            day ASC
+    </select>
+
+    <!-- 按年月日查询当日资产数量 -->
+    <select id="selectAssetsCountByDay" resultType="long">
+        SELECT
+            COUNT(*)
+        FROM
+            assets <!-- 确保这里的表名 assets 是正确的 -->
+        WHERE
+            YEAR(create_time) = #{year}
+          AND MONTH(create_time) = #{month}
+          AND DAYOFMONTH(create_time) = #{day}
+    </select>
+
+</mapper> 
