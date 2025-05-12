@@ -49,9 +49,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String login(String username, String password, String code,String uuid) {
         // 验证码校验
-        /*if (!validateCaptcha(code,uuid)) {
+        if (!validateCaptcha(uuid,code)) {
             throw new BadCredentialsException("验证码错误");
-        }*/
+        }
         
         // 1. 验证用户名密码
         SysUser user = userMapper.selectUserByUserName(username);

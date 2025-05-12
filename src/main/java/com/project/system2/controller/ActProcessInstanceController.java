@@ -96,7 +96,7 @@ public class ActProcessInstanceController {
             customInstance.setStartUserId(SecurityUtils.getUserId());
             customInstance.setStartUserName(SecurityUtils.getUsername());
             customInstance.setBusinessKey(processKey);
-            customInstance.setName(instance.getName());
+            customInstance.setName((String) variables.get("processName"));
             customInstance.setStatus("running");
             customInstance.setProcessDefinitionVersion(instance.getProcessDefinitionVersion());
             customInstance.setStartTime(instance.getStartTime());

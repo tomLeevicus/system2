@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.math.BigDecimal;
 import java.util.Date;
 import lombok.Data;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -56,7 +58,7 @@ public class AssetStorage extends BaseEntity {
      */
     @TableField(value = "asset_price_num")
     @Schema(description = "资产单价", example = "15000")
-    private Integer assetPriceNum;
+    private BigDecimal assetPriceNum;
 
     /**
      * 资产价格-单位id (新增)

@@ -56,4 +56,11 @@ public interface IAssetsService {
      * @return 是否成功
      */
     boolean saveBatchAssets(List<Assets> assetsList);
+
+    /**
+     * 批量计算并更新资产折旧
+     * @param assetIds 资产ID列表
+     * @return 包含更新结果和错误信息的Map
+     */
+    Result<Map<String, Object>> calculateAndApplyDepreciation(List<Long> assetIds);
 } 
